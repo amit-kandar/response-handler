@@ -16,7 +16,7 @@ function sendError(res: Response, error: AppError): Response {
     type: error.type || 'AppError',
     details: error.details || null,
   });
-  
+
   const statusCode = error.statusCode || 400;
   return res.status(statusCode).json(payload);
 }

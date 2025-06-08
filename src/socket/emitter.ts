@@ -22,9 +22,16 @@ interface EmitErrorParams {
   socketId?: string;
 }
 
-function emitSuccess({ socket, event, data = {}, message = 'Success', room, socketId }: EmitSuccessParams): void {
+function emitSuccess({
+  socket,
+  event,
+  data = {},
+  message = 'Success',
+  room,
+  socketId,
+}: EmitSuccessParams): void {
   const payload = formatResponse(true, data, message);
-  
+
   if (socketId) {
     socket.to(socketId).emit(event, payload);
   } else if (room) {
@@ -39,7 +46,7 @@ function emitError({ socket, event, error, room, socketId }: EmitErrorParams): v
     type: error.type || 'AppError',
     details: error.details || null,
   });
-  
+
   if (socketId) {
     socket.to(socketId).emit(event, payload);
   } else if (room) {

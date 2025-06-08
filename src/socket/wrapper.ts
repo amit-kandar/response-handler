@@ -13,10 +13,10 @@ function socketWrapper(handler: SocketHandler) {
     try {
       await handler(socket, data);
     } catch (error) {
-      emitError({ 
-        socket, 
-        event: data?.event || 'error', 
-        error: error as Error 
+      emitError({
+        socket,
+        event: data?.event || 'error',
+        error: error as Error,
       });
     }
   };
