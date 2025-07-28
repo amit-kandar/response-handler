@@ -1,6 +1,45 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  testMatch: ['**/*.test.ts'],
-  rootDir: './src',
+  roots: ['<rootDir>/src', '<rootDir>/test'],
+  testMatch: [
+    '<rootDir>/test/**/*.test.ts',
+    '<rootDir>/src/**/*.test.ts'
+  ],
+  setupFilesAfterEnv: ['<rootDir>/test/helpers/setup.ts'],
+  collectCoverageFrom: [
+    'src/**/*.ts',
+    '!src/**/*.test.ts',
+    '!src/**/*.d.ts',
+    '!src/examples/**',
+  ],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov', 'html'],
+  testTimeout: 30000,
+  projects: [
+    {
+      displayName: 'unit',
+      preset: 'ts-jest',
+      testEnvironment: 'node',
+      testMatch: ['<rootDir>/test/unit/**/*.test.ts'],
+      setupFilesAfterEnv: ['<rootDir>/test/helpers/setup.ts'],
+      roots: ['<rootDir>/test/unit', '<rootDir>/src'],
+    },
+    {
+      displayName: 'integration',
+      preset: 'ts-jest',
+      testEnvironment: 'node',
+      testMatch: ['<rootDir>/test/integration/**/*.test.ts'],
+      setupFilesAfterEnv: ['<rootDir>/test/helpers/setup.ts'],
+      roots: ['<rootDir>/test/integration', '<rootDir>/src'],
+    },
+    {
+      displayName: 'e2e',
+      preset: 'ts-jest',
+      testEnvironment: 'node',
+      testMatch: ['<rootDir>/test/e2e/**/*.test.ts'],
+      setupFilesAfterEnv: ['<rootDir>/test/helpers/setup.ts'],
+      roots: ['<rootDir>/test/e2e', '<rootDir>/src'],
+    },
+  ],
 };
