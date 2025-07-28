@@ -89,6 +89,14 @@ io.on('connection', (socket) => {
 npm install @amitkandar/response-handler
 ```
 
+## 🚀 Deploy Documentation
+
+Deploy this documentation site to Vercel with one click:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/amit-kandar/response-handler)
+
+Or follow the [Vercel Deployment Guide](./VERCEL_DEPLOYMENT.md) for detailed instructions.
+
 ## Why Response Handler?
 
 Modern applications need consistent, secure, and performant response handling. Response Handler provides:
