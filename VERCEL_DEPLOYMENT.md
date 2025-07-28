@@ -86,6 +86,7 @@ vercel env add VARIABLE_NAME
 If automatic detection doesn't work:
 
 ### Build Settings
+
 - **Framework**: Other
 - **Build Command**: `npm run docs:build`
 - **Output Directory**: `.vitepress/dist`
@@ -93,7 +94,9 @@ If automatic detection doesn't work:
 - **Node.js Version**: 18.x
 
 ### Environment Variables
+
 Usually not needed for static documentation, but you can add:
+
 - `NODE_ENV=production`
 - `CI=true`
 
@@ -125,7 +128,7 @@ export default {
   title: 'Response Handler',
   description: 'Your documentation description',
   // ... other config
-}
+};
 ```
 
 ## 🔄 Automatic Deployments
@@ -159,15 +162,15 @@ export default {
 export default {
   head: [
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
-    ['link', { rel: 'dns-prefetch', href: 'https://fonts.gstatic.com' }]
+    ['link', { rel: 'dns-prefetch', href: 'https://fonts.gstatic.com' }],
   ],
   themeConfig: {
     // Enable search for better UX
     search: {
-      provider: 'local'
-    }
-  }
-}
+      provider: 'local',
+    },
+  },
+};
 ```
 
 ## 🔍 Monitoring & Analytics
@@ -181,29 +184,29 @@ npm install @vercel/analytics
 
 ```javascript
 // Add to .vitepress/theme/index.js
-import { inject } from '@vercel/analytics'
-import DefaultTheme from 'vitepress/theme'
+import { inject } from '@vercel/analytics';
+import DefaultTheme from 'vitepress/theme';
 
 export default {
   ...DefaultTheme,
   enhanceApp({ app, router, siteData }) {
     if (typeof window !== 'undefined') {
-      inject()
+      inject();
     }
-  }
-}
+  },
+};
 ```
 
 ## 🐛 Troubleshooting
 
 ### Common Issues
 
-| Issue | Solution |
-|-------|----------|
-| Build fails | Check Node.js version, use 18.x |
-| 404 errors | Ensure rewrites are configured in vercel.json |
-| Slow builds | Use `npm ci` instead of `npm install` |
-| Asset loading issues | Check output directory path |
+| Issue                | Solution                                      |
+| -------------------- | --------------------------------------------- |
+| Build fails          | Check Node.js version, use 18.x               |
+| 404 errors           | Ensure rewrites are configured in vercel.json |
+| Slow builds          | Use `npm ci` instead of `npm install`         |
+| Asset loading issues | Check output directory path                   |
 
 ### Debug Commands
 
@@ -222,6 +225,7 @@ vercel dev
 ### Build Logs
 
 Check build logs in Vercel dashboard:
+
 1. **Functions** tab → **Build Logs**
 2. Look for specific error messages
 3. Verify all dependencies are installed
@@ -234,7 +238,7 @@ Check build logs in Vercel dashboard:
 # Development environment
 vercel --target development
 
-# Preview environment  
+# Preview environment
 vercel --target preview
 
 # Production environment
@@ -255,7 +259,7 @@ vercel --target production --prod
 ```javascript
 // api/health.js
 export default function handler(req, res) {
-  res.status(200).json({ status: 'healthy' })
+  res.status(200).json({ status: 'healthy' });
 }
 ```
 
@@ -296,9 +300,9 @@ VitePress is mobile-responsive by default, but you can enhance it:
 export default {
   head: [
     ['meta', { name: 'viewport', content: 'width=device-width,initial-scale=1' }],
-    ['meta', { name: 'theme-color', content: '#646cff' }]
-  ]
-}
+    ['meta', { name: 'theme-color', content: '#646cff' }],
+  ],
+};
 ```
 
 ## 🎯 Benefits of Vercel Hosting
@@ -310,7 +314,7 @@ export default {
 ✅ **Custom Domains**: Easy domain configuration  
 ✅ **Analytics**: Built-in performance monitoring  
 ✅ **Edge Functions**: Serverless capabilities  
-✅ **Git Integration**: Automatic deployments  
+✅ **Git Integration**: Automatic deployments
 
 Your documentation will be available at: `https://your-project.vercel.app`
 

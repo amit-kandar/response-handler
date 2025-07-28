@@ -32,7 +32,7 @@ The repository includes optimized Vercel configuration:
 ✅ **Mobile Responsive** - Works perfectly on all devices  
 ✅ **Search Functionality** - Built-in search across all documentation  
 ✅ **Dark/Light Theme** - Automatic theme switching  
-✅ **Fast Loading** - Optimized for performance  
+✅ **Fast Loading** - Optimized for performance
 
 ## Manual Deployment
 
