@@ -40,21 +40,30 @@ export class EnhancedSocketHandler {
 
     if (error && typeof error === 'object') {
       const errorObj = error as Record<string, unknown>;
-      
+
       if (allowedFields.includes('message')) {
-        errorInfo.message = (typeof errorObj.message === 'string' ? errorObj.message : 'An error occurred');
-      }
-      
-      if (allowedFields.includes('type')) {
-        errorInfo.type = (typeof errorObj.type === 'string' ? errorObj.type : 
-                        typeof errorObj.name === 'string' ? errorObj.name : 'SocketError');
-      }
-      
-      if (allowedFields.includes('code')) {
-        errorInfo.code = (typeof errorObj.code === 'string' ? errorObj.code : 'SOCKET_ERROR');
+        errorInfo.message =
+          typeof errorObj.message === 'string' ? errorObj.message : 'An error occurred';
       }
 
-      if (isDevelopment && this.config.logging?.includeStack && typeof errorObj.stack === 'string') {
+      if (allowedFields.includes('type')) {
+        errorInfo.type =
+          typeof errorObj.type === 'string'
+            ? errorObj.type
+            : typeof errorObj.name === 'string'
+              ? errorObj.name
+              : 'SocketError';
+      }
+
+      if (allowedFields.includes('code')) {
+        errorInfo.code = typeof errorObj.code === 'string' ? errorObj.code : 'SOCKET_ERROR';
+      }
+
+      if (
+        isDevelopment &&
+        this.config.logging?.includeStack &&
+        typeof errorObj.stack === 'string'
+      ) {
         errorInfo.stack = errorObj.stack;
       }
 
@@ -66,7 +75,12 @@ export class EnhancedSocketHandler {
     return errorInfo;
   }
 
-  private buildResponse(success: boolean, data?: unknown, message?: string, error?: unknown): ApiResponse {
+  private buildResponse(
+    success: boolean,
+    data?: unknown,
+    message?: string,
+    error?: unknown,
+  ): ApiResponse {
     const response: ApiResponse = { success };
 
     if (success) {
@@ -97,7 +111,10 @@ export class EnhancedSocketHandler {
     });
 
     if (!this.socket || typeof this.socket.emit !== 'function') {
-      this.logger.error('Socket is not properly initialized', { event: this.event, data: responseData });
+      this.logger.error('Socket is not properly initialized', {
+        event: this.event,
+        data: responseData,
+      });
       return;
     }
 
@@ -132,7 +149,8 @@ export class EnhancedSocketHandler {
       unauthorized: (error?: unknown, message?: string) => handler.unauthorized(error, message),
       forbidden: (error?: unknown, message?: string) => handler.forbidden(error, message),
       notFound: (error?: unknown, message?: string) => handler.notFound(error, message),
-      emit: (event: string, data?: unknown, statusCode?: number) => handler.customEmit(event, data, statusCode),
+      emit: (event: string, data?: unknown, statusCode?: number) =>
+        handler.customEmit(event, data, statusCode),
       toRoom: (room: string) => handler.toRoom(room),
       toSocket: (socketId: string) => handler.toSocket(socketId),
     };
@@ -159,11 +177,14 @@ export class EnhancedSocketHandler {
       });
     }
 
-    const errorObj = error && typeof error === 'object' ? 
-      { ...(error as Record<string, unknown>), code: code || (error as any).code } : 
-      { message: String(error), code };
-    const errorMessage = error && typeof error === 'object' && 'message' in error ? 
-      (error as any).message : 'An error occurred';
+    const errorObj =
+      error && typeof error === 'object'
+        ? { ...(error as Record<string, unknown>), code: code || (error as any).code }
+        : { message: String(error), code };
+    const errorMessage =
+      error && typeof error === 'object' && 'message' in error
+        ? (error as any).message
+        : 'An error occurred';
     const response = this.buildResponse(false, undefined, errorMessage, errorObj);
     this.emit(response, 400);
   }
@@ -192,10 +213,10 @@ export class EnhancedSocketHandler {
   public customEmit(event: string, data?: any, statusCode?: number): void {
     const oldEvent = this.event;
     this.event = event;
-    
+
     const response = this.buildResponse(true, data, 'Data emitted');
     this.emit(response, statusCode);
-    
+
     this.event = oldEvent;
   }
 }
@@ -215,11 +236,11 @@ export class SocketResponseHandler {
   }
 
   public wrapper<T extends readonly unknown[]>(
-    handler: (socket: Socket, response: SocketResponse, ...args: T) => Promise<void> | void
+    handler: (socket: Socket, response: SocketResponse, ...args: T) => Promise<void> | void,
   ) {
     return async (socket: Socket, event: string, ...args: T) => {
       const response = this.enhance(socket, event);
-      
+
       try {
         await handler(socket, response, ...args);
       } catch (error) {
@@ -227,7 +248,7 @@ export class SocketResponseHandler {
           socketId: socket.id,
           event,
         });
-        
+
         response.error(error);
       }
     };

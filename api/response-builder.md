@@ -20,6 +20,7 @@ const builder = new ResponseBuilder(config, logger, req, res);
 ## Success Methods
 
 ### `ok(data, message)`
+
 Creates a 200 OK response:
 
 ```typescript
@@ -28,6 +29,7 @@ builder.ok({ users: [...] }, 'Users retrieved successfully');
 ```
 
 ### `created(data, message)`
+
 Creates a 201 Created response:
 
 ```typescript
@@ -36,6 +38,7 @@ builder.created(newUser, 'User created successfully');
 ```
 
 ### `accepted(data, message)`
+
 Creates a 202 Accepted response:
 
 ```typescript
@@ -44,6 +47,7 @@ builder.accepted({ jobId: 123 }, 'Job queued for processing');
 ```
 
 ### `noContent(message)`
+
 Creates a 204 No Content response:
 
 ```typescript
@@ -54,6 +58,7 @@ builder.noContent('User deleted successfully');
 ## Error Methods
 
 ### `badRequest(error, message)`
+
 Creates a 400 Bad Request response:
 
 ```typescript
@@ -62,6 +67,7 @@ builder.badRequest({ field: 'email' }, 'Invalid email format');
 ```
 
 ### `unauthorized(error, message)`
+
 Creates a 401 Unauthorized response:
 
 ```typescript
@@ -70,6 +76,7 @@ builder.unauthorized({ reason: 'invalid_token' }, 'Authentication required');
 ```
 
 ### `forbidden(error, message)`
+
 Creates a 403 Forbidden response:
 
 ```typescript
@@ -78,6 +85,7 @@ builder.forbidden({ role: 'user' }, 'Admin access required');
 ```
 
 ### `notFound(error, message)`
+
 Creates a 404 Not Found response:
 
 ```typescript
@@ -86,6 +94,7 @@ builder.notFound({ id: 123 }, 'User not found');
 ```
 
 ### `conflict(error, message)`
+
 Creates a 409 Conflict response:
 
 ```typescript
@@ -94,6 +103,7 @@ builder.conflict({ email: 'john@example.com' }, 'Email already exists');
 ```
 
 ### `unprocessableEntity(error, message)`
+
 Creates a 422 Unprocessable Entity response:
 
 ```typescript
@@ -102,6 +112,7 @@ builder.unprocessableEntity({ field: 'age' }, 'Age must be a number');
 ```
 
 ### `tooManyRequests(error, message)`
+
 Creates a 429 Too Many Requests response:
 
 ```typescript
@@ -110,6 +121,7 @@ builder.tooManyRequests({ limit: 100 }, 'Rate limit exceeded');
 ```
 
 ### `internalServerError(error, message)`
+
 Creates a 500 Internal Server Error response:
 
 ```typescript
@@ -120,6 +132,7 @@ builder.internalServerError(error, 'Database connection failed');
 ## Generic Methods
 
 ### `respond(statusCode, data, message)`
+
 Creates a custom response with any status code:
 
 ```typescript
@@ -128,6 +141,7 @@ builder.respond(418, { teapot: true }, "I'm a teapot");
 ```
 
 ### `error(error, statusCode)`
+
 Creates an error response with automatic status detection:
 
 ```typescript
@@ -139,6 +153,7 @@ builder.error(error);
 ```
 
 ### `paginate(data, pagination, message)`
+
 Creates a paginated response:
 
 ```typescript
@@ -148,7 +163,7 @@ const pagination = {
   total: 100,
   totalPages: 10,
   hasNext: true,
-  hasPrev: false
+  hasPrev: false,
 };
 
 builder.paginate(users, pagination, 'Users retrieved');
@@ -158,6 +173,7 @@ builder.paginate(users, pagination, 'Users retrieved');
 ## Response Building Process
 
 ### 1. Data Processing
+
 The ResponseBuilder processes input data and applies transformations:
 
 ```typescript
@@ -169,6 +185,7 @@ const processedData = builder.processData(userData);
 ```
 
 ### 2. Error Sanitization
+
 Errors are sanitized based on environment and security settings:
 
 ```typescript
@@ -194,6 +211,7 @@ Errors are sanitized based on environment and security settings:
 ```
 
 ### 3. Metadata Generation
+
 Metadata is automatically added based on configuration:
 
 ```typescript
@@ -216,6 +234,7 @@ Metadata is automatically added based on configuration:
 The ResponseBuilder uses several private methods internally:
 
 ### `buildResponse(success, data, message, error)`
+
 Core method that builds the response object:
 
 ```typescript
@@ -223,6 +242,7 @@ private buildResponse(success: boolean, data?: any, message?: string, error?: an
 ```
 
 ### `sanitizeError(error)`
+
 Sanitizes error objects based on security settings:
 
 ```typescript
@@ -230,6 +250,7 @@ private sanitizeError(error: any): ErrorInfo
 ```
 
 ### `generateMeta()`
+
 Generates metadata for responses:
 
 ```typescript
@@ -237,6 +258,7 @@ private generateMeta(): ResponseMeta
 ```
 
 ### `logResponse(statusCode, responseData, error?)`
+
 Logs response information:
 
 ```typescript
@@ -244,6 +266,7 @@ private logResponse(statusCode: number, responseData: any, error?: any): void
 ```
 
 ### `sendResponse(statusCode, data?, message?, error?)`
+
 Sends the final response with headers and logging:
 
 ```typescript
@@ -255,21 +278,23 @@ private sendResponse(statusCode: number, data?: any, message?: string, error?: a
 Different configuration options affect the ResponseBuilder behavior:
 
 ### Mode Configuration
+
 ```typescript
 // Development mode
 {
-  mode: 'development'
+  mode: 'development';
   // Includes full error details, stack traces, debug info
 }
 
-// Production mode  
+// Production mode
 {
-  mode: 'production'
+  mode: 'production';
   // Sanitizes errors, hides internal details
 }
 ```
 
 ### Security Configuration
+
 ```typescript
 {
   security: {
@@ -283,6 +308,7 @@ Different configuration options affect the ResponseBuilder behavior:
 ```
 
 ### Response Configuration
+
 ```typescript
 {
   responses: {
@@ -302,6 +328,7 @@ Different configuration options affect the ResponseBuilder behavior:
 The ResponseBuilder handles different error types:
 
 ### Standard Errors
+
 ```typescript
 const error = new Error('Something went wrong');
 builder.error(error);
@@ -309,6 +336,7 @@ builder.error(error);
 ```
 
 ### Custom Errors with Status
+
 ```typescript
 const error = new Error('Validation failed');
 error.statusCode = 422;
@@ -317,11 +345,12 @@ builder.error(error);
 ```
 
 ### Validation Errors
+
 ```typescript
 const error = {
   message: 'Validation failed',
   field: 'email',
-  value: 'invalid-email'
+  value: 'invalid-email',
 };
 builder.badRequest(error, 'Invalid input');
 ```
@@ -331,6 +360,7 @@ builder.badRequest(error, 'Invalid input');
 The ResponseBuilder automatically handles:
 
 ### Security Headers
+
 ```typescript
 // When security.corsHeaders is enabled
 'X-Content-Type-Options': 'nosniff'
@@ -339,12 +369,14 @@ The ResponseBuilder automatically handles:
 ```
 
 ### Request ID Headers
+
 ```typescript
 // When responses.includeRequestId is enabled
 'X-Request-ID': 'req-123-456-789'
 ```
 
 ### Cache Headers
+
 ```typescript
 // When performance.enableCaching is enabled
 'Cache-Control': 'public, max-age=300'
@@ -372,24 +404,24 @@ import { ResponseBuilder } from '@amitkandar/response-handler';
 
 describe('ResponseBuilder', () => {
   let builder, mockReq, mockRes, mockLogger, config;
-  
+
   beforeEach(() => {
     mockReq = { requestId: 'test-123', startTime: Date.now() };
     mockRes = { status: jest.fn().mockReturnThis(), json: jest.fn() };
     mockLogger = { logResponse: jest.fn(), logEvent: jest.fn() };
     config = { mode: 'test', responses: {}, security: {} };
-    
+
     builder = new ResponseBuilder(config, mockLogger, mockReq, mockRes);
   });
-  
+
   it('should create ok response', () => {
     builder.ok({ test: 'data' }, 'Success');
-    
+
     expect(mockRes.status).toHaveBeenCalledWith(200);
     expect(mockRes.json).toHaveBeenCalledWith({
       success: true,
       data: { test: 'data' },
-      message: 'Success'
+      message: 'Success',
     });
   });
 });

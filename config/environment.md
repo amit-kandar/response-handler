@@ -8,7 +8,7 @@ Response Handler automatically detects your environment:
 
 ```typescript
 const config = {
-  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development'
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
 };
 ```
 
@@ -24,18 +24,18 @@ export const developmentConfig = {
     logErrors: true,
     logRequests: true,
     logResponses: true,
-    includeStack: true
+    includeStack: true,
   },
   responses: {
     includeRequestId: true,
     includeTimestamp: true,
-    includeExecutionTime: true
+    includeExecutionTime: true,
   },
   security: {
     sanitizeErrors: false,
     hideInternalErrors: false,
-    allowedErrorFields: ['message', 'type', 'code', 'stack', 'details']
-  }
+    allowedErrorFields: ['message', 'type', 'code', 'stack', 'details'],
+  },
 };
 ```
 
@@ -51,19 +51,19 @@ export const productionConfig = {
     logErrors: true,
     logRequests: false,
     logResponses: false,
-    includeStack: false
+    includeStack: false,
   },
   responses: {
     includeRequestId: true,
     includeTimestamp: false,
-    includeExecutionTime: false
+    includeExecutionTime: false,
   },
   security: {
     sanitizeErrors: true,
     hideInternalErrors: true,
     allowedErrorFields: ['message', 'type', 'code'],
-    corsHeaders: true
-  }
+    corsHeaders: true,
+  },
 };
 ```
 
@@ -74,16 +74,16 @@ export const productionConfig = {
 export const testConfig = {
   mode: 'test',
   logging: {
-    enabled: false // Silence logs during tests
+    enabled: false, // Silence logs during tests
   },
   responses: {
     includeRequestId: true,
     includeTimestamp: false,
-    includeExecutionTime: false
+    includeExecutionTime: false,
   },
   security: {
-    sanitizeErrors: false // Keep full errors for debugging tests
-  }
+    sanitizeErrors: false, // Keep full errors for debugging tests
+  },
 };
 ```
 
@@ -99,17 +99,17 @@ export const stagingConfig = {
     logErrors: true,
     logRequests: true,
     logResponses: false,
-    includeStack: true // Keep stack traces for debugging
+    includeStack: true, // Keep stack traces for debugging
   },
   responses: {
     includeRequestId: true,
     includeTimestamp: true,
-    includeExecutionTime: true
+    includeExecutionTime: true,
   },
   security: {
     sanitizeErrors: false,
-    hideInternalErrors: false
-  }
+    hideInternalErrors: false,
+  },
 };
 ```
 
@@ -137,16 +137,16 @@ const config = {
   logging: {
     enabled: process.env.NODE_ENV !== 'test',
     level: process.env.LOG_LEVEL || 'info',
-    includeStack: process.env.INCLUDE_STACK_TRACES === 'true'
+    includeStack: process.env.INCLUDE_STACK_TRACES === 'true',
   },
   security: {
-    corsHeaders: process.env.ENABLE_CORS === 'true'
+    corsHeaders: process.env.ENABLE_CORS === 'true',
   },
   responses: {
     customFields: {
-      version: process.env.API_VERSION
-    }
-  }
+      version: process.env.API_VERSION,
+    },
+  },
 };
 ```
 
@@ -181,7 +181,7 @@ services:
       - LOG_LEVEL=error
       - ENABLE_CORS=true
     ports:
-      - "3000:3000"
+      - '3000:3000'
 ```
 
 ## Configuration Factory
@@ -227,9 +227,9 @@ kind: ConfigMap
 metadata:
   name: app-config
 data:
-  NODE_ENV: "production"
-  LOG_LEVEL: "error"
-  ENABLE_CORS: "true"
+  NODE_ENV: 'production'
+  LOG_LEVEL: 'error'
+  ENABLE_CORS: 'true'
 ```
 
 ```yaml
@@ -242,10 +242,10 @@ spec:
   template:
     spec:
       containers:
-      - name: app
-        envFrom:
-        - configMapRef:
-            name: app-config
+        - name: app
+          envFrom:
+            - configMapRef:
+                name: app-config
 ```
 
 ## Health Checks
@@ -258,17 +258,17 @@ app.get('/health', (req, res) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
-    version: process.env.API_VERSION || '1.0.0'
+    version: process.env.API_VERSION || '1.0.0',
   };
-  
+
   if (process.env.NODE_ENV === 'development') {
     health.debug = {
       uptime: process.uptime(),
       memory: process.memoryUsage(),
-      node: process.version
+      node: process.version,
     };
   }
-  
+
   res.ok(health, 'Service is healthy');
 });
 ```
@@ -276,6 +276,7 @@ app.get('/health', (req, res) => {
 ## Logging Configuration by Environment
 
 ### Development Logging
+
 ```typescript
 const config = {
   logging: {
@@ -283,33 +284,31 @@ const config = {
     level: 'debug',
     logRequests: true,
     logResponses: true,
-    customLogger: console // Simple console logging
-  }
+    customLogger: console, // Simple console logging
+  },
 };
 ```
 
 ### Production Logging
+
 ```typescript
 import winston from 'winston';
 
 const logger = winston.createLogger({
   level: 'error',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
+  format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
   transports: [
     new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' })
-  ]
+    new winston.transports.File({ filename: 'combined.log' }),
+  ],
 });
 
 const config = {
   logging: {
     enabled: true,
     level: 'error',
-    customLogger: logger
-  }
+    customLogger: logger,
+  },
 };
 ```
 
@@ -327,8 +326,8 @@ const config = {
 ```typescript
 function validateEnvironment() {
   const required = ['NODE_ENV', 'PORT'];
-  const missing = required.filter(key => !process.env[key]);
-  
+  const missing = required.filter((key) => !process.env[key]);
+
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
   }

@@ -29,11 +29,13 @@ This guide explains how to host the Response Handler documentation using various
 ### 1. GitHub Pages (Recommended)
 
 **Setup:**
+
 1. Enable GitHub Pages in repository settings
 2. Set source to "GitHub Actions"
 3. Push to main branch - docs will auto-deploy
 
 **Features:**
+
 - ✅ Free hosting
 - ✅ Custom domain support
 - ✅ Automatic deployments
@@ -44,6 +46,7 @@ This guide explains how to host the Response Handler documentation using various
 ### 2. Netlify
 
 **Setup:**
+
 ```bash
 # Build command
 npm run docs:build
@@ -53,6 +56,7 @@ npm run docs:build
 ```
 
 **Features:**
+
 - ✅ Continuous deployment
 - ✅ Preview deployments for PRs
 - ✅ Form handling
@@ -61,6 +65,7 @@ npm run docs:build
 ### 3. Vercel
 
 **Setup:**
+
 ```bash
 # Install Vercel CLI
 npm i -g vercel
@@ -70,6 +75,7 @@ vercel --prod
 ```
 
 **Features:**
+
 - ✅ Serverless functions
 - ✅ Preview deployments
 - ✅ Analytics
@@ -110,7 +116,8 @@ npm run docs:preview
 ### Updating Existing Docs
 
 The documentation is automatically synchronized with:
-- `docs/API.md` → `api/` directory  
+
+- `docs/API.md` → `api/` directory
 - `docs/CONFIGURATION.md` → `config/` directory
 - `docs/EXAMPLES.md` → `examples/` directory
 - `NEW_API_README.md` → Used for homepage content
@@ -122,16 +129,19 @@ Edit `.vitepress/theme/` directory for custom themes and components.
 ## 🌐 Domain Setup
 
 ### GitHub Pages
+
 1. Add `CNAME` file with your domain
 2. Configure DNS records
 3. Enable HTTPS in settings
 
 ### Other Platforms
+
 Follow platform-specific domain configuration guides.
 
 ## 🔄 Automatic Updates
 
 The GitHub Action automatically:
+
 1. Builds documentation on every push to main
 2. Deploys to GitHub Pages
 3. Updates the live site
@@ -143,18 +153,26 @@ Add analytics to `.vitepress/config.js`:
 ```javascript
 export default defineConfig({
   head: [
-    ['script', { 
-      async: true, 
-      src: 'https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID' 
-    }],
-    ['script', {}, "window.dataLayer = window.dataLayer || [];\nfunction gtag(){dataLayer.push(arguments);}\ngtag('js', new Date());\ngtag('config', 'GA_MEASUREMENT_ID');"]
-  ]
-})
+    [
+      'script',
+      {
+        async: true,
+        src: 'https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID',
+      },
+    ],
+    [
+      'script',
+      {},
+      "window.dataLayer = window.dataLayer || [];\nfunction gtag(){dataLayer.push(arguments);}\ngtag('js', new Date());\ngtag('config', 'GA_MEASUREMENT_ID');",
+    ],
+  ],
+});
 ```
 
 ## 🎨 Customization
 
 ### Theme Colors
+
 Edit `.vitepress/config.js` to customize the theme:
 
 ```javascript
@@ -165,11 +183,13 @@ themeConfig: {
 ```
 
 ### Logo and Branding
+
 Place logo files in `public/` directory and reference in config.
 
 ## 📧 Support
 
 For hosting issues:
+
 - GitHub Pages: Check repository settings and Actions tab
 - Netlify/Vercel: Check build logs in their dashboards
 - DNS issues: Verify DNS propagation with tools like `dig` or online checkers

@@ -37,37 +37,38 @@ The Enhanced Response Handler introduces a modern, middleware-based approach tha
 ### Import Changes
 
 **Old:**
+
 ```javascript
-const { 
-  sendSuccess, 
-  sendError, 
+const {
+  sendSuccess,
+  sendError,
   errorHandler,
   emitSuccess,
   emitError,
-  socketWrapper 
+  socketWrapper,
 } = require('@amitkandar/response-handler');
 ```
 
 **New:**
+
 ```javascript
 const { quickSetup, quickSocketSetup } = require('@amitkandar/response-handler');
 
 // Or for advanced usage
-const { 
-  ResponseHandler,
-  SocketResponseHandler 
-} = require('@amitkandar/response-handler');
+const { ResponseHandler, SocketResponseHandler } = require('@amitkandar/response-handler');
 ```
 
 ### Response Method Changes
 
 **Old:**
+
 ```javascript
 sendSuccess(res, data, message);
 sendError(res, error);
 ```
 
 **New:**
+
 ```javascript
 res.ok(data, message);
 res.error(error);
@@ -79,16 +80,18 @@ res.notFound(error, message);
 ### Configuration Changes
 
 **Old:**
+
 ```javascript
 configureResponseFormat(templateFunction);
 ```
 
 **New:**
+
 ```javascript
 const { middleware, errorHandler } = quickSetup({
   mode: 'development',
   logging: { enabled: true },
-  responses: { includeTimestamp: true }
+  responses: { includeTimestamp: true },
 });
 ```
 
@@ -119,7 +122,7 @@ const { middleware, errorHandler } = quickSetup({
   logging: {
     enabled: true,
     logErrors: true,
-  }
+  },
 });
 
 app.use(middleware);
@@ -132,6 +135,7 @@ app.use(errorHandler);
 Migrate one route at a time to ensure stability:
 
 **Before:**
+
 ```javascript
 const { sendSuccess, sendError } = require('@amitkandar/response-handler');
 
@@ -149,6 +153,7 @@ app.get('/users/:id', async (req, res, next) => {
 ```
 
 **After:**
+
 ```javascript
 // No imports needed - methods added to res object by middleware
 
@@ -165,6 +170,7 @@ app.get('/users/:id', async (req, res) => {
 ### Step 4: Update Error Handling
 
 **Before:**
+
 ```javascript
 app.get('/users', async (req, res, next) => {
   try {
@@ -177,6 +183,7 @@ app.get('/users', async (req, res, next) => {
 ```
 
 **After:**
+
 ```javascript
 app.get('/users', async (req, res) => {
   const users = await getUsers();
@@ -201,44 +208,45 @@ const { quickSetup } = require('@amitkandar/response-handler');
 
 ### REST API Migration
 
-| Legacy Method | New Method | Notes |
-|---------------|------------|-------|
-| `sendSuccess(res, data, message)` | `res.ok(data, message)` | Direct method on response object |
-| `sendError(res, error)` | `res.error(error)` | Auto-detects status code |
-| N/A | `res.created(data, message)` | New 201 Created method |
-| N/A | `res.badRequest(error, message)` | New 400 Bad Request method |
-| N/A | `res.unauthorized(error, message)` | New 401 Unauthorized method |
-| N/A | `res.forbidden(error, message)` | New 403 Forbidden method |
-| N/A | `res.notFound(error, message)` | New 404 Not Found method |
-| N/A | `res.unprocessableEntity(error, message)` | New 422 Validation Error method |
-| N/A | `res.internalServerError(error, message)` | New 500 Internal Error method |
-| `errorHandler` | `errorHandler` | Same function, but from quickSetup |
+| Legacy Method                     | New Method                                | Notes                              |
+| --------------------------------- | ----------------------------------------- | ---------------------------------- |
+| `sendSuccess(res, data, message)` | `res.ok(data, message)`                   | Direct method on response object   |
+| `sendError(res, error)`           | `res.error(error)`                        | Auto-detects status code           |
+| N/A                               | `res.created(data, message)`              | New 201 Created method             |
+| N/A                               | `res.badRequest(error, message)`          | New 400 Bad Request method         |
+| N/A                               | `res.unauthorized(error, message)`        | New 401 Unauthorized method        |
+| N/A                               | `res.forbidden(error, message)`           | New 403 Forbidden method           |
+| N/A                               | `res.notFound(error, message)`            | New 404 Not Found method           |
+| N/A                               | `res.unprocessableEntity(error, message)` | New 422 Validation Error method    |
+| N/A                               | `res.internalServerError(error, message)` | New 500 Internal Error method      |
+| `errorHandler`                    | `errorHandler`                            | Same function, but from quickSetup |
 
 ### Socket.IO Migration
 
-| Legacy Method | New Method | Notes |
-|---------------|------------|-------|
-| `emitSuccess({ socket, event, data, message })` | `response.ok(data, message)` | Enhanced response object |
-| `emitError({ socket, event, error })` | `response.error(error)` | Enhanced response object |
-| `socketWrapper(handler)` | `wrapper(handler)` | Similar functionality |
-| N/A | `response.toRoom(roomId).ok(data)` | New room targeting |
-| N/A | `response.toSocket(socketId).error(error)` | New socket targeting |
+| Legacy Method                                   | New Method                                 | Notes                    |
+| ----------------------------------------------- | ------------------------------------------ | ------------------------ |
+| `emitSuccess({ socket, event, data, message })` | `response.ok(data, message)`               | Enhanced response object |
+| `emitError({ socket, event, error })`           | `response.error(error)`                    | Enhanced response object |
+| `socketWrapper(handler)`                        | `wrapper(handler)`                         | Similar functionality    |
+| N/A                                             | `response.toRoom(roomId).ok(data)`         | New room targeting       |
+| N/A                                             | `response.toSocket(socketId).error(error)` | New socket targeting     |
 
 ### Configuration Migration
 
-| Legacy Config | New Config | Notes |
-|---------------|------------|-------|
+| Legacy Config                 | New Config                         | Notes                            |
+| ----------------------------- | ---------------------------------- | -------------------------------- |
 | `configureResponseFormat(fn)` | `quickSetup({ responses: {...} })` | More comprehensive configuration |
-| N/A | `{ mode: 'development' }` | New environment-aware mode |
-| N/A | `{ logging: {...} }` | New comprehensive logging |
-| N/A | `{ security: {...} }` | New security options |
-| N/A | `{ performance: {...} }` | New performance options |
+| N/A                           | `{ mode: 'development' }`          | New environment-aware mode       |
+| N/A                           | `{ logging: {...} }`               | New comprehensive logging        |
+| N/A                           | `{ security: {...} }`              | New security options             |
+| N/A                           | `{ performance: {...} }`           | New performance options          |
 
 ## Configuration Migration
 
 ### Legacy Template Configuration
 
 **Before:**
+
 ```javascript
 const { configureResponseFormat } = require('@amitkandar/response-handler');
 
@@ -252,6 +260,7 @@ configureResponseFormat(({ success, message, data, error }) => ({
 ```
 
 **After:**
+
 ```javascript
 const { quickSetup } = require('@amitkandar/response-handler');
 
@@ -260,9 +269,9 @@ const { middleware, errorHandler } = quickSetup({
     includeTimestamp: true,
     customFields: {
       service: 'my-api',
-      version: '1.0.0'
-    }
-  }
+      version: '1.0.0',
+    },
+  },
 });
 
 // If you need a completely custom format, you can still use the legacy configureResponseFormat
@@ -272,6 +281,7 @@ const { middleware, errorHandler } = quickSetup({
 ### Environment-Specific Migration
 
 **Before:**
+
 ```javascript
 // Manual environment handling
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -284,6 +294,7 @@ if (isDevelopment) {
 ```
 
 **After:**
+
 ```javascript
 const { quickSetup } = require('@amitkandar/response-handler');
 
@@ -298,6 +309,7 @@ const { middleware, errorHandler } = quickSetup({
 ### Basic Socket Handler Migration
 
 **Before:**
+
 ```javascript
 const { emitSuccess, emitError } = require('@amitkandar/response-handler');
 
@@ -307,40 +319,41 @@ socket.on('get-user', async (data) => {
       return emitError({
         socket,
         event: 'user-data',
-        error: { message: 'User ID required' }
+        error: { message: 'User ID required' },
       });
     }
-    
+
     const user = await getUser(data.userId);
     emitSuccess({
       socket,
       event: 'user-data',
       data: user,
-      message: 'User retrieved'
+      message: 'User retrieved',
     });
   } catch (error) {
     emitError({
       socket,
       event: 'user-data',
-      error
+      error,
     });
   }
 });
 ```
 
 **After:**
+
 ```javascript
 const { quickSocketSetup } = require('@amitkandar/response-handler');
 const { enhance } = quickSocketSetup();
 
 socket.on('get-user', async (data) => {
   const response = enhance(socket, 'user-data');
-  
+
   try {
     if (!data.userId) {
       return response.badRequest({ field: 'userId' }, 'User ID required');
     }
-    
+
     const user = await getUser(data.userId);
     response.ok(user, 'User retrieved');
   } catch (error) {
@@ -352,6 +365,7 @@ socket.on('get-user', async (data) => {
 ### Socket Wrapper Migration
 
 **Before:**
+
 ```javascript
 const { socketWrapper } = require('@amitkandar/response-handler');
 
@@ -360,7 +374,7 @@ const handleGetUser = socketWrapper(async (socket, data) => {
   emitSuccess({
     socket,
     event: 'user-data',
-    data: user
+    data: user,
   });
 });
 
@@ -368,19 +382,24 @@ socket.on('get-user', (data) => handleGetUser(socket, data));
 ```
 
 **After:**
+
 ```javascript
 const { quickSocketSetup } = require('@amitkandar/response-handler');
 const { wrapper } = quickSocketSetup();
 
-socket.on('get-user', wrapper(async (socket, response, data) => {
-  const user = await getUser(data.userId);
-  response.ok(user, 'User retrieved');
-}));
+socket.on(
+  'get-user',
+  wrapper(async (socket, response, data) => {
+    const user = await getUser(data.userId);
+    response.ok(user, 'User retrieved');
+  }),
+);
 ```
 
 ### Room-Based Messaging Migration
 
 **Before:**
+
 ```javascript
 const { emitSuccess } = require('@amitkandar/response-handler');
 
@@ -389,29 +408,30 @@ socket.on('send-message', (data) => {
   socket.to(data.roomId).emit('message-received', {
     success: true,
     data: data.message,
-    message: 'New message'
+    message: 'New message',
   });
-  
+
   // Confirm to sender
   emitSuccess({
     socket,
     event: 'message-sent',
-    data: { messageId: Date.now() }
+    data: { messageId: Date.now() },
   });
 });
 ```
 
 **After:**
+
 ```javascript
 const { quickSocketSetup } = require('@amitkandar/response-handler');
 const { enhance } = quickSocketSetup();
 
 socket.on('send-message', (data) => {
   const response = enhance(socket, 'message-received');
-  
+
   // Send to room with enhanced targeting
   response.toRoom(data.roomId).ok(data.message, 'New message');
-  
+
   // Confirm to sender
   enhance(socket, 'message-sent').ok({ messageId: Date.now() });
 });
@@ -422,6 +442,7 @@ socket.on('send-message', (data) => {
 ### Unit Test Migration
 
 **Before:**
+
 ```javascript
 const { sendSuccess, sendError } = require('@amitkandar/response-handler');
 
@@ -429,44 +450,43 @@ describe('User Routes', () => {
   it('should return user data', async () => {
     const mockRes = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn()
+      json: jest.fn(),
     };
-    
+
     // Test with legacy functions
     sendSuccess(mockRes, userData, 'Success');
-    
+
     expect(mockRes.status).toHaveBeenCalledWith(200);
   });
 });
 ```
 
 **After:**
+
 ```javascript
 const request = require('supertest');
 const { quickSetup } = require('@amitkandar/response-handler');
 
 describe('User Routes', () => {
   let app;
-  
+
   beforeEach(() => {
     app = express();
-    const { middleware, errorHandler } = quickSetup({ 
-      logging: { enabled: false } // Disable for tests
+    const { middleware, errorHandler } = quickSetup({
+      logging: { enabled: false }, // Disable for tests
     });
     app.use(middleware);
     // ... add routes ...
     app.use(errorHandler);
   });
-  
+
   it('should return user data', async () => {
-    const response = await request(app)
-      .get('/users/1')
-      .expect(200);
-    
+    const response = await request(app).get('/users/1').expect(200);
+
     expect(response.body).toMatchObject({
       success: true,
       data: expect.any(Object),
-      message: expect.any(String)
+      message: expect.any(String),
     });
   });
 });
@@ -475,6 +495,7 @@ describe('User Routes', () => {
 ### Integration Test Migration
 
 **Before:**
+
 ```javascript
 // Manual setup for each test
 const { errorHandler } = require('@amitkandar/response-handler');
@@ -482,6 +503,7 @@ app.use(errorHandler);
 ```
 
 **After:**
+
 ```javascript
 // Centralized test setup
 const { quickSetup } = require('@amitkandar/response-handler');
@@ -490,9 +512,9 @@ const createTestApp = () => {
   const app = express();
   const { middleware, errorHandler } = quickSetup({
     mode: 'development',
-    logging: { enabled: false }
+    logging: { enabled: false },
   });
-  
+
   app.use(express.json());
   app.use(middleware);
   return { app, errorHandler };
@@ -506,6 +528,7 @@ const createTestApp = () => {
 #### 1. Response Already Sent Error
 
 **Problem:**
+
 ```javascript
 // This might cause "Cannot set headers after they are sent"
 res.ok(data);
@@ -513,6 +536,7 @@ res.status(201); // Error - response already sent
 ```
 
 **Solution:**
+
 ```javascript
 // Use return to prevent further execution
 return res.ok(data);
@@ -524,6 +548,7 @@ res.created(data); // This sets 201 status automatically
 #### 2. Missing Error Handling
 
 **Problem:**
+
 ```javascript
 // Errors not being caught
 app.get('/users', async (req, res) => {
@@ -533,6 +558,7 @@ app.get('/users', async (req, res) => {
 ```
 
 **Solution:**
+
 ```javascript
 // Make sure error handler middleware is added LAST
 app.use(middleware);
@@ -543,6 +569,7 @@ app.use(errorHandler); // Must be last!
 #### 3. Socket.IO Event Name Issues
 
 **Problem:**
+
 ```javascript
 // Event name mismatch between client and server
 const response = enhance(socket, 'user_data'); // underscore
@@ -550,6 +577,7 @@ const response = enhance(socket, 'user_data'); // underscore
 ```
 
 **Solution:**
+
 ```javascript
 // Use consistent naming convention
 const response = enhance(socket, 'user-data');
@@ -558,6 +586,7 @@ const response = enhance(socket, 'user-data');
 #### 4. Configuration Not Taking Effect
 
 **Problem:**
+
 ```javascript
 // Configuration applied after middleware setup
 app.use(middleware);
@@ -565,6 +594,7 @@ const { middleware: newMiddleware } = quickSetup(newConfig); // Too late!
 ```
 
 **Solution:**
+
 ```javascript
 // Configure before setting up middleware
 const { middleware, errorHandler } = quickSetup(config);
@@ -582,11 +612,11 @@ The new middleware adds minimal overhead, but in high-traffic scenarios:
 const { middleware, errorHandler } = quickSetup({
   responses: {
     includeTimestamp: false,
-    includeExecutionTime: false
+    includeExecutionTime: false,
   },
   logging: {
-    enabled: false // Or minimal logging
-  }
+    enabled: false, // Or minimal logging
+  },
 });
 ```
 
@@ -609,10 +639,10 @@ If you need to maintain backward compatibility during migration:
 
 ```javascript
 // You can use both APIs temporarily
-const { 
+const {
   quickSetup,
   sendSuccess, // Legacy function still available
-  sendError    // Legacy function still available
+  sendError, // Legacy function still available
 } = require('@amitkandar/response-handler');
 
 const { middleware, errorHandler } = quickSetup();

@@ -7,7 +7,7 @@ export class ResponseBuilder {
   private logger: Logger;
   private req: any;
   private res: Response;
-  
+
   constructor(config: ResponseHandlerConfig, logger: Logger, req: any, res: Response) {
     this.config = config;
     this.logger = logger;
@@ -55,11 +55,11 @@ export class ResponseBuilder {
       if (allowedFields.includes('message')) {
         errorInfo.message = error.message;
       }
-      
+
       if (allowedFields.includes('type')) {
         errorInfo.type = error.type || error.name || 'Error';
       }
-      
+
       if (allowedFields.includes('code')) {
         errorInfo.code = error.code || error.statusCode;
       }
@@ -92,9 +92,11 @@ export class ResponseBuilder {
 
   private isInternalError(error: any): boolean {
     const internalErrors = ['ReferenceError', 'TypeError', 'SyntaxError', 'InternalError'];
-    return internalErrors.includes(error.name) || 
-           (error.statusCode && error.statusCode >= 500) ||
-           !error.statusCode;
+    return (
+      internalErrors.includes(error.name) ||
+      (error.statusCode && error.statusCode >= 500) ||
+      !error.statusCode
+    );
   }
 
   private buildResponse(success: boolean, data?: any, message?: string, error?: any): ApiResponse {
@@ -218,7 +220,7 @@ export class ResponseBuilder {
     // In production, provide generic message for internal errors
     const isDevelopment = this.config.mode === 'development';
     const hideInternal = this.config.security?.hideInternalErrors && !isDevelopment;
-    
+
     let responseMessage = message || 'Internal server error';
     if (hideInternal && error && this.isInternalError(error)) {
       responseMessage = 'An internal error occurred';
@@ -253,22 +255,22 @@ export class ResponseBuilder {
   public error(error: any, statusCode?: number): Response {
     const status = statusCode || error.statusCode || error.status || 500;
     let message = error.message || 'An error occurred';
-    
+
     // In production, provide generic message for internal errors
     const isDevelopment = this.config.mode === 'development';
     const hideInternal = this.config.security?.hideInternalErrors && !isDevelopment;
-    
+
     if (hideInternal && this.isInternalError(error)) {
       message = 'An internal error occurred';
     }
-    
+
     return this.sendResponse(status, undefined, message, error);
   }
 
   // Pagination helper
   public paginate(data: any[], pagination: any, message?: string): Response {
     const response = this.buildResponse(true, data, message || 'Data retrieved successfully');
-    
+
     if (response.meta) {
       response.meta.pagination = pagination;
     } else {

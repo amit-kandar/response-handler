@@ -36,7 +36,7 @@ app.use(express.json());
 const { middleware, errorHandler } = quickSetup({
   mode: 'development', // 'production' for live apps
   logging: { enabled: true, logErrors: true },
-  security: { sanitizeErrors: true }
+  security: { sanitizeErrors: true },
 });
 
 app.use(middleware);
@@ -70,17 +70,20 @@ io.on('connection', (socket) => {
   socket.on('get-user', (data) => {
     const response = enhance(socket, 'user-data');
     if (!data.userId) return response.badRequest('User ID required');
-    
+
     const user = getUserById(data.userId);
     response.ok(user);
   });
 
   // Auto error handling
-  socket.on('create-post', wrapper(async (socket, response, data) => {
-    const post = await createPost(data);
-    response.created(post);
-    // All errors automatically caught and emitted!
-  }));
+  socket.on(
+    'create-post',
+    wrapper(async (socket, response, data) => {
+      const post = await createPost(data);
+      response.created(post);
+      // All errors automatically caught and emitted!
+    }),
+  );
 });
 ```
 
@@ -90,25 +93,25 @@ io.on('connection', (socket) => {
 
 ```javascript
 // Success responses
-res.ok(data, message)                    // 200 OK
-res.created(data, message)               // 201 Created
-res.accepted(data, message)              // 202 Accepted
-res.noContent(message)                   // 204 No Content
+res.ok(data, message); // 200 OK
+res.created(data, message); // 201 Created
+res.accepted(data, message); // 202 Accepted
+res.noContent(message); // 204 No Content
 
 // Error responses
-res.badRequest(error, message)           // 400 Bad Request
-res.unauthorized(error, message)         // 401 Unauthorized
-res.forbidden(error, message)            // 403 Forbidden
-res.notFound(error, message)             // 404 Not Found
-res.conflict(error, message)             // 409 Conflict
-res.unprocessableEntity(error, message)  // 422 Unprocessable Entity
-res.tooManyRequests(error, message)      // 429 Too Many Requests
-res.internalServerError(error, message)  // 500 Internal Server Error
+res.badRequest(error, message); // 400 Bad Request
+res.unauthorized(error, message); // 401 Unauthorized
+res.forbidden(error, message); // 403 Forbidden
+res.notFound(error, message); // 404 Not Found
+res.conflict(error, message); // 409 Conflict
+res.unprocessableEntity(error, message); // 422 Unprocessable Entity
+res.tooManyRequests(error, message); // 429 Too Many Requests
+res.internalServerError(error, message); // 500 Internal Server Error
 
 // Generic & Special responses
-res.respond(statusCode, data, message)   // Custom status code
-res.error(error, statusCode)             // Auto-determine from error
-res.paginate(data, pagination, message)  // Paginated responses
+res.respond(statusCode, data, message); // Custom status code
+res.error(error, statusCode); // Auto-determine from error
+res.paginate(data, pagination, message); // Paginated responses
 ```
 
 ### Socket.IO Response Methods
@@ -116,17 +119,17 @@ res.paginate(data, pagination, message)  // Paginated responses
 ```javascript
 const response = enhance(socket, 'event-name');
 
-response.ok(data, message)               // Success responses
-response.created(data, message)
-response.error(error, code)              // Error responses
-response.badRequest(error, message)
-response.unauthorized(error, message)
-response.forbidden(error, message)
-response.notFound(error, message)
+response.ok(data, message); // Success responses
+response.created(data, message);
+response.error(error, code); // Error responses
+response.badRequest(error, message);
+response.unauthorized(error, message);
+response.forbidden(error, message);
+response.notFound(error, message);
 
 // Targeting
-response.toRoom('room-name').ok(data)    // Broadcast to room
-response.toSocket('socket-id').error(err) // Send to specific socket
+response.toRoom('room-name').ok(data); // Broadcast to room
+response.toSocket('socket-id').error(err); // Send to specific socket
 ```
 
 ## ⚙️ Configuration
@@ -136,7 +139,7 @@ response.toSocket('socket-id').error(err) // Send to specific socket
 ```javascript
 const config = {
   mode: 'development', // or 'production'
-  
+
   logging: {
     enabled: true,
     level: 'info', // 'error', 'warn', 'info', 'debug'
@@ -146,29 +149,29 @@ const config = {
     includeStack: true,
     customLogger: (level, message, meta) => {
       // Use your preferred logger
-    }
+    },
   },
-  
+
   responses: {
     includeTimestamp: true,
     includeRequestId: true,
     includeExecutionTime: true,
-    customFields: { version: '1.0.0' }
+    customFields: { version: '1.0.0' },
   },
-  
+
   security: {
     sanitizeErrors: true,
     hideInternalErrors: true, // true in production
     allowedErrorFields: ['message', 'type', 'code'],
-    corsHeaders: true
+    corsHeaders: true,
   },
-  
+
   performance: {
     enableCaching: true,
     cacheHeaders: true,
     etag: true,
-    compression: true
-  }
+    compression: true,
+  },
 };
 ```
 
@@ -177,6 +180,7 @@ const config = {
 ### Environment-Aware Responses
 
 **Development Mode** (Detailed errors):
+
 ```json
 {
   "success": false,
@@ -197,6 +201,7 @@ const config = {
 ```
 
 **Production Mode** (Sanitized):
+
 ```json
 {
   "success": false,
@@ -218,12 +223,12 @@ const config = {
 app.get('/posts', async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
   const posts = await getPostsPaginated(page, limit);
-  
+
   return res.paginate(posts, {
     page: parseInt(page),
     limit: parseInt(limit),
     total: await getTotalPosts(),
-    totalPages: Math.ceil(await getTotalPosts() / limit),
+    totalPages: Math.ceil((await getTotalPosts()) / limit),
     hasNext: page < totalPages,
     hasPrev: page > 1,
   });
@@ -234,10 +239,13 @@ app.get('/posts', async (req, res) => {
 
 ```javascript
 // Broadcast to room
-response.toRoom('room-123').ok({
-  message: 'Hello everyone!',
-  from: socket.id
-}, 'New message in room');
+response.toRoom('room-123').ok(
+  {
+    message: 'Hello everyone!',
+    from: socket.id,
+  },
+  'New message in room',
+);
 
 // Send to specific socket
 response.toSocket('socket-456').error(error);
@@ -264,6 +272,7 @@ src/
 ### From Legacy API
 
 **Old:**
+
 ```javascript
 const { sendSuccess, sendError } = require('@amitkandar/response-handler');
 
@@ -278,6 +287,7 @@ app.get('/users', (req, res) => {
 ```
 
 **New:**
+
 ```javascript
 const { quickSetup } = require('@amitkandar/response-handler');
 const { middleware, errorHandler } = quickSetup();

@@ -22,8 +22,8 @@ const { middleware, errorHandler } = quickSetup({
   logging: {
     enabled: true,
     logErrors: true,
-    logRequests: true
-  }
+    logRequests: true,
+  },
 });
 
 // Apply middleware
@@ -39,7 +39,7 @@ app.post('/api/users', (req, res) => {
   if (!req.body.name) {
     return res.badRequest({ field: 'name' }, 'Name is required');
   }
-  
+
   const user = { id: Date.now(), ...req.body };
   res.created(user, 'User created successfully');
 });
@@ -62,42 +62,45 @@ const io = new Server(server);
 
 const { enhance, wrapper } = quickSocketSetup({
   mode: 'development',
-  logging: { enabled: true }
+  logging: { enabled: true },
 });
 
 io.on('connection', (socket) => {
   console.log('Client connected');
-  
+
   // Manual enhancement
   socket.on('get-user', (data) => {
     const response = enhance(socket, 'user-data');
-    
+
     if (!data.userId) {
       return response.badRequest({ field: 'userId' }, 'User ID required');
     }
-    
+
     const user = { id: data.userId, name: 'John Doe' };
     response.ok(user, 'User retrieved successfully');
   });
-  
+
   // Automatic wrapper with error handling
-  socket.on('create-post', wrapper(async (socket, response, data) => {
-    if (!data.title || !data.content) {
-      return response.badRequest(
-        { missingFields: ['title', 'content'] },
-        'Title and content are required'
-      );
-    }
-    
-    const post = {
-      id: Date.now(),
-      title: data.title,
-      content: data.content,
-      createdAt: new Date().toISOString()
-    };
-    
-    response.ok(post, 'Post created successfully');
-  }));
+  socket.on(
+    'create-post',
+    wrapper(async (socket, response, data) => {
+      if (!data.title || !data.content) {
+        return response.badRequest(
+          { missingFields: ['title', 'content'] },
+          'Title and content are required',
+        );
+      }
+
+      const post = {
+        id: Date.now(),
+        title: data.title,
+        content: data.content,
+        createdAt: new Date().toISOString(),
+      };
+
+      response.ok(post, 'Post created successfully');
+    }),
+  );
 });
 ```
 
@@ -106,12 +109,14 @@ io.on('connection', (socket) => {
 All response methods are available on both Express responses and Socket.IO responses:
 
 ### Success Responses
+
 - `res.ok(data, message)` - 200 OK
-- `res.created(data, message)` - 201 Created  
+- `res.created(data, message)` - 201 Created
 - `res.accepted(data, message)` - 202 Accepted
 - `res.noContent(message)` - 204 No Content
 
 ### Error Responses
+
 - `res.badRequest(error, message)` - 400 Bad Request
 - `res.unauthorized(error, message)` - 401 Unauthorized
 - `res.forbidden(error, message)` - 403 Forbidden
@@ -122,6 +127,7 @@ All response methods are available on both Express responses and Socket.IO respo
 - `res.internalServerError(error, message)` - 500 Internal Server Error
 
 ### Generic Responses
+
 - `res.respond(statusCode, data, message)` - Custom status code
 - `res.error(error, statusCode)` - Auto-detect error status
 - `res.paginate(data, pagination, message)` - Paginated responses

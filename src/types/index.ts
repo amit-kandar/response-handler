@@ -88,7 +88,7 @@ export interface EnhancedResponse extends Response {
   created: (data?: any, message?: string) => Response;
   accepted: (data?: any, message?: string) => Response;
   noContent: (message?: string) => Response;
-  
+
   // Error responses
   badRequest: (error?: any, message?: string) => Response;
   unauthorized: (error?: any, message?: string) => Response;
@@ -98,14 +98,14 @@ export interface EnhancedResponse extends Response {
   unprocessableEntity: (error?: any, message?: string) => Response;
   tooManyRequests: (error?: any, message?: string) => Response;
   internalServerError: (error?: any, message?: string) => Response;
-  
+
   // Generic responses
   respond: (statusCode: number, data?: any, message?: string) => Response;
   error: (error: any, statusCode?: number) => Response;
-  
+
   // Pagination helper
   paginate: (data: any[], pagination: PaginationInfo, message?: string) => Response;
-  
+
   // File responses (these will override the original methods)
   downloadFile: (filePath: string, filename?: string) => Response;
   streamResponse: (stream: NodeJS.ReadableStream, contentType?: string) => Response;
@@ -122,17 +122,17 @@ export interface SocketResponse {
   // Success emissions
   ok: (data?: unknown, message?: string) => void;
   created: (data?: unknown, message?: string) => void;
-  
+
   // Error emissions
   error: (error: unknown, code?: string) => void;
   badRequest: (error?: unknown, message?: string) => void;
   unauthorized: (error?: unknown, message?: string) => void;
   forbidden: (error?: unknown, message?: string) => void;
   notFound: (error?: unknown, message?: string) => void;
-  
+
   // Generic emission
   emit: (event: string, data?: unknown, statusCode?: number) => void;
-  
+
   // Room/targeting helpers
   toRoom: (room: string) => SocketResponse;
   toSocket: (socketId: string) => SocketResponse;
@@ -152,8 +152,17 @@ export interface ResponseEvent {
 }
 
 // Middleware Types
-export type ResponseHandlerMiddleware = (req: EnhancedRequest, res: EnhancedResponse, next: any) => void;
-export type ErrorHandlerMiddleware = (err: any, req: EnhancedRequest, res: EnhancedResponse, next: any) => void;
+export type ResponseHandlerMiddleware = (
+  req: EnhancedRequest,
+  res: EnhancedResponse,
+  next: any,
+) => void;
+export type ErrorHandlerMiddleware = (
+  err: any,
+  req: EnhancedRequest,
+  res: EnhancedResponse,
+  next: any,
+) => void;
 
 // Utility Types
 export interface HttpStatusMessages {

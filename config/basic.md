@@ -12,29 +12,33 @@ const { middleware, errorHandler } = quickSetup({
   logging: {
     enabled: true,
     logErrors: true,
-    logRequests: true
-  }
+    logRequests: true,
+  },
 });
 ```
 
 ## Configuration Options
 
 ### Mode
+
 - `development` - Includes detailed error information
 - `production` - Sanitizes errors for security
 
 ### Logging
+
 - `enabled` - Enable/disable logging
-- `logErrors` - Log error details  
+- `logErrors` - Log error details
 - `logRequests` - Log incoming requests
 - `logResponses` - Log outgoing responses
 
 ### Security
+
 - `sanitizeErrors` - Remove sensitive error details
 - `hideInternalErrors` - Hide internal error details
 - `allowedErrorFields` - Specify which error fields to include
 
 ### Responses
+
 - `includeRequestId` - Add request ID to responses
 - `includeTimestamp` - Add timestamp to responses
 - `includeExecutionTime` - Track request execution time

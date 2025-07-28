@@ -9,6 +9,7 @@ I've completely redesigned your response handler library to be more modern, deve
 ### 1. **Simplified API Usage**
 
 **Before (Old API):**
+
 ```javascript
 const { sendSuccess, sendError, errorHandler } = require('@amitkandar/response-handler');
 
@@ -23,6 +24,7 @@ app.get('/users', (req, res, next) => {
 ```
 
 **After (New API):**
+
 ```javascript
 const { quickSetup } = require('@amitkandar/response-handler');
 const { middleware, errorHandler } = quickSetup();
@@ -38,6 +40,7 @@ app.get('/users', async (req, res) => {
 ### 2. **Modern Function Names**
 
 **Old vs New:**
+
 - `sendSuccess()` → `res.ok()`, `res.created()`, `res.accepted()`
 - `sendError()` → `res.badRequest()`, `res.unauthorized()`, `res.notFound()`
 - Long parameter lists → Simple, intuitive method calls
@@ -45,6 +48,7 @@ app.get('/users', async (req, res) => {
 ### 3. **Middleware-Based Configuration**
 
 **Single Setup, Powerful Features:**
+
 ```javascript
 const { middleware, errorHandler } = quickSetup({
   mode: 'development', // or 'production'
@@ -62,13 +66,14 @@ const { middleware, errorHandler } = quickSetup({
   security: {
     sanitizeErrors: true,
     hideInternalErrors: false, // true in production
-  }
+  },
 });
 ```
 
 ### 4. **Developer vs Client-Friendly Responses**
 
 **Development Mode (Detailed):**
+
 ```json
 {
   "success": false,
@@ -89,6 +94,7 @@ const { middleware, errorHandler } = quickSetup({
 ```
 
 **Production Mode (Secure):**
+
 ```json
 {
   "success": false,
@@ -124,6 +130,7 @@ const { middleware, errorHandler } = quickSetup({
 ### 6. **Enhanced Socket.IO API**
 
 **Before:**
+
 ```javascript
 const { emitSuccess, emitError } = require('@amitkandar/response-handler');
 
@@ -138,6 +145,7 @@ socket.on('get-user', (data) => {
 ```
 
 **After:**
+
 ```javascript
 const { quickSocketSetup } = require('@amitkandar/response-handler');
 const { enhance, wrapper } = quickSocketSetup();
@@ -145,7 +153,7 @@ const { enhance, wrapper } = quickSocketSetup();
 // Simple approach
 socket.on('get-user', (data) => {
   const response = enhance(socket, 'user-data');
-  
+
   try {
     const user = getUser(data.id);
     response.ok(user);
@@ -155,31 +163,42 @@ socket.on('get-user', (data) => {
 });
 
 // Auto error handling approach
-socket.on('create-post', wrapper(async (socket, response, data) => {
-  const post = await createPost(data);
-  response.created(post);
-  // All errors automatically caught and emitted!
-}));
+socket.on(
+  'create-post',
+  wrapper(async (socket, response, data) => {
+    const post = await createPost(data);
+    response.created(post);
+    // All errors automatically caught and emitted!
+  }),
+);
 ```
 
 ## 🎯 New Features Added
 
 ### 1. **Request Tracking**
+
 - Automatic request ID generation
 - Execution time measurement
 - Request correlation across logs
 
 ### 2. **Built-in Pagination**
+
 ```javascript
 app.get('/posts', async (req, res) => {
   const posts = await getPostsPaginated(page, limit);
   return res.paginate(posts, {
-    page, limit, total, totalPages, hasNext, hasPrev
+    page,
+    limit,
+    total,
+    totalPages,
+    hasNext,
+    hasPrev,
   });
 });
 ```
 
 ### 3. **Room & Socket Targeting**
+
 ```javascript
 // Broadcast to room
 response.toRoom('room-123').ok(data, 'Message for room');
@@ -189,18 +208,21 @@ response.toSocket('socket-456').error(error);
 ```
 
 ### 4. **Security Features**
+
 - Automatic error sanitization in production
 - Internal error hiding
 - CORS headers support
 - Allowed error fields configuration
 
 ### 5. **Performance Optimizations**
+
 - ETag support
 - Cache headers
 - Compression options
 - Request/response size tracking
 
 ### 6. **Environment Detection**
+
 - Automatic development/production detection
 - Environment-specific behaviors
 - Configurable overrides
@@ -224,6 +246,7 @@ src/
 ## 🔧 Configuration Options
 
 ### Comprehensive Config Example
+
 ```javascript
 {
   mode: 'development',
@@ -260,6 +283,7 @@ src/
 ## 🚀 Usage Examples Created
 
 ### 1. **Express Example** (`examples/express-example.js`)
+
 - Complete Express.js server setup
 - All HTTP methods and status codes
 - Error handling demonstrations
@@ -267,6 +291,7 @@ src/
 - File operations
 
 ### 2. **Socket.IO Example** (`examples/socket-example.js`)
+
 - Real-time messaging
 - Room management
 - Private messaging
@@ -276,7 +301,9 @@ src/
 ## 🔄 Migration Path
 
 ### Backward Compatibility
+
 The old API is still available for migration:
+
 ```javascript
 // Old API still works
 export { sendSuccess, sendError } from './rest/response';
@@ -287,6 +314,7 @@ export { quickSetup, quickSocketSetup } from './newIndex';
 ```
 
 ### Migration Steps
+
 1. **Install new dependencies**: `npm install uuid @types/uuid`
 2. **Try new API alongside old**: Both APIs work simultaneously
 3. **Gradually migrate routes**: Update one route at a time
@@ -295,6 +323,7 @@ export { quickSetup, quickSocketSetup } from './newIndex';
 ## 📊 Impact Summary
 
 ### Developer Experience
+
 - **90% less boilerplate code**
 - **One-line responses** instead of complex function calls
 - **Automatic error handling** with middleware
@@ -302,6 +331,7 @@ export { quickSetup, quickSocketSetup } from './newIndex';
 - **Type-safe** with comprehensive TypeScript support
 
 ### Features Added
+
 - **Request tracking** and correlation
 - **Dual response modes** (dev vs prod)
 - **Built-in pagination** helpers
@@ -310,6 +340,7 @@ export { quickSetup, quickSocketSetup } from './newIndex';
 - **Socket.IO enhancements** with room/socket targeting
 
 ### Maintenance
+
 - **Centralized configuration** instead of scattered setup
 - **Consistent response format** across all endpoints
 - **Automatic environment detection**
@@ -319,6 +350,7 @@ export { quickSetup, quickSocketSetup } from './newIndex';
 ## 🎉 Result
 
 Your response handler library is now:
+
 - **More developer-friendly** with modern, intuitive API
 - **Feature-rich** with logging, security, and performance built-in
 - **Production-ready** with environment-aware behaviors

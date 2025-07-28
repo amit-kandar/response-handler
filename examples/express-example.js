@@ -22,7 +22,7 @@ const { middleware, errorHandler, logger } = quickSetup({
   security: {
     sanitizeErrors: true,
     hideInternalErrors: false, // true in production
-  }
+  },
 });
 
 // Use the middleware
@@ -36,7 +36,7 @@ app.get('/users', async (req, res) => {
       { id: 1, name: 'John Doe', email: 'john@example.com' },
       { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
     ];
-    
+
     // Just use res.ok() - that's it!
     return res.ok(users, 'Users retrieved successfully');
   } catch (error) {
@@ -48,16 +48,19 @@ app.get('/users', async (req, res) => {
 app.post('/users', async (req, res) => {
   try {
     const { name, email } = req.body;
-    
+
     if (!name || !email) {
-      return res.badRequest({ 
-        fields: ['name', 'email'] 
-      }, 'Name and email are required');
+      return res.badRequest(
+        {
+          fields: ['name', 'email'],
+        },
+        'Name and email are required',
+      );
     }
-    
+
     // Simulate creating user
     const newUser = { id: 3, name, email };
-    
+
     return res.created(newUser, 'User created successfully');
   } catch (error) {
     throw error;
@@ -67,12 +70,12 @@ app.post('/users', async (req, res) => {
 app.get('/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Simulate user lookup
     if (id === '999') {
       return res.notFound(null, 'User not found');
     }
-    
+
     const user = { id: parseInt(id), name: 'John Doe', email: 'john@example.com' };
     return res.ok(user);
   } catch (error) {
@@ -83,7 +86,7 @@ app.get('/users/:id', async (req, res) => {
 app.delete('/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Simulate deletion
     return res.noContent('User deleted successfully');
   } catch (error) {
@@ -96,14 +99,14 @@ app.get('/posts', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    
+
     // Simulate data
     const posts = Array.from({ length: limit }, (_, i) => ({
       id: (page - 1) * limit + i + 1,
       title: `Post ${(page - 1) * limit + i + 1}`,
-      content: 'Lorem ipsum...'
+      content: 'Lorem ipsum...',
     }));
-    
+
     const pagination = {
       page,
       limit,
@@ -112,7 +115,7 @@ app.get('/posts', async (req, res) => {
       hasNext: page < Math.ceil(100 / limit),
       hasPrev: page > 1,
     };
-    
+
     return res.paginate(posts, pagination, 'Posts retrieved successfully');
   } catch (error) {
     throw error;
@@ -131,7 +134,7 @@ app.post('/validate', (req, res) => {
     email: 'Invalid email format',
     password: 'Password must be at least 8 characters',
   };
-  
+
   return res.unprocessableEntity(errors, 'Validation failed');
 });
 

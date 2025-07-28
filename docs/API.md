@@ -21,14 +21,16 @@ import { quickSetup } from '@amitkandar/response-handler';
 
 const { middleware, errorHandler, logger } = quickSetup({
   mode: 'development',
-  logging: { enabled: true }
+  logging: { enabled: true },
 });
 ```
 
 **Parameters:**
+
 - `config` (optional): `ResponseHandlerConfig` - Configuration object
 
 **Returns:**
+
 ```typescript
 {
   middleware: Function,     // Express middleware function
@@ -46,14 +48,16 @@ Sets up Socket.IO response handler capabilities.
 import { quickSocketSetup } from '@amitkandar/response-handler';
 
 const { enhance, wrapper, setupServer, logger } = quickSocketSetup({
-  mode: 'development'
+  mode: 'development',
 });
 ```
 
 **Parameters:**
+
 - `config` (optional): `ResponseHandlerConfig` - Configuration object
 
 **Returns:**
+
 ```typescript
 {
   enhance: Function,       // Socket response enhancer
@@ -70,6 +74,7 @@ After applying the middleware, the Express response object is enhanced with thes
 ### Success Responses
 
 #### `res.ok(data?, message?)`
+
 Sends a 200 OK response.
 
 ```typescript
@@ -77,6 +82,7 @@ res.ok({ users: [...] }, 'Users retrieved successfully');
 ```
 
 #### `res.created(data?, message?)`
+
 Sends a 201 Created response.
 
 ```typescript
@@ -84,6 +90,7 @@ res.created(newUser, 'User created successfully');
 ```
 
 #### `res.accepted(data?, message?)`
+
 Sends a 202 Accepted response.
 
 ```typescript
@@ -91,6 +98,7 @@ res.accepted(null, 'Request accepted for processing');
 ```
 
 #### `res.noContent(message?)`
+
 Sends a 204 No Content response.
 
 ```typescript
@@ -100,6 +108,7 @@ res.noContent('User deleted successfully');
 ### Error Responses
 
 #### `res.badRequest(error?, message?)`
+
 Sends a 400 Bad Request response.
 
 ```typescript
@@ -107,6 +116,7 @@ res.badRequest({ field: 'email' }, 'Invalid email format');
 ```
 
 #### `res.unauthorized(error?, message?)`
+
 Sends a 401 Unauthorized response.
 
 ```typescript
@@ -114,6 +124,7 @@ res.unauthorized(null, 'Authentication required');
 ```
 
 #### `res.forbidden(error?, message?)`
+
 Sends a 403 Forbidden response.
 
 ```typescript
@@ -121,6 +132,7 @@ res.forbidden(null, 'Access denied');
 ```
 
 #### `res.notFound(error?, message?)`
+
 Sends a 404 Not Found response.
 
 ```typescript
@@ -128,6 +140,7 @@ res.notFound({ resource: 'user', id: 123 }, 'User not found');
 ```
 
 #### `res.conflict(error?, message?)`
+
 Sends a 409 Conflict response.
 
 ```typescript
@@ -135,6 +148,7 @@ res.conflict({ email: 'john@example.com' }, 'User already exists');
 ```
 
 #### `res.unprocessableEntity(error?, message?)`
+
 Sends a 422 Unprocessable Entity response.
 
 ```typescript
@@ -142,6 +156,7 @@ res.unprocessableEntity(validationErrors, 'Validation failed');
 ```
 
 #### `res.tooManyRequests(error?, message?)`
+
 Sends a 429 Too Many Requests response.
 
 ```typescript
@@ -149,6 +164,7 @@ res.tooManyRequests(null, 'Rate limit exceeded');
 ```
 
 #### `res.internalServerError(error?, message?)`
+
 Sends a 500 Internal Server Error response.
 
 ```typescript
@@ -158,6 +174,7 @@ res.internalServerError(error, 'Something went wrong');
 ### Generic Responses
 
 #### `res.respond(statusCode, data?, message?)`
+
 Sends a response with custom status code.
 
 ```typescript
@@ -165,6 +182,7 @@ res.respond(418, { teapot: true }, "I'm a teapot");
 ```
 
 #### `res.error(error, statusCode?)`
+
 Sends an error response with auto-detected or specified status code.
 
 ```typescript
@@ -172,22 +190,28 @@ res.error(new Error('Custom error'), 422);
 ```
 
 #### `res.paginate(data, pagination, message?)`
+
 Sends a paginated response.
 
 ```typescript
-res.paginate(posts, {
-  page: 1,
-  limit: 10,
-  total: 100,
-  totalPages: 10,
-  hasNext: true,
-  hasPrev: false
-}, 'Posts retrieved');
+res.paginate(
+  posts,
+  {
+    page: 1,
+    limit: 10,
+    total: 100,
+    totalPages: 10,
+    hasNext: true,
+    hasPrev: false,
+  },
+  'Posts retrieved',
+);
 ```
 
 ### File Responses
 
 #### `res.downloadFile(filePath, filename?)`
+
 Initiates file download with logging.
 
 ```typescript
@@ -195,6 +219,7 @@ res.downloadFile('/path/to/file.pdf', 'document.pdf');
 ```
 
 #### `res.streamResponse(stream, contentType?)`
+
 Streams data with optional content type.
 
 ```typescript
@@ -212,6 +237,7 @@ const response = enhance(socket, 'event-name');
 ### Success Methods
 
 #### `response.ok(data?, message?)`
+
 Emits a success response.
 
 ```typescript
@@ -219,6 +245,7 @@ response.ok(userData, 'User data retrieved');
 ```
 
 #### `response.created(data?, message?)`
+
 Emits a creation success response.
 
 ```typescript
@@ -228,6 +255,7 @@ response.created(newPost, 'Post created successfully');
 ### Error Methods
 
 #### `response.error(error, code?)`
+
 Emits an error response.
 
 ```typescript
@@ -235,6 +263,7 @@ response.error(new Error('Something went wrong'), 'ERR_001');
 ```
 
 #### `response.badRequest(error?, message?)`
+
 Emits a bad request error.
 
 ```typescript
@@ -242,6 +271,7 @@ response.badRequest({ field: 'userId' }, 'User ID is required');
 ```
 
 #### `response.unauthorized(error?, message?)`
+
 Emits an unauthorized error.
 
 ```typescript
@@ -249,6 +279,7 @@ response.unauthorized(null, 'Invalid token');
 ```
 
 #### `response.forbidden(error?, message?)`
+
 Emits a forbidden error.
 
 ```typescript
@@ -256,6 +287,7 @@ response.forbidden(null, 'Access denied');
 ```
 
 #### `response.notFound(error?, message?)`
+
 Emits a not found error.
 
 ```typescript
@@ -265,6 +297,7 @@ response.notFound({ userId: 123 }, 'User not found');
 ### Targeting Methods
 
 #### `response.toRoom(roomId)`
+
 Targets a specific room.
 
 ```typescript
@@ -272,6 +305,7 @@ response.toRoom('room-123').ok(message, 'New message');
 ```
 
 #### `response.toSocket(socketId)`
+
 Targets a specific socket.
 
 ```typescript
@@ -281,14 +315,18 @@ response.toSocket('socket-456').error(error);
 ### Error Wrapper
 
 #### `wrapper(handler)`
+
 Wraps socket handlers with automatic error handling.
 
 ```typescript
-socket.on('event', wrapper(async (socket, response, data) => {
-  // Handler code - errors are automatically caught
-  const result = await someAsyncOperation(data);
-  response.ok(result);
-}));
+socket.on(
+  'event',
+  wrapper(async (socket, response, data) => {
+    // Handler code - errors are automatically caught
+    const result = await someAsyncOperation(data);
+    response.ok(result);
+  }),
+);
 ```
 
 ## Configuration Options
@@ -309,14 +347,14 @@ interface ResponseHandlerConfig {
 
 ```typescript
 interface LoggingConfig {
-  enabled?: boolean;                    // Enable/disable logging
-  level?: 'error' | 'warn' | 'info' | 'debug';  // Log level
-  logErrors?: boolean;                  // Log error events
-  logRequests?: boolean;                // Log incoming requests
-  logResponses?: boolean;               // Log outgoing responses
-  includeStack?: boolean;               // Include stack traces
-  includeRequest?: boolean;             // Include request details
-  customLogger?: (level, message, meta?) => void;  // Custom logger
+  enabled?: boolean; // Enable/disable logging
+  level?: 'error' | 'warn' | 'info' | 'debug'; // Log level
+  logErrors?: boolean; // Log error events
+  logRequests?: boolean; // Log incoming requests
+  logResponses?: boolean; // Log outgoing responses
+  includeStack?: boolean; // Include stack traces
+  includeRequest?: boolean; // Include request details
+  customLogger?: (level, message, meta?) => void; // Custom logger
 }
 ```
 
@@ -324,12 +362,12 @@ interface LoggingConfig {
 
 ```typescript
 interface ResponseConfig {
-  includeTimestamp?: boolean;           // Include timestamp in responses
-  includeRequestId?: boolean;           // Include request ID in responses
-  includeExecutionTime?: boolean;       // Include execution time
-  customFields?: Record<string, any>;   // Custom fields in meta
-  pagination?: boolean;                 // Enable pagination helpers
-  compression?: boolean;                // Enable response compression
+  includeTimestamp?: boolean; // Include timestamp in responses
+  includeRequestId?: boolean; // Include request ID in responses
+  includeExecutionTime?: boolean; // Include execution time
+  customFields?: Record<string, any>; // Custom fields in meta
+  pagination?: boolean; // Enable pagination helpers
+  compression?: boolean; // Enable response compression
 }
 ```
 
@@ -337,11 +375,11 @@ interface ResponseConfig {
 
 ```typescript
 interface SecurityConfig {
-  sanitizeErrors?: boolean;             // Sanitize error messages
-  hideInternalErrors?: boolean;         // Hide internal error details
-  allowedErrorFields?: string[];        // Allowed error fields
-  rateLimiting?: boolean;               // Enable rate limiting
-  corsHeaders?: boolean;                // Set CORS security headers
+  sanitizeErrors?: boolean; // Sanitize error messages
+  hideInternalErrors?: boolean; // Hide internal error details
+  allowedErrorFields?: string[]; // Allowed error fields
+  rateLimiting?: boolean; // Enable rate limiting
+  corsHeaders?: boolean; // Set CORS security headers
 }
 ```
 
@@ -349,10 +387,10 @@ interface SecurityConfig {
 
 ```typescript
 interface PerformanceConfig {
-  enableCaching?: boolean;              // Enable response caching
-  cacheHeaders?: boolean;               // Set cache control headers
-  etag?: boolean;                       // Enable ETag headers
-  compression?: boolean;                // Enable response compression
+  enableCaching?: boolean; // Enable response caching
+  cacheHeaders?: boolean; // Set cache control headers
+  etag?: boolean; // Enable ETag headers
+  compression?: boolean; // Enable response compression
 }
 ```
 
@@ -362,9 +400,9 @@ interface PerformanceConfig {
 
 ```typescript
 interface EnhancedRequest extends Request {
-  requestId?: string;      // Auto-generated request ID
-  startTime?: number;      // Request start timestamp
-  context?: Record<string, any>;  // Request context object
+  requestId?: string; // Auto-generated request ID
+  startTime?: number; // Request start timestamp
+  context?: Record<string, any>; // Request context object
 }
 ```
 

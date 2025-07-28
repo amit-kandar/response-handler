@@ -9,7 +9,7 @@ import { ResponseHandlerConfig } from '@amitkandar/response-handler';
 
 const config: ResponseHandlerConfig = {
   mode: 'production',
-  
+
   logging: {
     enabled: true,
     level: 'info',
@@ -17,131 +17,139 @@ const config: ResponseHandlerConfig = {
     logRequests: false,
     logResponses: false,
     includeStack: false,
-    customLogger: myCustomLogger
+    customLogger: myCustomLogger,
   },
-  
+
   responses: {
     includeRequestId: true,
     includeTimestamp: true,
     includeExecutionTime: true,
     customFields: {
       version: '1.0.0',
-      environment: process.env.NODE_ENV
-    }
+      environment: process.env.NODE_ENV,
+    },
   },
-  
+
   security: {
     sanitizeErrors: true,
     hideInternalErrors: true,
     allowedErrorFields: ['message', 'type', 'code'],
-    corsHeaders: true
+    corsHeaders: true,
   },
-  
+
   performance: {
     enableCaching: true,
     cacheHeaders: {
-      'Cache-Control': 'public, max-age=300'
-    }
-  }
+      'Cache-Control': 'public, max-age=300',
+    },
+  },
 };
 ```
 
 ## Logging Configuration
 
 ### Log Levels
+
 - `debug` - All messages
 - `info` - Info, warnings, and errors
 - `warn` - Warnings and errors only
 - `error` - Errors only
 
 ### Custom Logger
+
 ```typescript
 const customLogger = {
   debug: (message, meta) => console.log(`[DEBUG] ${message}`, meta),
   info: (message, meta) => console.log(`[INFO] ${message}`, meta),
   warn: (message, meta) => console.warn(`[WARN] ${message}`, meta),
-  error: (message, meta) => console.error(`[ERROR] ${message}`, meta)
+  error: (message, meta) => console.error(`[ERROR] ${message}`, meta),
 };
 
 const config = {
   logging: {
     customLogger,
-    enabled: true
-  }
+    enabled: true,
+  },
 };
 ```
 
 ### Request/Response Logging
+
 ```typescript
 const config = {
   logging: {
     logRequests: true,
     logResponses: true,
     logRequestHeaders: ['authorization', 'user-agent'],
-    logResponseHeaders: ['x-request-id', 'x-response-time']
-  }
+    logResponseHeaders: ['x-request-id', 'x-response-time'],
+  },
 };
 ```
 
 ## Security Configuration
 
 ### Error Sanitization
+
 ```typescript
 const config = {
   security: {
     sanitizeErrors: true,
     hideInternalErrors: true,
     allowedErrorFields: [
-      'message',    // Error message
-      'type',       // Error type/name
-      'code',       // Error code
-      'field'       // Validation field (for validation errors)
-    ]
-  }
+      'message', // Error message
+      'type', // Error type/name
+      'code', // Error code
+      'field', // Validation field (for validation errors)
+    ],
+  },
 };
 ```
 
 ### CORS Headers
+
 ```typescript
 const config = {
   security: {
     corsHeaders: true,
     customHeaders: {
       'X-API-Version': '1.0.0',
-      'X-Powered-By': 'Response Handler'
-    }
-  }
+      'X-Powered-By': 'Response Handler',
+    },
+  },
 };
 ```
 
 ## Performance Configuration
 
 ### Caching
+
 ```typescript
 const config = {
   performance: {
     enableCaching: true,
     cacheHeaders: {
       'Cache-Control': 'public, max-age=300',
-      'ETag': true
-    }
-  }
+      ETag: true,
+    },
+  },
 };
 ```
 
 ### Request ID Generation
+
 ```typescript
 const config = {
   responses: {
     includeRequestId: true,
-    requestIdGenerator: () => `req-${Date.now()}-${Math.random()}`
-  }
+    requestIdGenerator: () => `req-${Date.now()}-${Math.random()}`,
+  },
 };
 ```
 
 ## Environment-Specific Configuration
 
 ### Development
+
 ```typescript
 const developmentConfig = {
   mode: 'development',
@@ -150,20 +158,21 @@ const developmentConfig = {
     level: 'debug',
     includeStack: true,
     logRequests: true,
-    logResponses: true
+    logResponses: true,
   },
   responses: {
     includeTimestamp: true,
-    includeExecutionTime: true
+    includeExecutionTime: true,
   },
   security: {
     sanitizeErrors: false,
-    hideInternalErrors: false
-  }
+    hideInternalErrors: false,
+  },
 };
 ```
 
 ### Production
+
 ```typescript
 const productionConfig = {
   mode: 'production',
@@ -172,31 +181,32 @@ const productionConfig = {
     level: 'error',
     includeStack: false,
     logRequests: false,
-    logResponses: false
+    logResponses: false,
   },
   responses: {
     includeRequestId: true,
-    includeTimestamp: false
+    includeTimestamp: false,
   },
   security: {
     sanitizeErrors: true,
     hideInternalErrors: true,
-    corsHeaders: true
-  }
+    corsHeaders: true,
+  },
 };
 ```
 
 ### Testing
+
 ```typescript
 const testConfig = {
   mode: 'test',
   logging: {
-    enabled: false
+    enabled: false,
   },
   responses: {
     includeTimestamp: false,
-    includeExecutionTime: false
-  }
+    includeExecutionTime: false,
+  },
 };
 ```
 
@@ -207,14 +217,14 @@ const socketConfig = {
   mode: 'development',
   logging: {
     enabled: true,
-    logErrors: true
+    logErrors: true,
   },
   responses: {
-    includeTimestamp: true
+    includeTimestamp: true,
   },
   security: {
-    allowedErrorFields: ['message', 'type', 'code']
-  }
+    allowedErrorFields: ['message', 'type', 'code'],
+  },
 };
 
 const { enhance, wrapper } = quickSocketSetup(socketConfig);
@@ -258,7 +268,7 @@ class ValidationError extends Error {
 class AuthenticationError extends Error {
   constructor(message) {
     super(message);
-    this.name = 'AuthenticationError'; 
+    this.name = 'AuthenticationError';
     this.statusCode = 401;
   }
 }
@@ -269,6 +279,7 @@ class AuthenticationError extends Error {
 ## Integration with Other Libraries
 
 ### Winston Logger
+
 ```typescript
 import winston from 'winston';
 
@@ -277,8 +288,8 @@ const logger = winston.createLogger({
   format: winston.format.json(),
   transports: [
     new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' })
-  ]
+    new winston.transports.File({ filename: 'combined.log' }),
+  ],
 });
 
 const config = {
@@ -287,13 +298,14 @@ const config = {
       debug: (msg, meta) => logger.debug(msg, meta),
       info: (msg, meta) => logger.info(msg, meta),
       warn: (msg, meta) => logger.warn(msg, meta),
-      error: (msg, meta) => logger.error(msg, meta)
-    }
-  }
+      error: (msg, meta) => logger.error(msg, meta),
+    },
+  },
 };
 ```
 
 ### Redis Caching
+
 ```typescript
 import Redis from 'redis';
 
@@ -304,9 +316,9 @@ const config = {
     enableCaching: true,
     cacheStore: {
       get: (key) => redis.get(key),
-      set: (key, value, ttl) => redis.setex(key, ttl, value)
-    }
-  }
+      set: (key, value, ttl) => redis.setex(key, ttl, value),
+    },
+  },
 };
 ```
 
@@ -318,8 +330,8 @@ Response Handler validates your configuration and will throw helpful errors:
 const invalidConfig = {
   mode: 'invalid-mode', // Error: mode must be 'development' or 'production'
   logging: {
-    level: 'invalid'    // Error: level must be debug|info|warn|error
-  }
+    level: 'invalid', // Error: level must be debug|info|warn|error
+  },
 };
 ```
 

@@ -21,7 +21,7 @@ const config = {
   logLevel: 'info',
   environment: 'development',
   enablePerformanceTracking: true,
-  enableSecurity: true
+  enableSecurity: true,
 };
 
 app.use(quickSetup(config));
@@ -42,12 +42,12 @@ const developmentConfig = {
     info: console.log,
     error: console.error,
     debug: console.debug,
-    warn: console.warn
+    warn: console.warn,
   },
   responseHeaders: {
     'X-Debug-Mode': 'true',
-    'X-Response-Time': true
-  }
+    'X-Response-Time': true,
+  },
 };
 
 if (process.env.NODE_ENV === 'development') {
@@ -72,11 +72,11 @@ const productionConfig = {
     info: (message) => {
       // Send to external logging service
       logToService('info', message);
-    }
+    },
   },
   responseHeaders: {
-    'X-API-Version': '1.0.0'
-  }
+    'X-API-Version': '1.0.0',
+  },
 };
 
 if (process.env.NODE_ENV === 'production') {
@@ -92,7 +92,7 @@ const testConfig = {
   logLevel: 'silent',
   environment: 'test',
   enablePerformanceTracking: false,
-  enableSecurity: false
+  enableSecurity: false,
 };
 
 if (process.env.NODE_ENV === 'test') {
@@ -112,8 +112,8 @@ const logger = winston.createLogger({
   format: winston.format.json(),
   transports: [
     new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' })
-  ]
+    new winston.transports.File({ filename: 'combined.log' }),
+  ],
 });
 
 const config = {
@@ -122,8 +122,8 @@ const config = {
     info: (message) => logger.info(message),
     error: (message) => logger.error(message),
     debug: (message) => logger.debug(message),
-    warn: (message) => logger.warn(message)
-  }
+    warn: (message) => logger.warn(message),
+  },
 };
 
 app.use(quickSetup(config));
@@ -141,8 +141,8 @@ const config = {
     info: (message) => logger.info(message),
     error: (message) => logger.error(message),
     debug: (message) => logger.debug(message),
-    warn: (message) => logger.warn(message)
-  }
+    warn: (message) => logger.warn(message),
+  },
 };
 
 app.use(quickSetup(config));
@@ -158,7 +158,7 @@ const { quickSocketSetup } = require('response-handler');
 const socketConfig = {
   enableLogging: true,
   logLevel: 'info',
-  environment: process.env.NODE_ENV || 'development'
+  environment: process.env.NODE_ENV || 'development',
 };
 
 io.use(quickSocketSetup(socketConfig));
@@ -174,11 +174,11 @@ const advancedSocketConfig = {
   customLoggers: {
     info: (message) => console.log(`[SOCKET INFO] ${message}`),
     error: (message) => console.error(`[SOCKET ERROR] ${message}`),
-    debug: (message) => console.debug(`[SOCKET DEBUG] ${message}`)
+    debug: (message) => console.debug(`[SOCKET DEBUG] ${message}`),
   },
   responseHeaders: {
-    'X-Socket-Version': '1.0.0'
-  }
+    'X-Socket-Version': '1.0.0',
+  },
 };
 
 io.use(quickSocketSetup(advancedSocketConfig));
@@ -206,8 +206,8 @@ const mongoConfig = {
       console.error(message);
       // Log to MongoDB
       logToMongoDB('error', message);
-    }
-  }
+    },
+  },
 };
 
 async function logToMongoDB(level, message) {
@@ -215,7 +215,7 @@ async function logToMongoDB(level, message) {
     await LogModel.create({
       level,
       message,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
   } catch (error) {
     console.error('Failed to log to MongoDB:', error);
@@ -237,7 +237,7 @@ const serviceConfig = {
   responseHeaders: {
     'X-Service-Name': process.env.SERVICE_NAME || 'api-service',
     'X-Service-Version': process.env.SERVICE_VERSION || '1.0.0',
-    'X-Request-ID': true // Add request ID to responses
+    'X-Request-ID': true, // Add request ID to responses
   },
   customLoggers: {
     info: (message) => {
@@ -245,7 +245,7 @@ const serviceConfig = {
         level: 'info',
         message,
         service: process.env.SERVICE_NAME,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
       console.log(JSON.stringify(logData));
     },
@@ -254,11 +254,11 @@ const serviceConfig = {
         level: 'error',
         message,
         service: process.env.SERVICE_NAME,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
       console.error(JSON.stringify(logData));
-    }
-  }
+    },
+  },
 };
 
 app.use(quickSetup(serviceConfig));
@@ -278,14 +278,14 @@ const limiter = rateLimit({
   max: 100, // limit each IP to 100 requests per windowMs
   handler: (req, res) => {
     res.tooManyRequests({}, 'Too many requests, please try again later');
-  }
+  },
 });
 
 // Response handler configuration
 const config = {
   enableLogging: true,
   logLevel: 'info',
-  environment: process.env.NODE_ENV
+  environment: process.env.NODE_ENV,
 };
 
 app.use(limiter);
@@ -303,7 +303,7 @@ const { quickSetup } = require('response-handler');
 const corsOptions = {
   origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
 };
 
 const responseConfig = {
@@ -312,8 +312,8 @@ const responseConfig = {
   environment: process.env.NODE_ENV,
   responseHeaders: {
     'X-API-Version': '1.0.0',
-    'X-Powered-By': 'Response Handler'
-  }
+    'X-Powered-By': 'Response Handler',
+  },
 };
 
 app.use(cors(corsOptions));
@@ -327,11 +327,13 @@ app.use(quickSetup(responseConfig));
 ```javascript
 const { quickSetup } = require('response-handler');
 
-app.use(quickSetup({
-  enableLogging: true,
-  logLevel: 'info',
-  environment: process.env.NODE_ENV
-}));
+app.use(
+  quickSetup({
+    enableLogging: true,
+    logLevel: 'info',
+    environment: process.env.NODE_ENV,
+  }),
+);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -339,9 +341,9 @@ app.get('/health', (req, res) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    version: process.env.npm_package_version || '1.0.0'
+    version: process.env.npm_package_version || '1.0.0',
   };
-  
+
   res.ok(healthData, 'Service is healthy');
 });
 
@@ -355,9 +357,9 @@ app.get('/health/detailed', async (req, res) => {
       version: process.env.npm_package_version || '1.0.0',
       memory: process.memoryUsage(),
       database: await checkDatabaseConnection(),
-      externalServices: await checkExternalServices()
+      externalServices: await checkExternalServices(),
     };
-    
+
     res.ok(healthData, 'Detailed health check completed');
   } catch (error) {
     res.error(error, 'Health check failed');
@@ -384,7 +386,7 @@ const config = {
     logLevel: 'debug',
     environment: 'development',
     enablePerformanceTracking: true,
-    enableSecurity: false
+    enableSecurity: false,
   },
   production: {
     enableLogging: true,
@@ -396,16 +398,16 @@ const config = {
       error: (message) => {
         // Send to monitoring service
         console.error(message);
-      }
-    }
+      },
+    },
   },
   test: {
     enableLogging: false,
     logLevel: 'silent',
     environment: 'test',
     enablePerformanceTracking: false,
-    enableSecurity: false
-  }
+    enableSecurity: false,
+  },
 };
 
 const currentConfig = config[process.env.NODE_ENV] || config.development;

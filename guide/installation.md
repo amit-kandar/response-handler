@@ -4,7 +4,7 @@ Install Response Handler in your Node.js project.
 
 ## Requirements
 
-- Node.js 16+ 
+- Node.js 16+
 - npm, yarn, or pnpm
 
 ## Install via NPM
@@ -50,7 +50,7 @@ import { quickSetup, ResponseHandlerConfig } from '@amitkandar/response-handler'
 
 const config: ResponseHandlerConfig = {
   mode: 'development',
-  logging: { enabled: true }
+  logging: { enabled: true },
 };
 ```
 

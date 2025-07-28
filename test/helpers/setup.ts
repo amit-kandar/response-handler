@@ -30,7 +30,7 @@ export const createMockRequest = (options: any = {}): Partial<Request> => ({
     const headers: Record<string, string> = {
       'user-agent': 'test-agent',
       'content-type': 'application/json',
-      ...options.headers
+      ...options.headers,
     };
     return headers[header.toLowerCase()];
   }),
@@ -173,8 +173,8 @@ export const testConfigs = {
 };
 
 // Async test helpers
-export const delay = (ms: number): Promise<void> => 
-  new Promise(resolve => setTimeout(resolve, ms));
+export const delay = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 
 export const expectToResolve = async (promise: Promise<any>): Promise<any> => {
   try {
@@ -226,14 +226,14 @@ export const expectErrorResponse = (response: any, expectedError?: any) => {
 // Environment variable helpers for testing
 export const withEnv = (envVars: Record<string, string>, fn: () => void | Promise<void>) => {
   const originalEnv = process.env;
-  
+
   beforeEach(() => {
     process.env = { ...originalEnv, ...envVars };
   });
-  
+
   afterEach(() => {
     process.env = originalEnv;
   });
-  
+
   return fn;
 };

@@ -16,9 +16,9 @@ const config = {
     ttl: 300, // 5 minutes
     redis: {
       host: 'localhost',
-      port: 6379
-    }
-  }
+      port: 6379,
+    },
+  },
 };
 
 app.use(quickSetup(config));
@@ -31,11 +31,11 @@ Automatic ETag generation for cacheable responses:
 ```javascript
 app.get('/api/users', (req, res) => {
   const users = getUsersFromCache();
-  
+
   // Automatically generates ETag
   res.ok(users, 'Users retrieved', {
     cacheable: true,
-    etag: true
+    etag: true,
   });
 });
 ```
@@ -50,14 +50,16 @@ Enable response compression for better bandwidth usage:
 const compression = require('compression');
 
 app.use(compression());
-app.use(quickSetup({
-  enablePerformanceTracking: true,
-  compression: {
-    enabled: true,
-    level: 6,
-    threshold: 1024
-  }
-}));
+app.use(
+  quickSetup({
+    enablePerformanceTracking: true,
+    compression: {
+      enabled: true,
+      level: 6,
+      threshold: 1024,
+    },
+  }),
+);
 ```
 
 ### Request Size Limits
@@ -65,19 +67,23 @@ app.use(quickSetup({
 Set appropriate request size limits:
 
 ```javascript
-app.use(express.json({ 
-  limit: '10mb',
-  verify: (req, res, buf) => {
-    req.rawBody = buf;
-  }
-}));
+app.use(
+  express.json({
+    limit: '10mb',
+    verify: (req, res, buf) => {
+      req.rawBody = buf;
+    },
+  }),
+);
 
-app.use(quickSetup({
-  requestLimits: {
-    maxSize: '10mb',
-    timeout: 30000
-  }
-}));
+app.use(
+  quickSetup({
+    requestLimits: {
+      maxSize: '10mb',
+      timeout: 30000,
+    },
+  }),
+);
 ```
 
 ## Database Optimization
@@ -102,19 +108,19 @@ const pool = new Pool({
 
 app.get('/api/users', async (req, res) => {
   const startTime = Date.now();
-  
+
   try {
     const client = await pool.connect();
     const result = await client.query('SELECT * FROM users');
     client.release();
-    
+
     const executionTime = Date.now() - startTime;
-    
+
     res.ok(result.rows, 'Users retrieved', {
       performance: {
         dbQuery: `${executionTime}ms`,
-        poolSize: pool.totalCount
-      }
+        poolSize: pool.totalCount,
+      },
     });
   } catch (error) {
     res.error(error, 'Failed to retrieve users');
@@ -133,11 +139,11 @@ const getUserStatement = 'SELECT * FROM users WHERE id = $1';
 app.get('/api/users/:id', async (req, res) => {
   try {
     const result = await pool.query(getUserStatement, [req.params.id]);
-    
+
     if (result.rows.length === 0) {
       return res.notFound({}, 'User not found');
     }
-    
+
     res.ok(result.rows[0], 'User retrieved');
   } catch (error) {
     res.error(error, 'Failed to retrieve user');
@@ -158,11 +164,9 @@ const csv = require('csv-parse');
 app.get('/api/export/users', (req, res) => {
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', 'attachment; filename="users.csv"');
-  
-  const stream = fs.createReadStream('users.csv')
-    .pipe(csv())
-    .pipe(res);
-    
+
+  const stream = fs.createReadStream('users.csv').pipe(csv()).pipe(res);
+
   stream.on('error', (error) => {
     res.error(error, 'Export failed');
   });
@@ -179,8 +183,8 @@ const config = {
   monitoring: {
     memory: true,
     cpu: true,
-    interval: 60000 // Check every minute
-  }
+    interval: 60000, // Check every minute
+  },
 };
 
 app.use(quickSetup(config));
@@ -188,13 +192,16 @@ app.use(quickSetup(config));
 // Memory usage endpoint
 app.get('/api/system/memory', (req, res) => {
   const memUsage = process.memoryUsage();
-  
-  res.ok({
-    rss: `${Math.round(memUsage.rss / 1024 / 1024)} MB`,
-    heapTotal: `${Math.round(memUsage.heapTotal / 1024 / 1024)} MB`,
-    heapUsed: `${Math.round(memUsage.heapUsed / 1024 / 1024)} MB`,
-    external: `${Math.round(memUsage.external / 1024 / 1024)} MB`
-  }, 'Memory usage retrieved');
+
+  res.ok(
+    {
+      rss: `${Math.round(memUsage.rss / 1024 / 1024)} MB`,
+      heapTotal: `${Math.round(memUsage.heapTotal / 1024 / 1024)} MB`,
+      heapUsed: `${Math.round(memUsage.heapUsed / 1024 / 1024)} MB`,
+      external: `${Math.round(memUsage.external / 1024 / 1024)} MB`,
+    },
+    'Memory usage retrieved',
+  );
 });
 ```
 
@@ -210,12 +217,12 @@ const numCPUs = require('os').cpus().length;
 
 if (cluster.isMaster) {
   console.log(`Master ${process.pid} is running`);
-  
+
   // Fork workers
   for (let i = 0; i < numCPUs; i++) {
     cluster.fork();
   }
-  
+
   cluster.on('exit', (worker, code, signal) => {
     console.log(`Worker ${worker.process.pid} died`);
     cluster.fork();
@@ -224,13 +231,15 @@ if (cluster.isMaster) {
   // Worker process
   const express = require('express');
   const { quickSetup } = require('response-handler');
-  
+
   const app = express();
-  app.use(quickSetup({
-    enablePerformanceTracking: true,
-    clusterId: process.pid
-  }));
-  
+  app.use(
+    quickSetup({
+      enablePerformanceTracking: true,
+      clusterId: process.pid,
+    }),
+  );
+
   app.listen(3000, () => {
     console.log(`Worker ${process.pid} started`);
   });
@@ -249,17 +258,19 @@ const io = new Server(server, {
   pingTimeout: 60000,
   pingInterval: 25000,
   maxHttpBufferSize: 1e6,
-  allowEIO3: true
+  allowEIO3: true,
 });
 
-io.use(quickSocketSetup({
-  enablePerformanceTracking: true,
-  rateLimiting: {
-    enabled: true,
-    maxConnections: 1000,
-    windowMs: 60000
-  }
-}));
+io.use(
+  quickSocketSetup({
+    enablePerformanceTracking: true,
+    rateLimiting: {
+      enabled: true,
+      maxConnections: 1000,
+      windowMs: 60000,
+    },
+  }),
+);
 ```
 
 ### Room Optimization
@@ -272,12 +283,12 @@ io.on('connection', (socket) => {
     // Check room size before joining
     const room = io.sockets.adapter.rooms.get(roomId);
     const roomSize = room ? room.size : 0;
-    
+
     if (roomSize >= 100) {
       socket.forbidden({}, 'Room is full');
       return;
     }
-    
+
     socket.join(roomId);
     socket.ok({ roomId, participants: roomSize + 1 }, 'Joined room');
   });
@@ -299,9 +310,9 @@ const config = {
     errorRate: true,
     customMetrics: {
       dbQueryTime: true,
-      cacheHitRate: true
-    }
-  }
+      cacheHitRate: true,
+    },
+  },
 };
 
 app.use(quickSetup(config));
@@ -309,13 +320,16 @@ app.use(quickSetup(config));
 // Metrics endpoint
 app.get('/api/metrics', (req, res) => {
   const metrics = getPerformanceMetrics();
-  
-  res.ok({
-    averageResponseTime: metrics.avgResponseTime,
-    requestsPerSecond: metrics.rps,
-    errorRate: metrics.errorRate,
-    uptime: process.uptime()
-  }, 'Metrics retrieved');
+
+  res.ok(
+    {
+      averageResponseTime: metrics.avgResponseTime,
+      requestsPerSecond: metrics.rps,
+      errorRate: metrics.errorRate,
+      uptime: process.uptime(),
+    },
+    'Metrics retrieved',
+  );
 });
 ```
 
@@ -329,11 +343,11 @@ app.get('/health', async (req, res) => {
     database: await checkDatabase(),
     cache: await checkCache(),
     memory: checkMemory(),
-    disk: await checkDisk()
+    disk: await checkDisk(),
   };
-  
-  const isHealthy = Object.values(checks).every(check => check.status === 'ok');
-  
+
+  const isHealthy = Object.values(checks).every((check) => check.status === 'ok');
+
   if (isHealthy) {
     res.ok(checks, 'All systems operational');
   } else {
@@ -356,12 +370,12 @@ const productionConfig = {
   enableSecurity: true,
   compression: {
     enabled: true,
-    level: 6
+    level: 6,
   },
   caching: {
     enabled: true,
-    ttl: 3600
-  }
+    ttl: 3600,
+  },
 };
 
 if (process.env.NODE_ENV === 'production') {
@@ -374,16 +388,19 @@ if (process.env.NODE_ENV === 'production') {
 Integrate with Content Delivery Networks:
 
 ```javascript
-app.use('/static', express.static('public', {
-  maxAge: '1y',
-  etag: true,
-  lastModified: true,
-  setHeaders: (res, path) => {
-    if (path.endsWith('.js') || path.endsWith('.css')) {
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-    }
-  }
-}));
+app.use(
+  '/static',
+  express.static('public', {
+    maxAge: '1y',
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, path) => {
+      if (path.endsWith('.js') || path.endsWith('.css')) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+    },
+  }),
+);
 ```
 
 ## Best Practices

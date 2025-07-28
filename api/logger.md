@@ -17,7 +17,7 @@ const config = {
   enabled: true,
   level: 'info',
   includeStack: true,
-  customLogger: myCustomLogger
+  customLogger: myCustomLogger,
 };
 
 const logger = new Logger(config);
@@ -26,52 +26,61 @@ const logger = new Logger(config);
 ## Logging Methods
 
 ### `debug(message, meta?, context?)`
+
 Log debug information (lowest priority):
 
 ```typescript
-logger.debug('Processing user request', {
-  userId: 123,
-  operation: 'getUserById'
-}, {
-  requestId: 'req-456',
-  timestamp: Date.now()
-});
+logger.debug(
+  'Processing user request',
+  {
+    userId: 123,
+    operation: 'getUserById',
+  },
+  {
+    requestId: 'req-456',
+    timestamp: Date.now(),
+  },
+);
 ```
 
 ### `info(message, meta?, context?)`
+
 Log informational messages:
 
 ```typescript
 logger.info('User authentication successful', {
   userId: 123,
-  method: 'JWT'
+  method: 'JWT',
 });
 ```
 
 ### `warn(message, meta?, context?)`
+
 Log warning messages:
 
 ```typescript
 logger.warn('Rate limit approaching', {
   userId: 123,
   currentRequests: 95,
-  limit: 100
+  limit: 100,
 });
 ```
 
 ### `error(message, error?, context?)`
+
 Log error messages:
 
 ```typescript
 logger.error('Database connection failed', error, {
   database: 'users',
-  connection: 'primary'
+  connection: 'primary',
 });
 ```
 
 ## Specialized Logging Methods
 
 ### `logRequest(req)`
+
 Log incoming HTTP requests:
 
 ```typescript
@@ -80,6 +89,7 @@ logger.logRequest(req);
 ```
 
 ### `logResponse(req, res, responseData, executionTime?)`
+
 Log outgoing HTTP responses:
 
 ```typescript
@@ -88,6 +98,7 @@ logger.logResponse(req, res, responseData, 150);
 ```
 
 ### `logEvent(event)`
+
 Log structured events:
 
 ```typescript
@@ -99,8 +110,8 @@ logger.logEvent({
   timestamp: new Date().toISOString(),
   metadata: {
     category: 'content',
-    source: 'web_app'
-  }
+    source: 'web_app',
+  },
 });
 ```
 
@@ -109,11 +120,12 @@ logger.logEvent({
 The logger supports 4 log levels (from lowest to highest priority):
 
 1. `debug` - Detailed debugging information
-2. `info` - General informational messages  
+2. `info` - General informational messages
 3. `warn` - Warning messages for potential issues
 4. `error` - Error messages for failures
 
 ### Level Filtering
+
 ```typescript
 // Only logs 'warn' and 'error' messages
 const logger = new Logger({ level: 'warn' });
@@ -127,18 +139,20 @@ logger.error('This will be logged');
 ## Configuration Options
 
 ### Basic Configuration
+
 ```typescript
 const config = {
-  enabled: true,           // Enable/disable logging
-  level: 'info',          // Minimum log level
-  includeStack: true,     // Include stack traces in errors
-  logRequests: true,      // Log incoming requests
-  logResponses: false,    // Log outgoing responses
-  logErrors: true         // Log error details
+  enabled: true, // Enable/disable logging
+  level: 'info', // Minimum log level
+  includeStack: true, // Include stack traces in errors
+  logRequests: true, // Log incoming requests
+  logResponses: false, // Log outgoing responses
+  logErrors: true, // Log error details
 };
 ```
 
 ### Custom Logger Integration
+
 ```typescript
 import winston from 'winston';
 
@@ -147,8 +161,8 @@ const winstonLogger = winston.createLogger({
   format: winston.format.json(),
   transports: [
     new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' })
-  ]
+    new winston.transports.File({ filename: 'combined.log' }),
+  ],
 });
 
 const config = {
@@ -156,20 +170,22 @@ const config = {
     debug: (message, meta) => winstonLogger.debug(message, meta),
     info: (message, meta) => winstonLogger.info(message, meta),
     warn: (message, meta) => winstonLogger.warn(message, meta),
-    error: (message, meta) => winstonLogger.error(message, meta)
-  }
+    error: (message, meta) => winstonLogger.error(message, meta),
+  },
 };
 ```
 
 ## Message Formatting
 
 ### Default Format
+
 ```typescript
 // Output format: [timestamp] [LEVEL] message metadata
 [2023-01-01T12:00:00.000Z] [INFO] User logged in {"userId": 123, "method": "OAuth"}
 ```
 
 ### Custom Formatting
+
 ```typescript
 class CustomLogger extends Logger {
   formatMessage(level, message, meta) {
@@ -183,24 +199,26 @@ class CustomLogger extends Logger {
 ## Error Handling
 
 ### Stack Trace Handling
+
 ```typescript
 try {
   throw new Error('Something went wrong');
 } catch (error) {
   logger.error('Operation failed', error, {
     operation: 'processData',
-    userId: 123
+    userId: 123,
   });
 }
 
 // With includeStack: true (development)
 // Logs full stack trace
 
-// With includeStack: false (production)  
+// With includeStack: false (production)
 // Logs only error message and metadata
 ```
 
 ### Circular Reference Protection
+
 ```typescript
 const circularObj = { name: 'test' };
 circularObj.self = circularObj;
@@ -212,6 +230,7 @@ logger.info('Circular object test', circularObj);
 ## Request/Response Logging
 
 ### Request Logging Format
+
 ```typescript
 {
   type: 'request',
@@ -228,6 +247,7 @@ logger.info('Circular object test', circularObj);
 ```
 
 ### Response Logging Format
+
 ```typescript
 {
   type: 'response',
@@ -243,6 +263,7 @@ logger.info('Circular object test', circularObj);
 ## Event Logging
 
 ### Structured Events
+
 ```typescript
 // User actions
 logger.logEvent({
@@ -251,7 +272,7 @@ logger.logEvent({
   userId: 123,
   success: true,
   method: 'email',
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),
 });
 
 // System events
@@ -260,7 +281,7 @@ logger.logEvent({
   event: 'cache_miss',
   key: 'user:123',
   ttl: 300,
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),
 });
 
 // Business events
@@ -270,34 +291,37 @@ logger.logEvent({
   orderId: 'ord-789',
   amount: 99.99,
   currency: 'USD',
-  userId: 123
+  userId: 123,
 });
 ```
 
 ## Configuration Updates
 
 ### Runtime Configuration Updates
+
 ```typescript
 // Update logger configuration at runtime
 logger.updateConfig({
   level: 'error',
-  includeStack: false
+  includeStack: false,
 });
 ```
 
 ### Environment-Based Configuration
+
 ```typescript
 const config = {
   enabled: process.env.NODE_ENV !== 'test',
   level: process.env.LOG_LEVEL || 'info',
   includeStack: process.env.NODE_ENV === 'development',
-  logRequests: process.env.NODE_ENV === 'development'
+  logRequests: process.env.NODE_ENV === 'development',
 };
 ```
 
 ## Integration Examples
 
 ### With Express
+
 ```typescript
 import express from 'express';
 import { Logger } from '@amitkandar/response-handler';
@@ -314,7 +338,7 @@ app.use((req, res, next) => {
 // Response logging middleware
 app.use((req, res, next) => {
   const originalSend = res.send;
-  res.send = function(data) {
+  res.send = function (data) {
     logger.logResponse(req, res, data);
     return originalSend.call(this, data);
   };
@@ -323,6 +347,7 @@ app.use((req, res, next) => {
 ```
 
 ### With Socket.IO
+
 ```typescript
 import { Server } from 'socket.io';
 import { Logger } from '@amitkandar/response-handler';
@@ -332,11 +357,11 @@ const logger = new Logger({ level: 'debug' });
 
 io.on('connection', (socket) => {
   logger.info('Socket connected', { socketId: socket.id });
-  
+
   socket.on('disconnect', () => {
     logger.info('Socket disconnected', { socketId: socket.id });
   });
-  
+
   socket.on('error', (error) => {
     logger.error('Socket error', error, { socketId: socket.id });
   });
@@ -346,6 +371,7 @@ io.on('connection', (socket) => {
 ## Performance Considerations
 
 ### Asynchronous Logging
+
 ```typescript
 // For high-throughput applications
 const config = {
@@ -353,12 +379,13 @@ const config = {
     debug: (message, meta) => setImmediate(() => console.log(message, meta)),
     info: (message, meta) => setImmediate(() => console.info(message, meta)),
     warn: (message, meta) => setImmediate(() => console.warn(message, meta)),
-    error: (message, meta) => setImmediate(() => console.error(message, meta))
-  }
+    error: (message, meta) => setImmediate(() => console.error(message, meta)),
+  },
 };
 ```
 
 ### Log Sampling
+
 ```typescript
 class SamplingLogger extends Logger {
   info(message, meta, context) {
@@ -373,6 +400,7 @@ class SamplingLogger extends Logger {
 ## Testing
 
 ### Mock Logger for Tests
+
 ```typescript
 const mockLogger = {
   debug: jest.fn(),
@@ -382,26 +410,27 @@ const mockLogger = {
   logRequest: jest.fn(),
   logResponse: jest.fn(),
   logEvent: jest.fn(),
-  updateConfig: jest.fn()
+  updateConfig: jest.fn(),
 };
 ```
 
 ### Testing Log Output
+
 ```typescript
 describe('Logger', () => {
   let logger, consoleSpy;
-  
+
   beforeEach(() => {
     consoleSpy = jest.spyOn(console, 'log').mockImplementation();
     logger = new Logger({ level: 'debug' });
   });
-  
+
   it('should log debug messages', () => {
     logger.debug('Test message', { test: true });
-    
+
     expect(consoleSpy).toHaveBeenCalledWith(
       expect.stringContaining('[DEBUG] Test message'),
-      expect.objectContaining({ test: true })
+      expect.objectContaining({ test: true }),
     );
   });
 });

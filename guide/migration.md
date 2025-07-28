@@ -5,12 +5,13 @@ Migrate from other response handling libraries to Response Handler.
 ## From Express Default
 
 ### Before
+
 ```typescript
 app.get('/users', (req, res) => {
   res.status(200).json({
     success: true,
     data: users,
-    message: 'Users retrieved'
+    message: 'Users retrieved',
   });
 });
 
@@ -18,7 +19,7 @@ app.get('/users/:id', (req, res) => {
   if (!user) {
     return res.status(404).json({
       success: false,
-      message: 'User not found'
+      message: 'User not found',
     });
   }
   res.status(200).json({ success: true, data: user });
@@ -26,6 +27,7 @@ app.get('/users/:id', (req, res) => {
 ```
 
 ### After
+
 ```typescript
 app.get('/users', (req, res) => {
   res.ok(users, 'Users retrieved');
@@ -42,6 +44,7 @@ app.get('/users/:id', (req, res) => {
 ## From express-response-helper
 
 ### Before
+
 ```typescript
 import responseHelper from 'express-response-helper';
 app.use(responseHelper());
@@ -56,6 +59,7 @@ app.get('/error', (req, res) => {
 ```
 
 ### After
+
 ```typescript
 import { quickSetup } from '@amitkandar/response-handler';
 const { middleware } = quickSetup();
@@ -73,6 +77,7 @@ app.get('/error', (req, res) => {
 ## From Custom Response Utilities
 
 ### Before
+
 ```typescript
 // utils/response.js
 const sendSuccess = (res, data, message, statusCode = 200) => {
@@ -80,7 +85,7 @@ const sendSuccess = (res, data, message, statusCode = 200) => {
     success: true,
     data,
     message,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 };
 
@@ -89,9 +94,9 @@ const sendError = (res, error, message, statusCode = 500) => {
     success: false,
     error: {
       message: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
     },
-    message
+    message,
   });
 };
 
@@ -102,10 +107,11 @@ app.get('/users', (req, res) => {
 ```
 
 ### After
+
 ```typescript
 import { quickSetup } from '@amitkandar/response-handler';
 const { middleware } = quickSetup({
-  responses: { includeTimestamp: true }
+  responses: { includeTimestamp: true },
 });
 app.use(middleware);
 
@@ -117,6 +123,7 @@ app.get('/users', (req, res) => {
 ## Configuration Migration
 
 ### Environment-Based Config
+
 ```typescript
 // Before: Manual environment handling
 const isDev = process.env.NODE_ENV === 'development';
@@ -128,28 +135,29 @@ const config = {
 
 // After: Automatic environment handling
 const { middleware } = quickSetup({
-  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development'
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   // Automatically configures based on mode
 });
 ```
 
 ### Error Handling Migration
+
 ```typescript
 // Before: Manual error middleware
 app.use((err, req, res, next) => {
   console.error(err);
-  
+
   const isDev = process.env.NODE_ENV === 'development';
   const response = {
     success: false,
-    message: err.message || 'Internal server error'
+    message: err.message || 'Internal server error',
   };
-  
+
   if (isDev) {
     response.stack = err.stack;
     response.details = err.details;
   }
-  
+
   res.status(err.statusCode || 500).json(response);
 });
 
@@ -161,6 +169,7 @@ app.use(errorHandler); // Handles everything automatically
 ## Socket.IO Migration
 
 ### From Manual Socket Responses
+
 ```typescript
 // Before
 socket.on('get-user', (data) => {
@@ -169,13 +178,13 @@ socket.on('get-user', (data) => {
     socket.emit('user-data', {
       success: true,
       data: user,
-      message: 'User retrieved'
+      message: 'User retrieved',
     });
   } catch (error) {
     socket.emit('user-error', {
       success: false,
       error: { message: error.message },
-      message: 'Failed to get user'
+      message: 'Failed to get user',
     });
   }
 });
@@ -185,7 +194,7 @@ const { enhance } = quickSocketSetup();
 
 socket.on('get-user', (data) => {
   const response = enhance(socket, 'user-data');
-  
+
   try {
     const user = getUserById(data.id);
     response.ok(user, 'User retrieved');
@@ -196,6 +205,7 @@ socket.on('get-user', (data) => {
 ```
 
 ### From Socket.IO Middleware
+
 ```typescript
 // Before: Custom socket middleware
 io.use((socket, next) => {
@@ -216,6 +226,7 @@ const { enhance, wrapper } = quickSocketSetup();
 ## Breaking Changes
 
 ### Response Format
+
 The response format is standardized:
 
 ```typescript
@@ -236,6 +247,7 @@ The response format is standardized:
 ```
 
 ### Error Format
+
 ```typescript
 // Old error format
 {
@@ -288,7 +300,7 @@ Update your tests to expect the new response format:
 // Before
 expect(response.body).toEqual({
   status: 'success',
-  result: expect.any(Array)
+  result: expect.any(Array),
 });
 
 // After
@@ -296,8 +308,8 @@ expect(response.body).toMatchObject({
   success: true,
   data: expect.any(Array),
   meta: expect.objectContaining({
-    requestId: expect.any(String)
-  })
+    requestId: expect.any(String),
+  }),
 });
 ```
 

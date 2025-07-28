@@ -42,7 +42,7 @@ const { middleware, errorHandler } = quickSetup({
   responses: {
     includeRequestId: true,
     includeExecutionTime: true,
-  }
+  },
 });
 
 app.use(middleware);
@@ -57,7 +57,7 @@ app.post('/users', async (req, res) => {
   if (!req.body.email) {
     return res.badRequest({ field: 'email' }, 'Email is required');
   }
-  
+
   const user = await createUser(req.body);
   return res.created(user);
 });
@@ -72,28 +72,31 @@ const { quickSocketSetup } = require('@amitkandar/response-handler');
 
 const { enhance, wrapper } = quickSocketSetup({
   mode: 'development',
-  logging: { enabled: true }
+  logging: { enabled: true },
 });
 
 io.on('connection', (socket) => {
   // Simple event handling
   socket.on('get-user', (data) => {
     const response = enhance(socket, 'user-data');
-    
+
     if (!data.userId) {
       return response.badRequest('User ID required');
     }
-    
+
     const user = getUserById(data.userId);
     response.ok(user);
   });
 
   // Automatic error handling with wrapper
-  socket.on('create-post', wrapper(async (socket, response, data) => {
-    const post = await createPost(data);
-    response.created(post);
-    // Errors are automatically caught and emitted!
-  }));
+  socket.on(
+    'create-post',
+    wrapper(async (socket, response, data) => {
+      const post = await createPost(data);
+      response.created(post);
+      // Errors are automatically caught and emitted!
+    }),
+  );
 });
 ```
 
@@ -103,25 +106,25 @@ io.on('connection', (socket) => {
 
 ```javascript
 // ✅ Success Responses
-res.ok(data, message)                    // 200 OK
-res.created(data, message)               // 201 Created
-res.accepted(data, message)              // 202 Accepted
-res.noContent(message)                   // 204 No Content
+res.ok(data, message); // 200 OK
+res.created(data, message); // 201 Created
+res.accepted(data, message); // 202 Accepted
+res.noContent(message); // 204 No Content
 
 // ❌ Error Responses
-res.badRequest(error, message)           // 400 Bad Request
-res.unauthorized(error, message)         // 401 Unauthorized
-res.forbidden(error, message)            // 403 Forbidden
-res.notFound(error, message)             // 404 Not Found
-res.conflict(error, message)             // 409 Conflict
-res.unprocessableEntity(error, message)  // 422 Unprocessable Entity
-res.tooManyRequests(error, message)      // 429 Too Many Requests
-res.internalServerError(error, message)  // 500 Internal Server Error
+res.badRequest(error, message); // 400 Bad Request
+res.unauthorized(error, message); // 401 Unauthorized
+res.forbidden(error, message); // 403 Forbidden
+res.notFound(error, message); // 404 Not Found
+res.conflict(error, message); // 409 Conflict
+res.unprocessableEntity(error, message); // 422 Unprocessable Entity
+res.tooManyRequests(error, message); // 429 Too Many Requests
+res.internalServerError(error, message); // 500 Internal Server Error
 
 // 🔧 Generic Methods
-res.respond(statusCode, data, message)   // Custom status code
-res.error(error, statusCode)             // Auto-determine from error
-res.paginate(data, pagination, message)  // Paginated responses
+res.respond(statusCode, data, message); // Custom status code
+res.error(error, statusCode); // Auto-determine from error
+res.paginate(data, pagination, message); // Paginated responses
 ```
 
 ### Socket.IO Response Methods
@@ -130,19 +133,19 @@ res.paginate(data, pagination, message)  // Paginated responses
 const response = enhance(socket, 'event-name');
 
 // Success responses
-response.ok(data, message)
-response.created(data, message)
+response.ok(data, message);
+response.created(data, message);
 
 // Error responses
-response.error(error, code)
-response.badRequest(error, message)
-response.unauthorized(error, message)
-response.forbidden(error, message)
-response.notFound(error, message)
+response.error(error, code);
+response.badRequest(error, message);
+response.unauthorized(error, message);
+response.forbidden(error, message);
+response.notFound(error, message);
 
 // Targeting
-response.toRoom('room-name').ok(data)
-response.toSocket('socket-id').error(error)
+response.toRoom('room-name').ok(data);
+response.toSocket('socket-id').error(error);
 ```
 
 ## ⚙️ Configuration Options
@@ -153,7 +156,7 @@ response.toSocket('socket-id').error(error)
 const config = {
   // 🌍 Environment mode
   mode: 'development', // or 'production'
-  
+
   // 📊 Logging configuration
   logging: {
     enabled: true,
@@ -165,9 +168,9 @@ const config = {
     includeRequest: true, // Include request details
     customLogger: (level, message, meta) => {
       // Use your preferred logger (Winston, Bunyan, etc.)
-    }
+    },
   },
-  
+
   // 📝 Response configuration
   responses: {
     includeTimestamp: true,
@@ -176,7 +179,7 @@ const config = {
     customFields: { version: '1.0.0' },
     pagination: true,
   },
-  
+
   // 🔒 Security configuration
   security: {
     sanitizeErrors: true,
@@ -184,14 +187,14 @@ const config = {
     allowedErrorFields: ['message', 'type', 'code'],
     corsHeaders: true,
   },
-  
+
   // ⚡ Performance configuration
   performance: {
     enableCaching: true,
     cacheHeaders: true,
     etag: true,
     compression: true,
-  }
+  },
 };
 ```
 
@@ -200,6 +203,7 @@ const config = {
 ### 1. Response Modes
 
 **Development Mode** (Detailed errors, full stack traces):
+
 ```json
 {
   "success": false,
@@ -220,6 +224,7 @@ const config = {
 ```
 
 **Production Mode** (Sanitized, secure):
+
 ```json
 {
   "success": false,
@@ -238,6 +243,7 @@ const config = {
 ### 2. Automatic Request Tracking
 
 Every request gets:
+
 - Unique request ID
 - Execution time tracking
 - Comprehensive logging
@@ -245,8 +251,8 @@ Every request gets:
 
 ```javascript
 app.get('/users', (req, res) => {
-  console.log(req.requestId);  // Auto-generated UUID
-  console.log(req.startTime);  // Request start timestamp
+  console.log(req.requestId); // Auto-generated UUID
+  console.log(req.startTime); // Request start timestamp
   // Response automatically includes execution time
 });
 ```
@@ -257,12 +263,12 @@ app.get('/users', (req, res) => {
 app.get('/posts', async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
   const posts = await getPostsPaginated(page, limit);
-  
+
   return res.paginate(posts, {
     page: parseInt(page),
     limit: parseInt(limit),
     total: await getTotalPosts(),
-    totalPages: Math.ceil(await getTotalPosts() / limit),
+    totalPages: Math.ceil((await getTotalPosts()) / limit),
     hasNext: page < totalPages,
     hasPrev: page > 1,
   });
@@ -270,6 +276,7 @@ app.get('/posts', async (req, res) => {
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -291,43 +298,52 @@ Response:
 ### 4. Enhanced Socket.IO Features
 
 #### Room Broadcasting
+
 ```javascript
 socket.on('announcement', (data) => {
   const response = enhance(socket, 'announcement-sent');
-  
+
   // Broadcast to all users in a room
-  response.toRoom(data.roomId).ok({
-    message: data.message,
-    from: socket.id,
-    timestamp: new Date().toISOString()
-  }, 'New announcement');
-  
+  response.toRoom(data.roomId).ok(
+    {
+      message: data.message,
+      from: socket.id,
+      timestamp: new Date().toISOString(),
+    },
+    'New announcement',
+  );
+
   // Confirm to sender
   response.ok({ messageId: Date.now() }, 'Announcement sent');
 });
 ```
 
 #### Private Messaging
+
 ```javascript
 socket.on('private-message', (data) => {
   const response = enhance(socket, 'message-received');
-  
+
   // Send to specific socket
   response.toSocket(data.targetId).ok({
     from: socket.id,
     message: data.message,
-    private: true
+    private: true,
   });
 });
 ```
 
 #### Auto Error Handling
+
 ```javascript
-socket.on('risky-operation', wrapper(async (socket, response, data) => {
-  // Any error thrown here is automatically caught and emitted
-  const result = await riskyAsyncOperation(data);
-  response.ok(result);
-}));
+socket.on(
+  'risky-operation',
+  wrapper(async (socket, response, data) => {
+    // Any error thrown here is automatically caught and emitted
+    const result = await riskyAsyncOperation(data);
+    response.ok(result);
+  }),
+);
 ```
 
 ### 5. Custom Error Mapping
@@ -337,10 +353,10 @@ const { createResponseHandler } = require('@amitkandar/response-handler');
 
 const handler = createResponseHandler({
   errorMapping: {
-    'ValidationError': { statusCode: 422, clientMessage: 'Invalid input' },
-    'AuthError': { statusCode: 401, clientMessage: 'Authentication required' },
-    'RateLimitError': { statusCode: 429, clientMessage: 'Too many requests' },
-  }
+    ValidationError: { statusCode: 422, clientMessage: 'Invalid input' },
+    AuthError: { statusCode: 401, clientMessage: 'Authentication required' },
+    RateLimitError: { statusCode: 429, clientMessage: 'Too many requests' },
+  },
 });
 ```
 
@@ -373,6 +389,7 @@ app.use(errorHandler);
 ### From Old API to New API
 
 **Old way:**
+
 ```javascript
 const { sendSuccess, sendError, errorHandler } = require('@amitkandar/response-handler');
 
@@ -389,6 +406,7 @@ app.use(errorHandler);
 ```
 
 **New way:**
+
 ```javascript
 const { quickSetup } = require('@amitkandar/response-handler');
 const { middleware, errorHandler } = quickSetup();
@@ -406,6 +424,7 @@ app.use(errorHandler);
 ### Socket.IO Migration
 
 **Old way:**
+
 ```javascript
 const { emitSuccess, emitError } = require('@amitkandar/response-handler');
 
@@ -420,13 +439,14 @@ socket.on('get-user', (data) => {
 ```
 
 **New way:**
+
 ```javascript
 const { quickSocketSetup } = require('@amitkandar/response-handler');
 const { enhance } = quickSocketSetup();
 
 socket.on('get-user', (data) => {
   const response = enhance(socket, 'user-data');
-  
+
   try {
     const user = getUser(data.id);
     response.ok(user);
@@ -439,6 +459,7 @@ socket.on('get-user', (data) => {
 ## 🔧 Development vs Production
 
 ### Development Features
+
 - Detailed error messages with stack traces
 - Full request/response logging
 - Performance metrics
@@ -446,6 +467,7 @@ socket.on('get-user', (data) => {
 - Unfiltered error details
 
 ### Production Features
+
 - Sanitized error messages
 - Internal error hiding
 - Minimal logging (errors only by default)
@@ -468,6 +490,7 @@ const config = { mode: 'production' };
 ## 📊 Logging Examples
 
 ### Request Logging
+
 ```
 [2024-01-01T10:00:00.000Z] [INFO] Incoming GET request to /api/users {
   "method": "GET",
@@ -479,6 +502,7 @@ const config = { mode: 'production' };
 ```
 
 ### Response Logging
+
 ```
 [2024-01-01T10:00:00.500Z] [INFO] Response sent with status 200 {
   "method": "GET",
@@ -491,6 +515,7 @@ const config = { mode: 'production' };
 ```
 
 ### Error Logging
+
 ```
 [2024-01-01T10:00:01.000Z] [ERROR] Database connection failed {
   "error": {
@@ -507,6 +532,7 @@ const config = { mode: 'production' };
 ## 🎯 Best Practices
 
 ### 1. Error Handling
+
 ```javascript
 // ✅ Good: Let error handler catch everything
 app.get('/users', async (req, res) => {
@@ -526,6 +552,7 @@ app.get('/users', async (req, res) => {
 ```
 
 ### 2. Response Messages
+
 ```javascript
 // ✅ Good: Descriptive messages
 res.ok(users, 'Successfully retrieved 15 users');
@@ -537,13 +564,17 @@ res.notFound(null, 'Not found');
 ```
 
 ### 3. Error Objects
+
 ```javascript
 // ✅ Good: Structured error info
-return res.badRequest({
-  field: 'email',
-  code: 'INVALID_FORMAT',
-  provided: req.body.email
-}, 'Invalid email format');
+return res.badRequest(
+  {
+    field: 'email',
+    code: 'INVALID_FORMAT',
+    provided: req.body.email,
+  },
+  'Invalid email format',
+);
 
 // ❌ Avoid: String-only errors
 return res.badRequest('Bad email');
@@ -580,8 +611,8 @@ const { middleware, errorHandler } = quickSetup({
   logging: {
     customLogger: (level, message, meta) => {
       winston.log(level, message, meta);
-    }
-  }
+    },
+  },
 });
 ```
 

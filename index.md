@@ -2,9 +2,9 @@
 layout: home
 
 hero:
-  name: "Response Handler"
-  text: "Unified Response & Error Handler"
-  tagline: "Modern, type-safe response handling for REST APIs and Socket.IO with comprehensive logging and error management"
+  name: 'Response Handler'
+  text: 'Unified Response & Error Handler'
+  tagline: 'Modern, type-safe response handling for REST APIs and Socket.IO with comprehensive logging and error management'
   actions:
     - theme: brand
       text: Get Started
@@ -39,7 +39,7 @@ import { quickSetup } from '@amitkandar/response-handler';
 const app = express();
 const { middleware, errorHandler } = quickSetup({
   mode: 'development',
-  logging: { enabled: true }
+  logging: { enabled: true },
 });
 
 app.use(middleware);
@@ -59,14 +59,17 @@ import { quickSocketSetup } from '@amitkandar/response-handler';
 
 const io = new Server(server);
 const { enhance, wrapper } = quickSocketSetup({
-  mode: 'development'
+  mode: 'development',
 });
 
 io.on('connection', (socket) => {
-  socket.on('get-data', wrapper(async (socket, response, data) => {
-    const result = await fetchData(data.id);
-    response.ok(result, 'Data retrieved successfully');
-  }));
+  socket.on(
+    'get-data',
+    wrapper(async (socket, response, data) => {
+      const result = await fetchData(data.id);
+      response.ok(result, 'Data retrieved successfully');
+    }),
+  );
 });
 ```
 
@@ -91,7 +94,7 @@ npm install @amitkandar/response-handler
 Modern applications need consistent, secure, and performant response handling. Response Handler provides:
 
 - **Consistency** - Same API patterns for REST and Socket.IO
-- **Security** - Production-ready error sanitization and security headers  
+- **Security** - Production-ready error sanitization and security headers
 - **Performance** - Built-in optimizations and monitoring
 - **Developer Experience** - TypeScript support and intuitive APIs
 - **Maintainability** - Centralized configuration and error handling

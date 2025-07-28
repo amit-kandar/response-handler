@@ -15,15 +15,17 @@ const { quickSetup } = require('response-handler');
 
 describe('User API', () => {
   let app;
-  
+
   beforeEach(() => {
     app = express();
     app.use(express.json());
-    app.use(quickSetup({
-      enableLogging: false,
-      environment: 'test'
-    }));
-    
+    app.use(
+      quickSetup({
+        enableLogging: false,
+        environment: 'test',
+      }),
+    );
+
     // Mock route
     app.get('/api/users/:id', async (req, res) => {
       const user = await getUserById(req.params.id);
@@ -34,37 +36,33 @@ describe('User API', () => {
       }
     });
   });
-  
+
   it('should return user when found', async () => {
     const mockUser = { id: 1, name: 'John Doe' };
     jest.spyOn(global, 'getUserById').mockResolvedValue(mockUser);
-    
-    const response = await request(app)
-      .get('/api/users/1')
-      .expect(200);
-      
+
+    const response = await request(app).get('/api/users/1').expect(200);
+
     expect(response.body).toEqual({
       success: true,
       message: 'User found',
       data: mockUser,
       timestamp: expect.any(String),
-      executionTime: expect.any(String)
+      executionTime: expect.any(String),
     });
   });
-  
+
   it('should return 404 when user not found', async () => {
     jest.spyOn(global, 'getUserById').mockResolvedValue(null);
-    
-    const response = await request(app)
-      .get('/api/users/999')
-      .expect(404);
-      
+
+    const response = await request(app).get('/api/users/999').expect(404);
+
     expect(response.body).toEqual({
       success: false,
       message: 'User not found',
       error: {},
       timestamp: expect.any(String),
-      executionTime: expect.any(String)
+      executionTime: expect.any(String),
     });
   });
 });
@@ -80,49 +78,49 @@ const { ResponseBuilder } = require('response-handler');
 describe('ResponseBuilder', () => {
   let mockRes;
   let responseBuilder;
-  
+
   beforeEach(() => {
     mockRes = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
-      setHeader: jest.fn()
+      setHeader: jest.fn(),
     };
-    
+
     responseBuilder = new ResponseBuilder({
       enableLogging: false,
-      environment: 'test'
+      environment: 'test',
     });
   });
-  
+
   it('should create success response', () => {
     const data = { id: 1, name: 'Test' };
     const message = 'Success';
-    
+
     responseBuilder.success(mockRes, data, message);
-    
+
     expect(mockRes.status).toHaveBeenCalledWith(200);
     expect(mockRes.json).toHaveBeenCalledWith({
       success: true,
       message,
       data,
       timestamp: expect.any(String),
-      executionTime: expect.any(String)
+      executionTime: expect.any(String),
     });
   });
-  
+
   it('should create error response', () => {
     const error = new Error('Test error');
     const message = 'Something went wrong';
-    
+
     responseBuilder.error(mockRes, error, message);
-    
+
     expect(mockRes.status).toHaveBeenCalledWith(500);
     expect(mockRes.json).toHaveBeenCalledWith({
       success: false,
       message,
       error: expect.any(Object),
       timestamp: expect.any(String),
-      executionTime: expect.any(String)
+      executionTime: expect.any(String),
     });
   });
 });
@@ -143,55 +141,47 @@ describe('User API Integration', () => {
   beforeAll(async () => {
     await setupTestDB();
   });
-  
+
   afterAll(async () => {
     await teardownTestDB();
   });
-  
+
   beforeEach(async () => {
     await clearDatabase();
   });
-  
+
   it('should create and retrieve user', async () => {
     const userData = {
       name: 'John Doe',
       email: 'john@example.com',
-      password: 'password123'
+      password: 'password123',
     };
-    
+
     // Create user
-    const createResponse = await request(app)
-      .post('/api/users')
-      .send(userData)
-      .expect(201);
-      
+    const createResponse = await request(app).post('/api/users').send(userData).expect(201);
+
     expect(createResponse.body.success).toBe(true);
     const userId = createResponse.body.data.id;
-    
+
     // Retrieve user
-    const getResponse = await request(app)
-      .get(`/api/users/${userId}`)
-      .expect(200);
-      
+    const getResponse = await request(app).get(`/api/users/${userId}`).expect(200);
+
     expect(getResponse.body.data).toMatchObject({
       id: userId,
       name: userData.name,
-      email: userData.email
+      email: userData.email,
     });
     expect(getResponse.body.data.password).toBeUndefined();
   });
-  
+
   it('should handle validation errors', async () => {
     const invalidData = {
       name: '',
-      email: 'invalid-email'
+      email: 'invalid-email',
     };
-    
-    const response = await request(app)
-      .post('/api/users')
-      .send(invalidData)
-      .expect(400);
-      
+
+    const response = await request(app).post('/api/users').send(invalidData).expect(400);
+
     expect(response.body.success).toBe(false);
     expect(response.body.error.validationErrors).toBeDefined();
   });
@@ -209,44 +199,41 @@ describe('Authentication Integration', () => {
     const userData = {
       email: 'test@example.com',
       password: 'password123',
-      name: 'Test User'
+      name: 'Test User',
     };
-    
-    await request(app)
-      .post('/api/auth/register')
-      .send(userData)
-      .expect(201);
-    
+
+    await request(app).post('/api/auth/register').send(userData).expect(201);
+
     // Login
     const loginResponse = await request(app)
       .post('/api/auth/login')
       .send({
         email: userData.email,
-        password: userData.password
+        password: userData.password,
       })
       .expect(200);
-      
+
     const token = loginResponse.body.data.token;
     expect(token).toBeDefined();
-    
+
     // Access protected route
     const profileResponse = await request(app)
       .get('/api/profile')
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
-      
+
     expect(profileResponse.body.data.email).toBe(userData.email);
   });
-  
+
   it('should reject invalid credentials', async () => {
     const response = await request(app)
       .post('/api/auth/login')
       .send({
         email: 'wrong@example.com',
-        password: 'wrongpassword'
+        password: 'wrongpassword',
       })
       .expect(401);
-      
+
     expect(response.body.success).toBe(false);
   });
 });
@@ -268,16 +255,18 @@ describe('Socket.IO Events', () => {
   let httpServer;
   let io;
   let clientSocket;
-  
+
   beforeAll((done) => {
     httpServer = createServer();
     io = new Server(httpServer);
-    
-    io.use(quickSocketSetup({
-      enableLogging: false,
-      environment: 'test'
-    }));
-    
+
+    io.use(
+      quickSocketSetup({
+        enableLogging: false,
+        environment: 'test',
+      }),
+    );
+
     io.on('connection', (socket) => {
       socket.on('get-user', async (userId) => {
         try {
@@ -292,42 +281,42 @@ describe('Socket.IO Events', () => {
         }
       });
     });
-    
+
     httpServer.listen(() => {
       const port = httpServer.address().port;
       clientSocket = Client(`http://localhost:${port}`);
       clientSocket.on('connect', done);
     });
   });
-  
+
   afterAll(() => {
     io.close();
     clientSocket.close();
     httpServer.close();
   });
-  
+
   it('should return user data', (done) => {
     const mockUser = { id: 1, name: 'John Doe' };
     jest.spyOn(global, 'getUserById').mockResolvedValue(mockUser);
-    
+
     clientSocket.on('response', (response) => {
       expect(response.success).toBe(true);
       expect(response.data).toEqual(mockUser);
       done();
     });
-    
+
     clientSocket.emit('get-user', 1);
   });
-  
+
   it('should handle user not found', (done) => {
     jest.spyOn(global, 'getUserById').mockResolvedValue(null);
-    
+
     clientSocket.on('response', (response) => {
       expect(response.success).toBe(false);
       expect(response.message).toBe('User not found');
       done();
     });
-    
+
     clientSocket.emit('get-user', 999);
   });
 });
@@ -346,35 +335,35 @@ config:
   phases:
     - duration: 60
       arrivalRate: 10
-      name: "Warm up"
+      name: 'Warm up'
     - duration: 120
       arrivalRate: 50
-      name: "Normal load"
+      name: 'Normal load'
     - duration: 60
       arrivalRate: 100
-      name: "High load"
-  processor: "./test-functions.js"
+      name: 'High load'
+  processor: './test-functions.js'
 
 scenarios:
-  - name: "User API Load Test"
+  - name: 'User API Load Test'
     weight: 70
     flow:
       - post:
-          url: "/api/auth/login"
+          url: '/api/auth/login'
           json:
-            email: "test@example.com"
-            password: "password123"
+            email: 'test@example.com'
+            password: 'password123'
           capture:
-            json: "$.data.token"
-            as: "token"
+            json: '$.data.token'
+            as: 'token'
       - get:
-          url: "/api/users"
+          url: '/api/users'
           headers:
-            Authorization: "Bearer {{ token }}"
+            Authorization: 'Bearer {{ token }}'
       - get:
-          url: "/api/users/{{ $randomInt(1, 100) }}"
+          url: '/api/users/{{ $randomInt(1, 100) }}'
           headers:
-            Authorization: "Bearer {{ token }}"
+            Authorization: 'Bearer {{ token }}'
 ```
 
 ### Load Test Functions
@@ -382,19 +371,19 @@ scenarios:
 ```javascript
 // test-functions.js
 module.exports = {
-  generateRandomUser: function(context, events, done) {
+  generateRandomUser: function (context, events, done) {
     context.vars.randomUser = {
       name: `User ${Math.random().toString(36).substring(7)}`,
       email: `user${Math.random().toString(36).substring(7)}@example.com`,
-      password: 'password123'
+      password: 'password123',
     };
     return done();
   },
-  
-  logResponse: function(context, events, done) {
+
+  logResponse: function (context, events, done) {
     console.log('Response time:', context.stats.latency);
     return done();
-  }
+  },
 };
 ```
 
@@ -411,29 +400,31 @@ test.describe('User Management E2E', () => {
   test('should complete user registration and login flow', async ({ page }) => {
     // Navigate to registration page
     await page.goto('http://localhost:3000/register');
-    
+
     // Fill registration form
     await page.fill('[data-testid="name"]', 'John Doe');
     await page.fill('[data-testid="email"]', 'john@example.com');
     await page.fill('[data-testid="password"]', 'password123');
-    
+
     // Submit form
     await page.click('[data-testid="register-button"]');
-    
+
     // Check success message
-    await expect(page.locator('[data-testid="success-message"]'))
-      .toContainText('Registration successful');
-    
+    await expect(page.locator('[data-testid="success-message"]')).toContainText(
+      'Registration successful',
+    );
+
     // Login
     await page.goto('http://localhost:3000/login');
     await page.fill('[data-testid="email"]', 'john@example.com');
     await page.fill('[data-testid="password"]', 'password123');
     await page.click('[data-testid="login-button"]');
-    
+
     // Check redirect to dashboard
     await expect(page).toHaveURL('http://localhost:3000/dashboard');
-    await expect(page.locator('[data-testid="welcome-message"]'))
-      .toContainText('Welcome, John Doe');
+    await expect(page.locator('[data-testid="welcome-message"]')).toContainText(
+      'Welcome, John Doe',
+    );
   });
 });
 ```
@@ -449,40 +440,33 @@ Complete Jest setup for testing:
 module.exports = {
   testEnvironment: 'node',
   setupFilesAfterEnv: ['<rootDir>/test/setup.js'],
-  testMatch: [
-    '<rootDir>/test/**/*.test.js',
-    '<rootDir>/src/**/*.test.js'
-  ],
-  collectCoverageFrom: [
-    'src/**/*.js',
-    '!src/**/*.test.js',
-    '!src/index.js'
-  ],
+  testMatch: ['<rootDir>/test/**/*.test.js', '<rootDir>/src/**/*.test.js'],
+  collectCoverageFrom: ['src/**/*.js', '!src/**/*.test.js', '!src/index.js'],
   coverageThreshold: {
     global: {
       branches: 80,
       functions: 80,
       lines: 80,
-      statements: 80
-    }
+      statements: 80,
+    },
   },
   projects: [
     {
       displayName: 'unit',
-      testMatch: ['<rootDir>/test/unit/**/*.test.js']
+      testMatch: ['<rootDir>/test/unit/**/*.test.js'],
     },
     {
       displayName: 'integration',
       testMatch: ['<rootDir>/test/integration/**/*.test.js'],
-      setupFilesAfterEnv: ['<rootDir>/test/integration/setup.js']
+      setupFilesAfterEnv: ['<rootDir>/test/integration/setup.js'],
     },
     {
       displayName: 'e2e',
       testMatch: ['<rootDir>/test/e2e/**/*.test.js'],
       setupFilesAfterEnv: ['<rootDir>/test/e2e/setup.js'],
-      testTimeout: 30000
-    }
-  ]
+      testTimeout: 30000,
+    },
+  ],
 };
 ```
 
@@ -506,8 +490,8 @@ jest.mock('redis', () => ({
     get: jest.fn(),
     set: jest.fn(),
     del: jest.fn(),
-    quit: jest.fn()
-  }))
+    quit: jest.fn(),
+  })),
 }));
 
 // Global test utilities
@@ -517,7 +501,7 @@ global.createMockRequest = (overrides = {}) => ({
   query: {},
   headers: {},
   user: null,
-  ...overrides
+  ...overrides,
 });
 
 global.createMockResponse = () => {
@@ -526,9 +510,9 @@ global.createMockResponse = () => {
     json: jest.fn().mockReturnThis(),
     setHeader: jest.fn(),
     cookie: jest.fn(),
-    clearCookie: jest.fn()
+    clearCookie: jest.fn(),
   };
-  
+
   // Add response handler methods
   res.ok = jest.fn();
   res.created = jest.fn();
@@ -537,7 +521,7 @@ global.createMockResponse = () => {
   res.forbidden = jest.fn();
   res.notFound = jest.fn();
   res.error = jest.fn();
-  
+
   return res;
 };
 ```
@@ -554,12 +538,10 @@ it('should create user successfully', async () => {
   const userData = { name: 'John', email: 'john@example.com' };
   const mockUser = { id: 1, ...userData };
   jest.spyOn(userService, 'create').mockResolvedValue(mockUser);
-  
+
   // Act
-  const response = await request(app)
-    .post('/api/users')
-    .send(userData);
-  
+  const response = await request(app).post('/api/users').send(userData);
+
   // Assert
   expect(response.status).toBe(201);
   expect(response.body.data).toEqual(mockUser);
@@ -579,17 +561,17 @@ const userFactory = {
     email: 'john@example.com',
     password: 'password123',
     role: 'user',
-    ...overrides
+    ...overrides,
   }),
-  
+
   buildList: (count, overrides = {}) => {
-    return Array.from({ length: count }, (_, i) => 
-      userFactory.build({ 
+    return Array.from({ length: count }, (_, i) =>
+      userFactory.build({
         email: `user${i}@example.com`,
-        ...overrides 
-      })
+        ...overrides,
+      }),
     );
-  }
+  },
 };
 
 module.exports = userFactory;
@@ -602,26 +584,19 @@ Test error scenarios thoroughly:
 ```javascript
 describe('Error Handling', () => {
   it('should handle database connection errors', async () => {
-    jest.spyOn(database, 'query').mockRejectedValue(
-      new Error('Connection timeout')
-    );
-    
-    const response = await request(app)
-      .get('/api/users')
-      .expect(500);
-      
+    jest.spyOn(database, 'query').mockRejectedValue(new Error('Connection timeout'));
+
+    const response = await request(app).get('/api/users').expect(500);
+
     expect(response.body.success).toBe(false);
     expect(response.body.message).toContain('error');
   });
-  
+
   it('should handle validation errors', async () => {
     const invalidData = { email: 'invalid-email' };
-    
-    const response = await request(app)
-      .post('/api/users')
-      .send(invalidData)
-      .expect(400);
-      
+
+    const response = await request(app).post('/api/users').send(invalidData).expect(400);
+
     expect(response.body.error.validationErrors).toBeDefined();
   });
 });
@@ -634,11 +609,9 @@ Include performance assertions:
 ```javascript
 it('should respond within acceptable time', async () => {
   const startTime = Date.now();
-  
-  await request(app)
-    .get('/api/users')
-    .expect(200);
-    
+
+  await request(app).get('/api/users').expect(200);
+
   const responseTime = Date.now() - startTime;
   expect(responseTime).toBeLessThan(1000); // 1 second
 });
@@ -657,7 +630,7 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     services:
       postgres:
         image: postgres:13
@@ -668,7 +641,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      
+
       redis:
         image: redis:6
         options: >-
@@ -676,33 +649,33 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    
+
     steps:
-    - uses: actions/checkout@v2
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '16'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Run unit tests
-      run: npm run test:unit
-    
-    - name: Run integration tests
-      run: npm run test:integration
-      env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost/test
-        REDIS_URL: redis://localhost:6379
-    
-    - name: Run E2E tests
-      run: npm run test:e2e
-    
-    - name: Upload coverage
-      uses: codecov/codecov-action@v1
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test:unit
+
+      - name: Run integration tests
+        run: npm run test:integration
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost/test
+          REDIS_URL: redis://localhost:6379
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v1
 ```
 
 Testing ensures your Response Handler implementation is robust, reliable, and performs well under various conditions.

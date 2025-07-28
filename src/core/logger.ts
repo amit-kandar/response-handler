@@ -18,18 +18,18 @@ export class Logger {
 
   private shouldLog(level: string): boolean {
     if (!this.config.enabled) return false;
-    
+
     const levels = ['error', 'warn', 'info', 'debug'];
     const configLevel = levels.indexOf(this.config.level || 'info');
     const messageLevel = levels.indexOf(level);
-    
+
     return messageLevel <= configLevel;
   }
 
   private formatMessage(level: string, message: string, meta?: any): string {
     const timestamp = new Date().toISOString();
     const prefix = `[${timestamp}] [${level.toUpperCase()}]`;
-    
+
     if (meta) {
       try {
         return `${prefix} ${message} ${JSON.stringify(meta, null, 2)}`;
@@ -38,7 +38,7 @@ export class Logger {
         return `${prefix} ${message} [Object with circular reference]`;
       }
     }
-    
+
     return `${prefix} ${message}`;
   }
 
@@ -69,7 +69,7 @@ export class Logger {
 
   public error(message: string, error?: any, meta?: any): void {
     const errorMeta = { ...meta };
-    
+
     if (error) {
       errorMeta.error = {
         message: error.message,
@@ -130,7 +130,7 @@ export class Logger {
 
   public logEvent(event: ResponseEvent): void {
     const message = `${event.type.toUpperCase()} event`;
-    
+
     const meta = {
       type: event.type,
       statusCode: event.statusCode,

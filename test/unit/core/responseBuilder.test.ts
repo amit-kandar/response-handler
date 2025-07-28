@@ -15,9 +15,9 @@ describe('ResponseBuilder Unit Tests', () => {
       requestId: 'test-req-123',
       startTime: Date.now() - 100,
     });
-    
+
     mockRes = createMockResponse();
-    
+
     mockLogger = {
       error: jest.fn(),
       warn: jest.fn(),
@@ -77,7 +77,7 @@ describe('ResponseBuilder Unit Tests', () => {
           success: true,
           data: testData.user,
           message: 'User created',
-        })
+        }),
       );
     });
 
@@ -89,7 +89,7 @@ describe('ResponseBuilder Unit Tests', () => {
         expect.objectContaining({
           success: true,
           message: 'Request accepted',
-        })
+        }),
       );
     });
 
@@ -101,7 +101,7 @@ describe('ResponseBuilder Unit Tests', () => {
         expect.objectContaining({
           success: true,
           message: 'Resource deleted',
-        })
+        }),
       );
     });
 
@@ -111,7 +111,7 @@ describe('ResponseBuilder Unit Tests', () => {
       expect(mockRes.json).toHaveBeenCalledWith(
         expect.objectContaining({
           message: 'Success',
-        })
+        }),
       );
     });
   });
@@ -141,7 +141,7 @@ describe('ResponseBuilder Unit Tests', () => {
         expect.objectContaining({
           success: false,
           message: 'Unauthorized',
-        })
+        }),
       );
     });
 
@@ -153,7 +153,7 @@ describe('ResponseBuilder Unit Tests', () => {
         expect.objectContaining({
           success: false,
           message: 'Access denied',
-        })
+        }),
       );
     });
 
@@ -165,7 +165,7 @@ describe('ResponseBuilder Unit Tests', () => {
         expect.objectContaining({
           success: false,
           message: 'Not found',
-        })
+        }),
       );
     });
 
@@ -177,7 +177,7 @@ describe('ResponseBuilder Unit Tests', () => {
       expect(mockLogger.error).toHaveBeenCalledWith(
         'Internal server error occurred',
         error,
-        expect.any(Object)
+        expect.any(Object),
       );
     });
   });
@@ -192,7 +192,7 @@ describe('ResponseBuilder Unit Tests', () => {
           success: true,
           data: { teapot: true },
           message: "I'm a teapot",
-        })
+        }),
       );
     });
 
@@ -205,7 +205,7 @@ describe('ResponseBuilder Unit Tests', () => {
         expect.objectContaining({
           success: false,
           message: 'Custom error',
-        })
+        }),
       );
     });
 
@@ -246,7 +246,7 @@ describe('ResponseBuilder Unit Tests', () => {
           meta: expect.objectContaining({
             requestId: 'test-req-123',
           }),
-        })
+        }),
       );
     });
 
@@ -261,7 +261,7 @@ describe('ResponseBuilder Unit Tests', () => {
           meta: expect.objectContaining({
             timestamp: expect.any(String),
           }),
-        })
+        }),
       );
     });
 
@@ -277,7 +277,7 @@ describe('ResponseBuilder Unit Tests', () => {
           meta: expect.objectContaining({
             executionTime: expect.any(Number),
           }),
-        })
+        }),
       );
     });
 
@@ -293,7 +293,7 @@ describe('ResponseBuilder Unit Tests', () => {
             version: '1.0.0',
             service: 'api',
           }),
-        })
+        }),
       );
     });
 
@@ -309,7 +309,7 @@ describe('ResponseBuilder Unit Tests', () => {
             environment: 'development',
             version: expect.any(String),
           }),
-        })
+        }),
       );
     });
 
@@ -327,7 +327,7 @@ describe('ResponseBuilder Unit Tests', () => {
       expect(mockRes.json).toHaveBeenCalledWith(
         expect.not.objectContaining({
           meta: expect.anything(),
-        })
+        }),
       );
     });
   });
@@ -356,7 +356,7 @@ describe('ResponseBuilder Unit Tests', () => {
 
     it('should hide internal error details in production', () => {
       const error = new Error('Internal system error');
-      
+
       builder.error(error);
 
       const response = mockRes.json.mock.calls[0][0];
@@ -365,7 +365,7 @@ describe('ResponseBuilder Unit Tests', () => {
 
     it('should preserve allowed error fields', () => {
       const error = new TestError('Validation error', 422);
-      
+
       builder.unprocessableEntity(error);
 
       const response = mockRes.json.mock.calls[0][0];
@@ -398,7 +398,7 @@ describe('ResponseBuilder Unit Tests', () => {
         mockReq,
         { statusCode: 200 },
         expect.any(Object),
-        expect.any(Number)
+        expect.any(Number),
       );
     });
 
@@ -412,7 +412,7 @@ describe('ResponseBuilder Unit Tests', () => {
           method: mockReq.method,
           path: mockReq.path,
           requestId: mockReq.requestId,
-        })
+        }),
       );
     });
 
@@ -429,7 +429,7 @@ describe('ResponseBuilder Unit Tests', () => {
           method: mockReq.method,
           url: mockReq.url,
           requestId: mockReq.requestId,
-        })
+        }),
       );
     });
   });
@@ -464,7 +464,7 @@ describe('ResponseBuilder Unit Tests', () => {
         expect.objectContaining({
           success: true,
           message: 'Success',
-        })
+        }),
       );
     });
 
@@ -475,7 +475,7 @@ describe('ResponseBuilder Unit Tests', () => {
         expect.objectContaining({
           success: false,
           message: 'Bad request',
-        })
+        }),
       );
     });
 

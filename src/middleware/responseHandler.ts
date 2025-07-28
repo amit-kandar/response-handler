@@ -5,9 +5,9 @@ import ResponseBuilder from '../core/responseBuilder';
 
 // Simple UUID v4 implementation to avoid external dependencies
 function generateUUID(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
@@ -62,7 +62,7 @@ export class ResponseHandler {
   // Deep merge utility for configuration objects
   private deepMerge(target: any, source: any): any {
     const result = { ...target };
-    
+
     for (const key in source) {
       if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
         result[key] = this.deepMerge(target[key] || {}, source[key]);
@@ -70,7 +70,7 @@ export class ResponseHandler {
         result[key] = source[key];
       }
     }
-    
+
     return result;
   }
 
@@ -78,10 +78,10 @@ export class ResponseHandler {
   private enhanceRequest(req: EnhancedRequest): void {
     // Add request ID (use existing header or generate new)
     req.requestId = req.get('X-Request-ID') || generateUUID();
-    
+
     // Add start time for execution tracking
     req.startTime = Date.now();
-    
+
     // Add context object for request-specific data
     req.context = {};
 
@@ -105,14 +105,19 @@ export class ResponseHandler {
     res.forbidden = (error?: any, message?: string) => builder.forbidden(error, message);
     res.notFound = (error?: any, message?: string) => builder.notFound(error, message);
     res.conflict = (error?: any, message?: string) => builder.conflict(error, message);
-    res.unprocessableEntity = (error?: any, message?: string) => builder.unprocessableEntity(error, message);
-    res.tooManyRequests = (error?: any, message?: string) => builder.tooManyRequests(error, message);
-    res.internalServerError = (error?: any, message?: string) => builder.internalServerError(error, message);
+    res.unprocessableEntity = (error?: any, message?: string) =>
+      builder.unprocessableEntity(error, message);
+    res.tooManyRequests = (error?: any, message?: string) =>
+      builder.tooManyRequests(error, message);
+    res.internalServerError = (error?: any, message?: string) =>
+      builder.internalServerError(error, message);
 
     // Add generic response methods
-    res.respond = (statusCode: number, data?: any, message?: string) => builder.respond(statusCode, data, message);
+    res.respond = (statusCode: number, data?: any, message?: string) =>
+      builder.respond(statusCode, data, message);
     res.error = (error: any, statusCode?: number) => builder.error(error, statusCode);
-    res.paginate = (data: any[], pagination: any, message?: string) => builder.paginate(data, pagination, message);
+    res.paginate = (data: any[], pagination: any, message?: string) =>
+      builder.paginate(data, pagination, message);
 
     // Enhanced file response methods with logging
     const originalDownload = res.download.bind(res);

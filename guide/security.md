@@ -14,20 +14,17 @@ const Joi = require('joi');
 const userSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(8).required(),
-  name: Joi.string().min(2).max(50).required()
+  name: Joi.string().min(2).max(50).required(),
 });
 
 app.post('/api/users', async (req, res) => {
   try {
     const { error, value } = userSchema.validate(req.body);
-    
+
     if (error) {
-      return res.badRequest(
-        { validationErrors: error.details },
-        'Invalid input data'
-      );
+      return res.badRequest({ validationErrors: error.details }, 'Invalid input data');
     }
-    
+
     const user = await createUser(value);
     res.created(user, 'User created successfully');
   } catch (error) {
@@ -51,24 +48,24 @@ const config = {
       allowList: {
         a: ['href', 'title'],
         b: [],
-        i: []
-      }
-    }
-  }
+        i: [],
+      },
+    },
+  },
 };
 
 app.use(quickSetup(config));
 
 app.post('/api/comments', (req, res) => {
   const sanitizedComment = xss(req.body.comment);
-  
+
   const comment = {
     id: generateId(),
     content: sanitizedComment,
     author: req.user.id,
-    createdAt: new Date()
+    createdAt: new Date(),
   };
-  
+
   res.created(comment, 'Comment created');
 });
 ```
@@ -85,16 +82,16 @@ const jwt = require('jsonwebtoken');
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  
+
   if (!token) {
     return res.unauthorized({}, 'Access token required');
   }
-  
+
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
       return res.forbidden({}, 'Invalid or expired token');
     }
-    
+
     req.user = user;
     next();
   });
@@ -115,23 +112,19 @@ const authorize = (roles) => {
     if (!req.user) {
       return res.unauthorized({}, 'Authentication required');
     }
-    
+
     if (!roles.includes(req.user.role)) {
       return res.forbidden({}, 'Insufficient permissions');
     }
-    
+
     next();
   };
 };
 
-app.delete('/api/users/:id', 
-  authenticateToken, 
-  authorize(['admin', 'moderator']), 
-  (req, res) => {
-    // Delete user logic
-    res.ok({}, 'User deleted successfully');
-  }
-);
+app.delete('/api/users/:id', authenticateToken, authorize(['admin', 'moderator']), (req, res) => {
+  // Delete user logic
+  res.ok({}, 'User deleted successfully');
+});
 ```
 
 ## Data Protection
@@ -146,26 +139,26 @@ const bcrypt = require('bcrypt');
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { email, password, name } = req.body;
-    
+
     // Check if user exists
     const existingUser = await getUserByEmail(email);
     if (existingUser) {
       return res.conflict({}, 'User already exists');
     }
-    
+
     // Hash password
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    
+
     const user = await createUser({
       email,
       password: hashedPassword,
-      name
+      name,
     });
-    
+
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
-    
+
     res.created(userWithoutPassword, 'User registered successfully');
   } catch (error) {
     res.error(error, 'Registration failed');
@@ -184,32 +177,32 @@ const encrypt = (text) => {
   const algorithm = 'aes-256-gcm';
   const key = Buffer.from(process.env.ENCRYPTION_KEY, 'hex');
   const iv = crypto.randomBytes(16);
-  
+
   const cipher = crypto.createCipher(algorithm, key);
   cipher.setAAD(Buffer.from('response-handler', 'utf8'));
-  
+
   let encrypted = cipher.update(text, 'utf8', 'hex');
   encrypted += cipher.final('hex');
-  
+
   const authTag = cipher.getAuthTag();
-  
+
   return {
     encrypted,
     iv: iv.toString('hex'),
-    authTag: authTag.toString('hex')
+    authTag: authTag.toString('hex'),
   };
 };
 
 app.post('/api/sensitive-data', (req, res) => {
   const encryptedData = encrypt(req.body.sensitiveInfo);
-  
+
   // Store encrypted data
   const record = {
     id: generateId(),
     data: encryptedData,
-    createdAt: new Date()
+    createdAt: new Date(),
   };
-  
+
   res.created({ id: record.id }, 'Data stored securely');
 });
 ```
@@ -230,7 +223,7 @@ const globalLimiter = rateLimit({
   message: 'Too many requests from this IP',
   handler: (req, res) => {
     res.tooManyRequests({}, 'Rate limit exceeded');
-  }
+  },
 });
 
 // Strict rate limit for auth endpoints
@@ -239,7 +232,7 @@ const authLimiter = rateLimit({
   max: 5, // limit each IP to 5 requests per windowMs
   handler: (req, res) => {
     res.tooManyRequests({}, 'Too many authentication attempts');
-  }
+  },
 });
 
 app.use(globalLimiter);
@@ -256,26 +249,23 @@ const client = Redis.createClient();
 
 const userRateLimit = async (req, res, next) => {
   if (!req.user) return next();
-  
+
   const key = `rate_limit:${req.user.id}`;
   const requests = await client.incr(key);
-  
+
   if (requests === 1) {
     await client.expire(key, 3600); // 1 hour window
   }
-  
+
   const limit = req.user.plan === 'premium' ? 1000 : 100;
-  
+
   if (requests > limit) {
-    return res.tooManyRequests(
-      { limit, remaining: 0 },
-      'API rate limit exceeded'
-    );
+    return res.tooManyRequests({ limit, remaining: 0 }, 'API rate limit exceeded');
   }
-  
+
   res.setHeader('X-RateLimit-Limit', limit);
   res.setHeader('X-RateLimit-Remaining', limit - requests);
-  
+
   next();
 };
 
@@ -300,7 +290,7 @@ app.get('/api/users', async (req, res) => {
   try {
     const query = 'SELECT * FROM users WHERE name = $1';
     const result = await pool.query(query, [req.query.name]);
-    
+
     res.ok(result.rows, 'Users retrieved');
   } catch (error) {
     res.error(error, 'Failed to retrieve users');
@@ -318,13 +308,13 @@ const { User } = require('./models');
 app.get('/api/users/:id', async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id, {
-      attributes: { exclude: ['password', 'resetToken'] }
+      attributes: { exclude: ['password', 'resetToken'] },
     });
-    
+
     if (!user) {
       return res.notFound({}, 'User not found');
     }
-    
+
     res.ok(user, 'User retrieved');
   } catch (error) {
     res.error(error, 'Failed to retrieve user');
@@ -345,8 +335,8 @@ const config = {
   errorSanitization: {
     enabled: true,
     hideStackTrace: process.env.NODE_ENV === 'production',
-    sanitizeMessages: true
-  }
+    sanitizeMessages: true,
+  },
 };
 
 app.use(quickSetup(config));
@@ -355,7 +345,7 @@ app.use(quickSetup(config));
 app.use((error, req, res, next) => {
   // Log full error details for debugging
   console.error('Full error:', error);
-  
+
   // Send sanitized error to client
   if (process.env.NODE_ENV === 'production') {
     res.error({}, 'An error occurred');
@@ -377,7 +367,7 @@ const cors = require('cors');
 const corsOptions = {
   origin: (origin, callback) => {
     const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
-    
+
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -387,7 +377,7 @@ const corsOptions = {
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
 app.use(cors(corsOptions));
@@ -403,18 +393,20 @@ Configure sessions securely:
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 
-app.use(session({
-  store: new RedisStore({ client: redisClient }),
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: 'strict'
-  }
-}));
+app.use(
+  session({
+    store: new RedisStore({ client: redisClient }),
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: 'strict',
+    },
+  }),
+);
 ```
 
 ## Security Headers
@@ -426,21 +418,23 @@ Use Helmet for security headers:
 ```javascript
 const helmet = require('helmet');
 
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"]
-    }
-  },
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true
-  }
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
+    },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+  }),
+);
 ```
 
 ## Environment Security
@@ -461,13 +455,9 @@ ALLOWED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
 */
 
 // Validate required environment variables
-const requiredEnvVars = [
-  'JWT_SECRET',
-  'ENCRYPTION_KEY',
-  'DATABASE_URL'
-];
+const requiredEnvVars = ['JWT_SECRET', 'ENCRYPTION_KEY', 'DATABASE_URL'];
 
-requiredEnvVars.forEach(envVar => {
+requiredEnvVars.forEach((envVar) => {
   if (!process.env[envVar]) {
     throw new Error(`Missing required environment variable: ${envVar}`);
   }
@@ -486,24 +476,24 @@ const securityLogger = require('./securityLogger');
 app.use((req, res, next) => {
   // Log suspicious activity
   const suspiciousPatterns = [
-    /\.\.\//,  // Directory traversal
-    /<script>/i,  // XSS attempts
-    /union.*select/i  // SQL injection attempts
+    /\.\.\//, // Directory traversal
+    /<script>/i, // XSS attempts
+    /union.*select/i, // SQL injection attempts
   ];
-  
-  const isSuspicious = suspiciousPatterns.some(pattern => 
-    pattern.test(req.url) || pattern.test(JSON.stringify(req.body))
+
+  const isSuspicious = suspiciousPatterns.some(
+    (pattern) => pattern.test(req.url) || pattern.test(JSON.stringify(req.body)),
   );
-  
+
   if (isSuspicious) {
     securityLogger.warn('Suspicious request detected', {
       ip: req.ip,
       userAgent: req.get('User-Agent'),
       url: req.url,
-      body: req.body
+      body: req.body,
     });
   }
-  
+
   next();
 });
 ```
@@ -511,41 +501,49 @@ app.use((req, res, next) => {
 ## Security Checklist
 
 ✅ **Input Validation**
+
 - Validate all incoming data
 - Sanitize user inputs
 - Use parameterized queries
 
 ✅ **Authentication**
+
 - Implement strong password policies
 - Use secure JWT tokens
 - Enable multi-factor authentication
 
 ✅ **Authorization**
+
 - Implement role-based access control
 - Use principle of least privilege
 - Validate permissions on every request
 
 ✅ **Data Protection**
+
 - Encrypt sensitive data
 - Hash passwords with bcrypt
 - Use HTTPS everywhere
 
 ✅ **Rate Limiting**
+
 - Implement global rate limiting
 - Add stricter limits for auth endpoints
 - Monitor for abuse patterns
 
 ✅ **Error Handling**
+
 - Sanitize error messages
 - Don't expose stack traces in production
 - Log security events
 
 ✅ **Headers & CORS**
+
 - Configure security headers
 - Set proper CORS policies
 - Use secure session cookies
 
 ✅ **Environment**
+
 - Secure environment variables
 - Regular security updates
 - Monitor for vulnerabilities

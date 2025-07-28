@@ -13,6 +13,7 @@ npm ERR! peer dep missing: express@>=4.0.0
 ```
 
 **Solution**:
+
 ```bash
 # Clear npm cache
 npm cache clean --force
@@ -35,6 +36,7 @@ import { quickSetup } from 'response-handler';
 ```
 
 **Solution**:
+
 ```bash
 # Install TypeScript definitions
 npm install @types/express @types/socket.io
@@ -60,6 +62,7 @@ app.get('/test', (req, res) => {
 ```
 
 **Solution**:
+
 ```javascript
 // Ensure middleware is applied BEFORE routes
 const { quickSetup } = require('response-handler');
@@ -77,20 +80,25 @@ app.get('/test', (req, res) => {
 
 ```javascript
 // ❌ Wrong configuration structure
-app.use(quickSetup({
-  logging: true, // Should be enableLogging
-  level: 'info'  // Should be logLevel
-}));
+app.use(
+  quickSetup({
+    logging: true, // Should be enableLogging
+    level: 'info', // Should be logLevel
+  }),
+);
 ```
 
 **Solution**:
+
 ```javascript
 // ✅ Correct configuration structure
-app.use(quickSetup({
-  enableLogging: true,
-  logLevel: 'info',
-  environment: 'development'
-}));
+app.use(
+  quickSetup({
+    enableLogging: true,
+    logLevel: 'info',
+    environment: 'development',
+  }),
+);
 ```
 
 ## Response Issues
@@ -109,22 +117,22 @@ Error: Cannot set headers after they are sent to the client
 // ❌ Problem: Multiple responses in same handler
 app.get('/user/:id', async (req, res) => {
   const user = await getUser(req.params.id);
-  
+
   if (!user) {
     res.notFound({}, 'User not found');
   }
-  
+
   res.ok(user, 'User found'); // Error: headers already sent
 });
 
 // ✅ Solution: Use return statements
 app.get('/user/:id', async (req, res) => {
   const user = await getUser(req.params.id);
-  
+
   if (!user) {
     return res.notFound({}, 'User not found');
   }
-  
+
   res.ok(user, 'User found');
 });
 ```
@@ -147,12 +155,13 @@ app.get('/user/:id', async (req, res) => {
 ```
 
 **Solution**:
+
 ```javascript
 // Ensure consistent configuration across all instances
 const responseConfig = {
   enableLogging: true,
   logLevel: 'info',
-  environment: process.env.NODE_ENV || 'development'
+  environment: process.env.NODE_ENV || 'development',
 };
 
 // Use same config everywhere
@@ -175,14 +184,17 @@ io.on('connection', (socket) => {
 ```
 
 **Solution**:
+
 ```javascript
 // Ensure Socket.IO middleware is applied
 const { quickSocketSetup } = require('response-handler');
 
-io.use(quickSocketSetup({
-  enableLogging: true,
-  logLevel: 'info'
-}));
+io.use(
+  quickSocketSetup({
+    enableLogging: true,
+    logLevel: 'info',
+  }),
+);
 
 io.on('connection', (socket) => {
   socket.on('get-data', () => {
@@ -204,13 +216,14 @@ socket.on('connect_error', (error) => {
 ```
 
 **Solution**:
+
 ```javascript
 // Check CORS configuration
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"]
-  }
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+  },
 });
 
 // Verify server is listening
@@ -229,10 +242,12 @@ server.listen(3000, () => {
 
 ```javascript
 // Enable performance tracking
-app.use(quickSetup({
-  enablePerformanceTracking: true,
-  logLevel: 'debug'
-}));
+app.use(
+  quickSetup({
+    enablePerformanceTracking: true,
+    logLevel: 'debug',
+  }),
+);
 
 // Add timing middleware
 app.use((req, res, next) => {
@@ -242,18 +257,18 @@ app.use((req, res, next) => {
 
 app.get('/slow-endpoint', async (req, res) => {
   const start = Date.now();
-  
+
   // Your logic here
   const data = await slowDatabaseQuery();
-  
+
   const queryTime = Date.now() - start;
   console.log(`Query took: ${queryTime}ms`);
-  
+
   res.ok(data, 'Data retrieved', {
     performance: {
       queryTime: `${queryTime}ms`,
-      totalTime: `${Date.now() - req.startTime}ms`
-    }
+      totalTime: `${Date.now() - req.startTime}ms`,
+    },
   });
 });
 ```
@@ -263,6 +278,7 @@ app.get('/slow-endpoint', async (req, res) => {
 **Problem**: Memory usage increasing over time
 
 **Solution**:
+
 ```javascript
 // Monitor memory usage
 const getMemoryUsage = () => {
@@ -271,7 +287,7 @@ const getMemoryUsage = () => {
     rss: Math.round(used.rss / 1024 / 1024),
     heapTotal: Math.round(used.heapTotal / 1024 / 1024),
     heapUsed: Math.round(used.heapUsed / 1024 / 1024),
-    external: Math.round(used.external / 1024 / 1024)
+    external: Math.round(used.external / 1024 / 1024),
   };
 };
 
@@ -298,24 +314,29 @@ app.use((req, res, next) => {
 
 ```javascript
 // Logs not showing up
-app.use(quickSetup({
-  enableLogging: true,
-  logLevel: 'info'
-}));
+app.use(
+  quickSetup({
+    enableLogging: true,
+    logLevel: 'info',
+  }),
+);
 ```
 
 **Solution**:
+
 ```javascript
 // Check log level hierarchy
-app.use(quickSetup({
-  enableLogging: true,
-  logLevel: 'debug', // Try lower level
-  customLoggers: {
-    info: console.log,
-    error: console.error,
-    debug: console.debug
-  }
-}));
+app.use(
+  quickSetup({
+    enableLogging: true,
+    logLevel: 'debug', // Try lower level
+    customLoggers: {
+      info: console.log,
+      error: console.error,
+      debug: console.debug,
+    },
+  }),
+);
 
 // Verify environment
 console.log('NODE_ENV:', process.env.NODE_ENV);
@@ -331,24 +352,23 @@ console.log('Logging enabled:', config.enableLogging);
 const winston = require('winston');
 
 const logger = winston.createLogger({
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
+  format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
   transports: [
     new winston.transports.Console(),
-    new winston.transports.File({ filename: 'app.log' })
-  ]
+    new winston.transports.File({ filename: 'app.log' }),
+  ],
 });
 
-app.use(quickSetup({
-  enableLogging: true,
-  customLoggers: {
-    info: (message, meta) => logger.info(message, meta),
-    error: (message, meta) => logger.error(message, meta),
-    debug: (message, meta) => logger.debug(message, meta)
-  }
-}));
+app.use(
+  quickSetup({
+    enableLogging: true,
+    customLoggers: {
+      info: (message, meta) => logger.info(message, meta),
+      error: (message, meta) => logger.error(message, meta),
+      debug: (message, meta) => logger.debug(message, meta),
+    },
+  }),
+);
 ```
 
 ## Database Issues
@@ -375,6 +395,7 @@ app.get('/users', async (req, res) => {
 ```
 
 **Solution**:
+
 ```javascript
 // Add retry logic and better error handling
 const { Pool } = require('pg');
@@ -385,7 +406,7 @@ const pool = new Pool({
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
   statement_timeout: 10000,
-  query_timeout: 10000
+  query_timeout: 10000,
 });
 
 // Test connection on startup
@@ -406,7 +427,7 @@ const queryWithRetry = async (query, params, retries = 3) => {
     } catch (error) {
       if (i === retries - 1) throw error;
       console.log(`Query failed, retrying... (${i + 1}/${retries})`);
-      await new Promise(resolve => setTimeout(resolve, 1000 * i));
+      await new Promise((resolve) => setTimeout(resolve, 1000 * i));
     }
   }
 };
@@ -420,17 +441,17 @@ const queryWithRetry = async (query, params, retries = 3) => {
 // Add query performance monitoring
 app.use((req, res, next) => {
   const originalQuery = pool.query;
-  pool.query = function(...args) {
+  pool.query = function (...args) {
     const start = Date.now();
     const result = originalQuery.apply(this, args);
-    
+
     result.then(() => {
       const duration = Date.now() - start;
       if (duration > 1000) {
         console.warn(`Slow query detected: ${duration}ms`, args[0]);
       }
     });
-    
+
     return result;
   };
   next();
@@ -450,18 +471,18 @@ const jwt = require('jsonwebtoken');
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  
+
   if (!token) {
     return res.unauthorized({}, 'Access token required');
   }
-  
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
   } catch (error) {
     console.error('JWT verification failed:', error.message);
-    
+
     if (error.name === 'TokenExpiredError') {
       return res.unauthorized({}, 'Token has expired');
     } else if (error.name === 'JsonWebTokenError') {
@@ -495,11 +516,11 @@ process.on('unhandledRejection', (reason, promise) => {
 // Express error handler
 app.use((error, req, res, next) => {
   console.error('Express error:', error);
-  
+
   if (res.headersSent) {
     return next(error);
   }
-  
+
   res.error(error, 'Internal server error');
 });
 ```
@@ -519,12 +540,14 @@ const { Pool } = require('pg');
 
 // Test database setup
 const testPool = new Pool({
-  connectionString: process.env.TEST_DATABASE_URL || 'postgresql://localhost/test_db'
+  connectionString: process.env.TEST_DATABASE_URL || 'postgresql://localhost/test_db',
 });
 
 beforeAll(async () => {
   // Setup test database
-  await testPool.query('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name VARCHAR(255))');
+  await testPool.query(
+    'CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name VARCHAR(255))',
+  );
 });
 
 afterAll(async () => {
@@ -550,18 +573,18 @@ const config = {
   development: {
     enableLogging: true,
     logLevel: 'debug',
-    enablePerformanceTracking: true
+    enablePerformanceTracking: true,
   },
   production: {
     enableLogging: true,
     logLevel: 'error',
     enablePerformanceTracking: false,
-    enableSecurity: true
+    enableSecurity: true,
   },
   test: {
     enableLogging: false,
-    logLevel: 'silent'
-  }
+    logLevel: 'silent',
+  },
 };
 
 const env = process.env.NODE_ENV || 'development';
@@ -599,9 +622,9 @@ app.get('/health', (req, res) => {
     uptime: process.uptime(),
     memory: process.memoryUsage(),
     environment: process.env.NODE_ENV,
-    version: process.env.npm_package_version
+    version: process.env.npm_package_version,
   };
-  
+
   res.ok(health, 'Health check successful');
 });
 ```
@@ -612,22 +635,24 @@ app.get('/health', (req, res) => {
 
 ```javascript
 // Maximum verbosity for debugging
-app.use(quickSetup({
-  enableLogging: true,
-  logLevel: 'debug',
-  enablePerformanceTracking: true,
-  customLoggers: {
-    debug: (message, meta) => {
-      console.log('[DEBUG]', message, meta);
+app.use(
+  quickSetup({
+    enableLogging: true,
+    logLevel: 'debug',
+    enablePerformanceTracking: true,
+    customLoggers: {
+      debug: (message, meta) => {
+        console.log('[DEBUG]', message, meta);
+      },
+      info: (message, meta) => {
+        console.log('[INFO]', message, meta);
+      },
+      error: (message, meta) => {
+        console.error('[ERROR]', message, meta);
+      },
     },
-    info: (message, meta) => {
-      console.log('[INFO]', message, meta);
-    },
-    error: (message, meta) => {
-      console.error('[ERROR]', message, meta);
-    }
-  }
-}));
+  }),
+);
 ```
 
 ### Collect Diagnostic Information
@@ -643,9 +668,9 @@ app.get('/diagnostic', (req, res) => {
     uptime: process.uptime(),
     environment: process.env.NODE_ENV,
     pid: process.pid,
-    responseHandlerVersion: require('./package.json').version
+    responseHandlerVersion: require('./package.json').version,
   };
-  
+
   res.ok(diagnostic, 'Diagnostic information');
 });
 ```

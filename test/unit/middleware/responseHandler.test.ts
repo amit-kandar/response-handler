@@ -71,8 +71,8 @@ describe('ResponseHandler Middleware Unit Tests', () => {
     });
 
     it('should use existing request ID from header', () => {
-      mockReq.get.mockImplementation((header: string) => 
-        header === 'X-Request-ID' ? 'existing-req-id' : undefined
+      mockReq.get.mockImplementation((header: string) =>
+        header === 'X-Request-ID' ? 'existing-req-id' : undefined,
       );
 
       const middleware = handler.middleware();
@@ -84,9 +84,9 @@ describe('ResponseHandler Middleware Unit Tests', () => {
     it('should add start time for execution tracking', () => {
       const middleware = handler.middleware();
       const beforeTime = Date.now();
-      
+
       middleware(mockReq, mockRes, mockNext);
-      
+
       const afterTime = Date.now();
       expect(mockReq.startTime).toBeGreaterThanOrEqual(beforeTime);
       expect(mockReq.startTime).toBeLessThanOrEqual(afterTime);
@@ -159,7 +159,7 @@ describe('ResponseHandler Middleware Unit Tests', () => {
           success: true,
           data: { id: 1 },
           message: 'Success',
-        })
+        }),
       );
     });
   });
@@ -173,11 +173,14 @@ describe('ResponseHandler Middleware Unit Tests', () => {
         },
       };
       handler = new ResponseHandler(config);
-      
+
       const middleware = handler.middleware();
       middleware(mockReq, mockRes, mockNext);
 
-      expect(mockRes.setHeader).toHaveBeenCalledWith('Cache-Control', 'no-cache, no-store, must-revalidate');
+      expect(mockRes.setHeader).toHaveBeenCalledWith(
+        'Cache-Control',
+        'no-cache, no-store, must-revalidate',
+      );
       expect(mockRes.setHeader).toHaveBeenCalledWith('Pragma', 'no-cache');
       expect(mockRes.setHeader).toHaveBeenCalledWith('Expires', '0');
       expect(mockRes.setHeader).toHaveBeenCalledWith('ETag', expect.stringMatching(/^".*"$/));
@@ -190,7 +193,7 @@ describe('ResponseHandler Middleware Unit Tests', () => {
         },
       };
       handler = new ResponseHandler(config);
-      
+
       const middleware = handler.middleware();
       middleware(mockReq, mockRes, mockNext);
 
@@ -205,7 +208,7 @@ describe('ResponseHandler Middleware Unit Tests', () => {
         security: { corsHeaders: false },
       };
       handler = new ResponseHandler(config);
-      
+
       const middleware = handler.middleware();
       middleware(mockReq, mockRes, mockNext);
 
@@ -221,7 +224,7 @@ describe('ResponseHandler Middleware Unit Tests', () => {
     it('should handle errors and respond', () => {
       const error = new TestError('Test error', 400);
       const errorHandler = handler.errorHandler();
-      
+
       // First apply the middleware to enhance the response object
       const middleware = handler.middleware();
       middleware(mockReq, mockRes, mockNext);
@@ -233,7 +236,7 @@ describe('ResponseHandler Middleware Unit Tests', () => {
         expect.objectContaining({
           success: false,
           message: 'Test error',
-        })
+        }),
       );
     });
 
@@ -255,7 +258,7 @@ describe('ResponseHandler Middleware Unit Tests', () => {
         expect.objectContaining({
           method: mockReq.method,
           url: mockReq.url,
-        })
+        }),
       );
     });
 
@@ -273,14 +276,14 @@ describe('ResponseHandler Middleware Unit Tests', () => {
     it('should not call next when headers not sent', () => {
       mockRes.headersSent = false;
       const error = new TestError('Test error');
-      
+
       // First apply the middleware to enhance the response object
       const middleware = handler.middleware();
       middleware(mockReq, mockRes, mockNext);
-      
+
       // Reset the mockNext after middleware application
       mockNext.mockReset();
-      
+
       const errorHandler = handler.errorHandler();
       errorHandler(error, mockReq, mockRes, mockNext);
 
@@ -324,7 +327,7 @@ describe('ResponseHandler Middleware Unit Tests', () => {
 
     it('should enhance request and response before calling next', () => {
       const middleware = handler.middleware();
-      
+
       middleware(mockReq, mockRes, mockNext);
 
       // Verify enhancement happened before next was called
@@ -385,7 +388,7 @@ describe('ResponseHandler Middleware Unit Tests', () => {
 
       const logger = handler.getLogger();
       const loggerSpy = jest.spyOn(logger, 'info');
-      
+
       // Call again to test the enhanced method
       mockRes.downloadFile('/path/to/file.pdf', 'document.pdf');
 
@@ -395,7 +398,7 @@ describe('ResponseHandler Middleware Unit Tests', () => {
         expect.objectContaining({
           requestId: expect.any(String),
           filename: 'document.pdf',
-        })
+        }),
       );
     });
 

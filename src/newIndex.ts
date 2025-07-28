@@ -5,10 +5,7 @@ export {
   responseHandler,
 } from './middleware/responseHandler';
 
-export {
-  SocketResponseHandler,
-  createSocketHandler,
-} from './socket/enhancedSocket';
+export { SocketResponseHandler, createSocketHandler } from './socket/enhancedSocket';
 
 export { Logger } from './core/logger';
 export { ResponseBuilder } from './core/responseBuilder';
@@ -20,7 +17,7 @@ export * from './types';
 export function quickSetup(config?: any) {
   const { createResponseHandler } = require('./middleware/responseHandler');
   const handler = createResponseHandler(config);
-  
+
   return {
     middleware: handler.middleware(),
     errorHandler: handler.errorHandler(),
@@ -32,7 +29,7 @@ export function quickSetup(config?: any) {
 export function quickSocketSetup(config?: any) {
   const { createSocketHandler } = require('./socket/enhancedSocket');
   const handler = createSocketHandler(config);
-  
+
   return {
     enhance: handler.enhance.bind(handler),
     wrapper: handler.wrapper.bind(handler),

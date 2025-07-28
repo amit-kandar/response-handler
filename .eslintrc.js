@@ -26,14 +26,14 @@ module.exports = {
     '@typescript-eslint/no-require-imports': 'off',
     'no-nested-ternary': 'off',
     'consistent-return': 'off',
-    'radix': 'off',
+    radix: 'off',
     'no-restricted-globals': 'off',
     'no-promise-executor-return': 'off',
     'no-plusplus': 'off',
     'dot-notation': 'off',
     'object-shorthand': 'off',
     'import/newline-after-import': 'off',
-    'class-methods-use-this': 'off'
+    'class-methods-use-this': 'off',
   },
   settings: {
     node: {
@@ -50,6 +50,6 @@ module.exports = {
     'api/',
     'config/',
     'guide/',
-    '*.md'
+    '*.md',
   ],
 };

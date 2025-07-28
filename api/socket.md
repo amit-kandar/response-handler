@@ -21,11 +21,11 @@ Manually enhance a socket response for a specific event:
 ```typescript
 socket.on('get-user', (data) => {
   const response = enhance(socket, 'user-data');
-  
+
   if (!data.userId) {
     return response.badRequest({ field: 'userId' }, 'User ID required');
   }
-  
+
   const user = getUserById(data.userId);
   response.ok(user, 'User retrieved successfully');
 });
@@ -36,17 +36,20 @@ socket.on('get-user', (data) => {
 Automatically wrap handlers with error handling and response enhancement:
 
 ```typescript
-socket.on('create-post', wrapper(async (socket, response, data) => {
-  // Automatic error handling
-  // Response object is automatically provided
-  
-  if (!data.title) {
-    return response.badRequest({ field: 'title' }, 'Title required');
-  }
-  
-  const post = await createPost(data);
-  response.created(post, 'Post created successfully');
-}));
+socket.on(
+  'create-post',
+  wrapper(async (socket, response, data) => {
+    // Automatic error handling
+    // Response object is automatically provided
+
+    if (!data.title) {
+      return response.badRequest({ field: 'title' }, 'Title required');
+    }
+
+    const post = await createPost(data);
+    response.created(post, 'Post created successfully');
+  }),
+);
 ```
 
 ## Enhanced Response Methods
@@ -56,12 +59,14 @@ All methods are available on the enhanced response object:
 ### Success Responses
 
 #### `response.ok(data, message)`
+
 ```typescript
 response.ok({ user: { id: 1, name: 'John' } }, 'User retrieved');
 // Emits: { success: true, data: {...}, message: '...' }
 ```
 
 #### `response.created(data, message)`
+
 ```typescript
 response.created({ id: 123, title: 'New Post' }, 'Post created');
 // Emits: { success: true, data: {...}, message: '...' }
@@ -70,28 +75,33 @@ response.created({ id: 123, title: 'New Post' }, 'Post created');
 ### Error Responses
 
 #### `response.error(error, code)`
+
 ```typescript
 response.error(new Error('Something went wrong'), 'SERVER_ERROR');
 // Emits: { success: false, error: {...}, message: '...' }
 ```
 
 #### `response.badRequest(error, message)`
+
 ```typescript
 response.badRequest({ field: 'email' }, 'Invalid email format');
 // Emits: { success: false, error: {...}, message: '...' }
 ```
 
 #### `response.unauthorized(error, message)`
+
 ```typescript
 response.unauthorized({ reason: 'invalid_token' }, 'Authentication failed');
 ```
 
 #### `response.forbidden(error, message)`
+
 ```typescript
 response.forbidden({ role: 'user' }, 'Admin access required');
 ```
 
 #### `response.notFound(error, message)`
+
 ```typescript
 response.notFound({ id: 123 }, 'User not found');
 ```
@@ -99,6 +109,7 @@ response.notFound({ id: 123 }, 'User not found');
 ### Room and Socket Targeting
 
 #### `response.toRoom(roomId)`
+
 Send response to all sockets in a room:
 
 ```typescript
@@ -106,6 +117,7 @@ response.toRoom('chat-room-1').ok(message, 'New message posted');
 ```
 
 #### `response.toSocket(socketId)`
+
 Send response to a specific socket:
 
 ```typescript
@@ -115,6 +127,7 @@ response.toSocket('socket-123').ok(notification, 'Personal notification');
 ### Generic Emission
 
 #### `response.emit(event, data, statusCode)`
+
 ```typescript
 response.emit('custom-event', { custom: 'data' }, 200);
 ```
@@ -122,11 +135,12 @@ response.emit('custom-event', { custom: 'data' }, 200);
 ## Socket Enhancement Patterns
 
 ### Manual Enhancement
+
 ```typescript
 io.on('connection', (socket) => {
   socket.on('get-data', (data) => {
     const response = enhance(socket, 'data-response');
-    
+
     try {
       const result = processData(data);
       response.ok(result, 'Data processed successfully');
@@ -138,33 +152,41 @@ io.on('connection', (socket) => {
 ```
 
 ### Wrapper Pattern
+
 ```typescript
 io.on('connection', (socket) => {
-  socket.on('async-operation', wrapper(async (socket, response, data) => {
-    // Automatic error handling - no try/catch needed
-    const result = await performAsyncOperation(data);
-    response.ok(result, 'Operation completed');
-  }));
+  socket.on(
+    'async-operation',
+    wrapper(async (socket, response, data) => {
+      // Automatic error handling - no try/catch needed
+      const result = await performAsyncOperation(data);
+      response.ok(result, 'Operation completed');
+    }),
+  );
 });
 ```
 
 ### Room Management
+
 ```typescript
 io.on('connection', (socket) => {
-  socket.on('join-room', wrapper(async (socket, response, data) => {
-    const { roomId } = data;
-    
-    await socket.join(roomId);
-    
-    // Notify the user
-    response.ok({ roomId }, 'Joined room successfully');
-    
-    // Notify others in the room
-    response.toRoom(roomId).emit('user-joined', {
-      userId: socket.userId,
-      roomId
-    });
-  }));
+  socket.on(
+    'join-room',
+    wrapper(async (socket, response, data) => {
+      const { roomId } = data;
+
+      await socket.join(roomId);
+
+      // Notify the user
+      response.ok({ roomId }, 'Joined room successfully');
+
+      // Notify others in the room
+      response.toRoom(roomId).emit('user-joined', {
+        userId: socket.userId,
+        roomId,
+      });
+    }),
+  );
 });
 ```
 
@@ -174,11 +196,11 @@ io.on('connection', (socket) => {
 // Authentication middleware
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
-  
+
   if (!token) {
     return next(new Error('Authentication token required'));
   }
-  
+
   try {
     const user = jwt.verify(token, SECRET);
     socket.userId = user.id;
@@ -190,28 +212,36 @@ io.use((socket, next) => {
 });
 
 // Using authentication in handlers
-socket.on('get-profile', wrapper(async (socket, response, data) => {
-  const user = await getUserById(socket.userId);
-  response.ok(user, 'Profile retrieved');
-}));
+socket.on(
+  'get-profile',
+  wrapper(async (socket, response, data) => {
+    const user = await getUserById(socket.userId);
+    response.ok(user, 'Profile retrieved');
+  }),
+);
 ```
 
 ## Error Handling
 
 ### Automatic Error Handling with Wrapper
+
 ```typescript
-socket.on('risky-operation', wrapper(async (socket, response, data) => {
-  // Any thrown error is automatically caught and sent as error response
-  throw new Error('Something went wrong');
-  // Automatically becomes: response.error(error, 'Operation failed')
-}));
+socket.on(
+  'risky-operation',
+  wrapper(async (socket, response, data) => {
+    // Any thrown error is automatically caught and sent as error response
+    throw new Error('Something went wrong');
+    // Automatically becomes: response.error(error, 'Operation failed')
+  }),
+);
 ```
 
 ### Manual Error Handling
+
 ```typescript
 socket.on('manual-handling', (data) => {
   const response = enhance(socket, 'operation-result');
-  
+
   try {
     const result = riskyOperation(data);
     response.ok(result, 'Success');
@@ -228,51 +258,59 @@ socket.on('manual-handling', (data) => {
 ## Real-time Features
 
 ### Broadcasting to Rooms
+
 ```typescript
-socket.on('send-message', wrapper(async (socket, response, data) => {
-  const { roomId, message } = data;
-  
-  const messageObj = {
-    id: generateId(),
-    text: message,
-    userId: socket.userId,
-    timestamp: new Date().toISOString()
-  };
-  
-  // Save to database
-  await saveMessage(messageObj);
-  
-  // Broadcast to room
-  response.toRoom(roomId).emit('new-message', messageObj);
-  
-  // Confirm to sender
-  response.ok({ messageId: messageObj.id }, 'Message sent');
-}));
+socket.on(
+  'send-message',
+  wrapper(async (socket, response, data) => {
+    const { roomId, message } = data;
+
+    const messageObj = {
+      id: generateId(),
+      text: message,
+      userId: socket.userId,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Save to database
+    await saveMessage(messageObj);
+
+    // Broadcast to room
+    response.toRoom(roomId).emit('new-message', messageObj);
+
+    // Confirm to sender
+    response.ok({ messageId: messageObj.id }, 'Message sent');
+  }),
+);
 ```
 
 ### Private Messaging
+
 ```typescript
-socket.on('send-private-message', wrapper(async (socket, response, data) => {
-  const { targetUserId, message } = data;
-  
-  const targetSocket = findSocketByUserId(targetUserId);
-  
-  if (!targetSocket) {
-    return response.notFound({ userId: targetUserId }, 'User not online');
-  }
-  
-  const messageObj = {
-    from: socket.userId,
-    message,
-    timestamp: new Date().toISOString()
-  };
-  
-  // Send to target user
-  response.toSocket(targetSocket.id).emit('private-message', messageObj);
-  
-  // Confirm to sender
-  response.ok({ delivered: true }, 'Message delivered');
-}));
+socket.on(
+  'send-private-message',
+  wrapper(async (socket, response, data) => {
+    const { targetUserId, message } = data;
+
+    const targetSocket = findSocketByUserId(targetUserId);
+
+    if (!targetSocket) {
+      return response.notFound({ userId: targetUserId }, 'User not online');
+    }
+
+    const messageObj = {
+      from: socket.userId,
+      message,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Send to target user
+    response.toSocket(targetSocket.id).emit('private-message', messageObj);
+
+    // Confirm to sender
+    response.ok({ delivered: true }, 'Message delivered');
+  }),
+);
 ```
 
 ## Middleware Integration
@@ -285,12 +323,12 @@ const responseMiddleware = (socket, next) => {
     const response = enhance(socket, event);
     response.ok(data, message);
   };
-  
+
   socket.sendError = (event, error, message) => {
     const response = enhance(socket, event);
     response.error(error, message);
   };
-  
+
   next();
 };
 
@@ -306,36 +344,39 @@ import { quickSocketSetup } from '@amitkandar/response-handler';
 
 describe('Socket.IO Tests', () => {
   let io, clientSocket, serverSocket;
-  
+
   beforeEach((done) => {
     const httpServer = createServer();
     io = new Server(httpServer);
-    
+
     const { enhance, wrapper } = quickSocketSetup({ mode: 'test' });
-    
+
     io.on('connection', (socket) => {
       serverSocket = socket;
-      
-      socket.on('test-event', wrapper(async (socket, response, data) => {
-        response.ok(data, 'Test successful');
-      }));
+
+      socket.on(
+        'test-event',
+        wrapper(async (socket, response, data) => {
+          response.ok(data, 'Test successful');
+        }),
+      );
     });
-    
+
     httpServer.listen(() => {
       const port = httpServer.address().port;
       clientSocket = Client(`http://localhost:${port}`);
       clientSocket.on('connect', done);
     });
   });
-  
+
   it('should handle test event', (done) => {
     clientSocket.emit('test-event', { test: 'data' });
-    
+
     clientSocket.on('test-response', (data) => {
       expect(data).toMatchObject({
         success: true,
         data: { test: 'data' },
-        message: 'Test successful'
+        message: 'Test successful',
       });
       done();
     });
@@ -350,10 +391,11 @@ All Socket.IO responses follow this consistent format:
 ```typescript
 interface SocketResponse {
   success: boolean;
-  data?: any;           // For successful responses
-  message?: string;     // Human-readable message
-  error?: ErrorInfo;    // For error responses
-  meta?: {              // Metadata
+  data?: any; // For successful responses
+  message?: string; // Human-readable message
+  error?: ErrorInfo; // For error responses
+  meta?: {
+    // Metadata
     timestamp?: string;
     socketId?: string;
     environment?: string;

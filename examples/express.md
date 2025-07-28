@@ -13,7 +13,7 @@ app.use(express.json());
 
 const { middleware, errorHandler } = quickSetup({
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-  logging: { enabled: true }
+  logging: { enabled: true },
 });
 
 app.use(middleware);
@@ -26,25 +26,25 @@ app.get('/api/users', async (req, res) => {
 
 app.get('/api/users/:id', async (req, res) => {
   const user = await User.findById(req.params.id);
-  
+
   if (!user) {
     return res.notFound({ id: req.params.id }, 'User not found');
   }
-  
+
   res.ok(user, 'User retrieved successfully');
 });
 
 app.post('/api/users', async (req, res) => {
   const { name, email } = req.body;
-  
+
   // Validation
   if (!name || !email) {
     return res.badRequest(
-      { missingFields: ['name', 'email'].filter(f => !req.body[f]) },
-      'Missing required fields'
+      { missingFields: ['name', 'email'].filter((f) => !req.body[f]) },
+      'Missing required fields',
     );
   }
-  
+
   try {
     const user = await User.create({ name, email });
     res.created(user, 'User created successfully');
@@ -66,11 +66,11 @@ app.listen(3000);
 // Authentication middleware
 app.use('/api/protected', (req, res, next) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
-  
+
   if (!token) {
     return res.unauthorized(null, 'Authentication token required');
   }
-  
+
   try {
     const user = jwt.verify(token, SECRET);
     req.user = user;
@@ -83,10 +83,7 @@ app.use('/api/protected', (req, res, next) => {
 // Authorization middleware
 const requireRole = (role) => (req, res, next) => {
   if (req.user.role !== role) {
-    return res.forbidden(
-      { required: role, actual: req.user.role },
-      `${role} access required`
-    );
+    return res.forbidden({ required: role, actual: req.user.role }, `${role} access required`);
   }
   next();
 };
@@ -103,19 +100,19 @@ import Joi from 'joi';
 
 const validateBody = (schema) => (req, res, next) => {
   const { error, value } = schema.validate(req.body);
-  
+
   if (error) {
     return res.badRequest(
-      { 
-        details: error.details.map(d => ({
+      {
+        details: error.details.map((d) => ({
           field: d.path.join('.'),
-          message: d.message
-        }))
+          message: d.message,
+        })),
       },
-      'Validation failed'
+      'Validation failed',
     );
   }
-  
+
   req.body = value;
   next();
 };
@@ -123,7 +120,7 @@ const validateBody = (schema) => (req, res, next) => {
 const userSchema = Joi.object({
   name: Joi.string().min(2).max(50).required(),
   email: Joi.string().email().required(),
-  age: Joi.number().min(18).max(100)
+  age: Joi.number().min(18).max(100),
 });
 
 app.post('/api/users', validateBody(userSchema), async (req, res) => {
@@ -139,22 +136,22 @@ app.get('/api/posts', async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const offset = (page - 1) * limit;
-  
+
   const { posts, total } = await Post.findAndCountAll({
     limit,
     offset,
-    order: [['createdAt', 'DESC']]
+    order: [['createdAt', 'DESC']],
   });
-  
+
   const pagination = {
     page,
     limit,
     total,
     totalPages: Math.ceil(total / limit),
     hasNext: page < Math.ceil(total / limit),
-    hasPrev: page > 1
+    hasPrev: page > 1,
   };
-  
+
   res.paginate(posts, pagination, 'Posts retrieved successfully');
 });
 ```
@@ -170,24 +167,24 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
   if (!req.file) {
     return res.badRequest({ field: 'file' }, 'File is required');
   }
-  
+
   const fileInfo = {
     id: req.file.filename,
     originalName: req.file.originalname,
     size: req.file.size,
-    uploadedAt: new Date().toISOString()
+    uploadedAt: new Date().toISOString(),
   };
-  
+
   res.created(fileInfo, 'File uploaded successfully');
 });
 
 app.get('/api/download/:id', (req, res) => {
   const filePath = path.join('uploads', req.params.id);
-  
+
   if (!fs.existsSync(filePath)) {
     return res.notFound({ id: req.params.id }, 'File not found');
   }
-  
+
   res.downloadFile(filePath, 'document.pdf');
 });
 ```
@@ -202,14 +199,14 @@ const limiter = rateLimit({
   max: 100, // limit each IP to 100 requests per windowMs
   handler: (req, res) => {
     res.tooManyRequests(
-      { 
+      {
         limit: 100,
         windowMs: 15 * 60 * 1000,
-        retryAfter: Math.round(req.rateLimit.resetTime / 1000)
+        retryAfter: Math.round(req.rateLimit.resetTime / 1000),
       },
-      'Too many requests, please try again later'
+      'Too many requests, please try again later',
     );
-  }
+  },
 });
 
 app.use('/api/', limiter);
@@ -247,12 +244,12 @@ class UserService {
     }
     return user;
   }
-  
+
   static async create(userData) {
     if (!userData.email) {
       throw new ValidationError('Email is required', 'email');
     }
-    
+
     return await User.create(userData);
   }
 }
@@ -276,7 +273,7 @@ import { quickSetup } from '@amitkandar/response-handler';
 
 describe('Users API', () => {
   let app;
-  
+
   beforeEach(() => {
     app = express();
     const { middleware, errorHandler } = quickSetup({ mode: 'test' });
@@ -284,33 +281,33 @@ describe('Users API', () => {
     // ... setup routes
     app.use(errorHandler);
   });
-  
+
   it('should create user successfully', async () => {
     const response = await request(app)
       .post('/api/users')
       .send({ name: 'John', email: 'john@example.com' })
       .expect(201);
-      
+
     expect(response.body).toMatchObject({
       success: true,
       data: expect.objectContaining({
         name: 'John',
-        email: 'john@example.com'
+        email: 'john@example.com',
       }),
-      message: 'User created successfully'
+      message: 'User created successfully',
     });
   });
-  
+
   it('should handle validation errors', async () => {
     const response = await request(app)
       .post('/api/users')
       .send({ name: 'John' }) // Missing email
       .expect(400);
-      
+
     expect(response.body).toMatchObject({
       success: false,
       message: expect.stringContaining('Missing required fields'),
-      error: expect.any(Object)
+      error: expect.any(Object),
     });
   });
 });

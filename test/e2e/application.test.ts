@@ -32,11 +32,14 @@ describe('E2E Application Tests', () => {
 
     // Real-world API routes
     app.get('/api/health', (req, res) => {
-      (res as EnhancedResponse).ok({
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-      }, 'Service is healthy');
+      (res as EnhancedResponse).ok(
+        {
+          status: 'healthy',
+          timestamp: new Date().toISOString(),
+          uptime: process.uptime(),
+        },
+        'Service is healthy',
+      );
     });
 
     app.get('/api/users', (req, res) => {
@@ -49,11 +52,11 @@ describe('E2E Application Tests', () => {
 
     app.post('/api/users', ((req, res) => {
       const { name, email } = req.body;
-      
+
       if (!name || !email) {
         return (res as EnhancedResponse).badRequest(
-          { missingFields: ['name', 'email'].filter(field => !req.body[field]) },
-          'Missing required fields'
+          { missingFields: ['name', 'email'].filter((field) => !req.body[field]) },
+          'Missing required fields',
         );
       }
 
@@ -69,19 +72,16 @@ describe('E2E Application Tests', () => {
 
     app.get('/api/users/:id', ((req, res) => {
       const id = parseInt(req.params.id);
-      
+
       if (isNaN(id)) {
         return (res as EnhancedResponse).badRequest(
           { field: 'id', value: req.params.id },
-          'Invalid user ID'
+          'Invalid user ID',
         );
       }
 
       if (id === 404) {
-        return (res as EnhancedResponse).notFound(
-          { userId: id },
-          'User not found'
-        );
+        return (res as EnhancedResponse).notFound({ userId: id }, 'User not found');
       }
 
       const user = {
@@ -106,26 +106,29 @@ describe('E2E Application Tests', () => {
 
     app.get('/api/error/timeout', async (req, res) => {
       // Simulate long operation
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       (res as EnhancedResponse).ok({ result: 'completed' }, 'Long operation completed');
     });
 
     // Performance test route
     app.get('/api/performance', (req, res) => {
       const startTime = Date.now();
-      
+
       // Simulate some work
       let result = 0;
       for (let i = 0; i < 1000000; i++) {
         result += Math.random();
       }
-      
+
       const executionTime = Date.now() - startTime;
-      
-      (res as EnhancedResponse).ok({
-        result: result.toFixed(2),
-        computationTime: executionTime,
-      }, 'Performance test completed');
+
+      (res as EnhancedResponse).ok(
+        {
+          result: result.toFixed(2),
+          computationTime: executionTime,
+        },
+        'Performance test completed',
+      );
     });
 
     // Add error handler last
@@ -134,9 +137,7 @@ describe('E2E Application Tests', () => {
 
   describe('API Health and Basic Functionality', () => {
     it('should return healthy status', async () => {
-      const response = await request(app)
-        .get('/api/health')
-        .expect(200);
+      const response = await request(app).get('/api/health').expect(200);
 
       expect(response.body).toMatchObject({
         success: true,
@@ -158,9 +159,7 @@ describe('E2E Application Tests', () => {
   describe('CRUD Operations', () => {
     it('should handle complete user CRUD workflow', async () => {
       // 1. List users
-      const listResponse = await request(app)
-        .get('/api/users')
-        .expect(200);
+      const listResponse = await request(app).get('/api/users').expect(200);
 
       expect(listResponse.body.success).toBe(true);
       expect(Array.isArray(listResponse.body.data)).toBe(true);
@@ -184,9 +183,7 @@ describe('E2E Application Tests', () => {
       const userId = createResponse.body.data.id;
 
       // 3. Get user
-      const getResponse = await request(app)
-        .get(`/api/users/${userId}`)
-        .expect(200);
+      const getResponse = await request(app).get(`/api/users/${userId}`).expect(200);
 
       expect(getResponse.body).toMatchObject({
         success: true,
@@ -197,9 +194,7 @@ describe('E2E Application Tests', () => {
       });
 
       // 4. Delete user
-      await request(app)
-        .delete(`/api/users/${userId}`)
-        .expect(204);
+      await request(app).delete(`/api/users/${userId}`).expect(204);
     });
 
     it('should handle validation errors', async () => {
@@ -218,9 +213,7 @@ describe('E2E Application Tests', () => {
     });
 
     it('should handle not found errors', async () => {
-      const response = await request(app)
-        .get('/api/users/404')
-        .expect(404);
+      const response = await request(app).get('/api/users/404').expect(404);
 
       expect(response.body).toMatchObject({
         success: false,
@@ -234,9 +227,7 @@ describe('E2E Application Tests', () => {
 
   describe('Error Handling', () => {
     it('should handle server errors', async () => {
-      const response = await request(app)
-        .get('/api/error/500')
-        .expect(500);
+      const response = await request(app).get('/api/error/500').expect(500);
 
       expect(response.body).toMatchObject({
         success: false,
@@ -248,9 +239,7 @@ describe('E2E Application Tests', () => {
     });
 
     it('should handle invalid input', async () => {
-      const response = await request(app)
-        .get('/api/users/invalid')
-        .expect(400);
+      const response = await request(app).get('/api/users/invalid').expect(400);
 
       expect(response.body).toMatchObject({
         success: false,
@@ -264,9 +253,7 @@ describe('E2E Application Tests', () => {
 
   describe('Performance and Load', () => {
     it('should handle performance-intensive operations', async () => {
-      const response = await request(app)
-        .get('/api/performance')
-        .expect(200);
+      const response = await request(app).get('/api/performance').expect(200);
 
       expect(response.body).toMatchObject({
         success: true,
@@ -282,28 +269,26 @@ describe('E2E Application Tests', () => {
     });
 
     it('should handle multiple concurrent requests', async () => {
-      const promises = Array(10).fill(null).map(() =>
-        request(app).get('/api/health').expect(200)
-      );
+      const promises = Array(10)
+        .fill(null)
+        .map(() => request(app).get('/api/health').expect(200));
 
       const responses = await Promise.all(promises);
-      
+
       // All requests should succeed
-      responses.forEach(response => {
+      responses.forEach((response) => {
         expect(response.body.success).toBe(true);
         expect(response.body.meta).toHaveProperty('requestId');
       });
 
       // Request IDs should be unique
-      const requestIds = responses.map(r => r.body.meta.requestId);
+      const requestIds = responses.map((r) => r.body.meta.requestId);
       const uniqueIds = new Set(requestIds);
       expect(uniqueIds.size).toBe(10);
     });
 
     it('should handle timeout scenarios', async () => {
-      const response = await request(app)
-        .get('/api/error/timeout')
-        .expect(200);
+      const response = await request(app).get('/api/error/timeout').expect(200);
 
       expect(response.body).toMatchObject({
         success: true,
@@ -315,9 +300,7 @@ describe('E2E Application Tests', () => {
 
   describe('Response Metadata', () => {
     it('should include consistent metadata in all responses', async () => {
-      const response = await request(app)
-        .get('/api/users')
-        .expect(200);
+      const response = await request(app).get('/api/users').expect(200);
 
       expect(response.body.meta).toMatchObject({
         requestId: expect.any(String),
@@ -331,11 +314,9 @@ describe('E2E Application Tests', () => {
 
     it('should track execution time accurately', async () => {
       const start = Date.now();
-      
-      const response = await request(app)
-        .get('/api/error/timeout')
-        .expect(200);
-      
+
+      const response = await request(app).get('/api/error/timeout').expect(200);
+
       const end = Date.now();
       const actualTime = end - start;
 

@@ -33,7 +33,7 @@ interface ResponseHandlerConfig {
 ```javascript
 const defaultConfig = {
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-  
+
   logging: {
     enabled: true,
     level: 'info',
@@ -43,7 +43,7 @@ const defaultConfig = {
     includeStack: process.env.NODE_ENV !== 'production',
     includeRequest: false,
   },
-  
+
   responses: {
     includeTimestamp: true,
     includeRequestId: true,
@@ -51,20 +51,20 @@ const defaultConfig = {
     pagination: true,
     compression: false,
   },
-  
+
   security: {
     sanitizeErrors: true,
     hideInternalErrors: process.env.NODE_ENV === 'production',
     allowedErrorFields: ['message', 'type', 'code'],
     corsHeaders: false,
   },
-  
+
   performance: {
     enableCaching: false,
     cacheHeaders: true,
     etag: true,
     compression: false,
-  }
+  },
 };
 ```
 
@@ -77,7 +77,7 @@ Optimized for debugging and development workflow:
 ```javascript
 const developmentConfig = {
   mode: 'development',
-  
+
   logging: {
     enabled: true,
     level: 'debug',
@@ -87,7 +87,7 @@ const developmentConfig = {
     includeStack: true,
     includeRequest: true,
   },
-  
+
   responses: {
     includeTimestamp: true,
     includeRequestId: true,
@@ -96,22 +96,22 @@ const developmentConfig = {
       environment: 'development',
       version: process.env.npm_package_version,
       nodeVersion: process.version,
-    }
+    },
   },
-  
+
   security: {
     sanitizeErrors: false,
     hideInternalErrors: false,
     allowedErrorFields: ['message', 'type', 'code', 'details', 'stack'],
     corsHeaders: true,
   },
-  
+
   performance: {
     enableCaching: false,
     cacheHeaders: false,
     etag: false,
     compression: false,
-  }
+  },
 };
 ```
 
@@ -122,7 +122,7 @@ Optimized for security, performance, and reliability:
 ```javascript
 const productionConfig = {
   mode: 'production',
-  
+
   logging: {
     enabled: true,
     level: 'error',
@@ -134,9 +134,9 @@ const productionConfig = {
     customLogger: (level, message, meta) => {
       // Use production logging service
       productionLogger.log(level, message, meta);
-    }
+    },
   },
-  
+
   responses: {
     includeTimestamp: true,
     includeRequestId: true,
@@ -144,22 +144,22 @@ const productionConfig = {
     customFields: {
       version: process.env.APP_VERSION,
       service: process.env.SERVICE_NAME,
-    }
+    },
   },
-  
+
   security: {
     sanitizeErrors: true,
     hideInternalErrors: true,
     allowedErrorFields: ['message', 'type', 'code'],
     corsHeaders: true,
   },
-  
+
   performance: {
     enableCaching: true,
     cacheHeaders: true,
     etag: true,
     compression: false, // Handled by reverse proxy
-  }
+  },
 };
 ```
 
@@ -170,7 +170,7 @@ Optimized for testing and CI/CD:
 ```javascript
 const testConfig = {
   mode: 'development',
-  
+
   logging: {
     enabled: false, // Reduce test noise
     level: 'error',
@@ -178,23 +178,23 @@ const testConfig = {
     logRequests: false,
     logResponses: false,
   },
-  
+
   responses: {
     includeTimestamp: false,
     includeRequestId: false,
     includeExecutionTime: false,
   },
-  
+
   security: {
     sanitizeErrors: false,
     hideInternalErrors: false,
   },
-  
+
   performance: {
     enableCaching: false,
     cacheHeaders: false,
     etag: false,
-  }
+  },
 };
 ```
 
@@ -204,13 +204,13 @@ const testConfig = {
 
 ```typescript
 interface LoggingConfig {
-  enabled?: boolean;                    // Enable/disable logging
-  level?: 'error' | 'warn' | 'info' | 'debug';  // Minimum log level
-  logErrors?: boolean;                  // Log error events
-  logRequests?: boolean;                // Log incoming requests
-  logResponses?: boolean;               // Log outgoing responses
-  includeStack?: boolean;               // Include stack traces in errors
-  includeRequest?: boolean;             // Include request details in logs
+  enabled?: boolean; // Enable/disable logging
+  level?: 'error' | 'warn' | 'info' | 'debug'; // Minimum log level
+  logErrors?: boolean; // Log error events
+  logRequests?: boolean; // Log incoming requests
+  logResponses?: boolean; // Log outgoing responses
+  includeStack?: boolean; // Include stack traces in errors
+  includeRequest?: boolean; // Include request details in logs
   customLogger?: (level: string, message: string, meta?: any) => void;
 }
 ```
@@ -225,7 +225,7 @@ const config = {
     logErrors: true,
     logRequests: true,
     logResponses: true,
-  }
+  },
 };
 ```
 
@@ -241,12 +241,12 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json()
+    winston.format.json(),
   ),
   transports: [
     new winston.transports.File({ filename: 'error.log', level: 'error' }),
     new winston.transports.File({ filename: 'combined.log' }),
-    new winston.transports.Console()
+    new winston.transports.Console(),
   ],
 });
 
@@ -256,8 +256,8 @@ const config = {
     level: 'info',
     customLogger: (level, message, meta) => {
       logger.log(level, message, meta);
-    }
-  }
+    },
+  },
 };
 ```
 
@@ -276,12 +276,12 @@ const config = {
         message,
         service: 'user-api',
         version: process.env.APP_VERSION,
-        ...meta
+        ...meta,
       };
-      
+
       console.log(JSON.stringify(logEntry));
-    }
-  }
+    },
+  },
 };
 ```
 
@@ -309,8 +309,8 @@ const config = {
         // Response logging
         console.log(`Response: ${meta.statusCode} - ${meta.executionTime}ms`);
       }
-    }
-  }
+    },
+  },
 };
 ```
 
@@ -320,12 +320,12 @@ const config = {
 
 ```typescript
 interface ResponseConfig {
-  includeTimestamp?: boolean;           // Include timestamp in responses
-  includeRequestId?: boolean;           // Include request ID in responses
-  includeExecutionTime?: boolean;       // Include execution time
-  customFields?: Record<string, any>;   // Custom fields in meta
-  pagination?: boolean;                 // Enable pagination helpers
-  compression?: boolean;                // Enable response compression
+  includeTimestamp?: boolean; // Include timestamp in responses
+  includeRequestId?: boolean; // Include request ID in responses
+  includeExecutionTime?: boolean; // Include execution time
+  customFields?: Record<string, any>; // Custom fields in meta
+  pagination?: boolean; // Enable pagination helpers
+  compression?: boolean; // Enable response compression
 }
 ```
 
@@ -340,9 +340,9 @@ const config = {
     customFields: {
       version: '1.0.0',
       service: 'user-api',
-      environment: process.env.NODE_ENV
-    }
-  }
+      environment: process.env.NODE_ENV,
+    },
+  },
 };
 ```
 
@@ -356,8 +356,8 @@ const config = {
     includeTimestamp: false,
     includeRequestId: false,
     includeExecutionTime: false,
-    customFields: {}
-  }
+    customFields: {},
+  },
 };
 ```
 
@@ -377,8 +377,8 @@ const config = {
       nodeVersion: process.version,
       pid: process.pid,
       memory: () => process.memoryUsage(),
-    }
-  }
+    },
+  },
 };
 ```
 
@@ -388,11 +388,11 @@ const config = {
 
 ```typescript
 interface SecurityConfig {
-  sanitizeErrors?: boolean;             // Sanitize error messages
-  hideInternalErrors?: boolean;         // Hide internal error details
-  allowedErrorFields?: string[];        // Allowed error fields in responses
-  rateLimiting?: boolean;               // Enable rate limiting
-  corsHeaders?: boolean;                // Set CORS security headers
+  sanitizeErrors?: boolean; // Sanitize error messages
+  hideInternalErrors?: boolean; // Hide internal error details
+  allowedErrorFields?: string[]; // Allowed error fields in responses
+  rateLimiting?: boolean; // Enable rate limiting
+  corsHeaders?: boolean; // Set CORS security headers
 }
 ```
 
@@ -405,7 +405,7 @@ const config = {
     hideInternalErrors: true,
     allowedErrorFields: ['message', 'type', 'code'],
     corsHeaders: true,
-  }
+  },
 };
 ```
 
@@ -418,7 +418,7 @@ const config = {
     hideInternalErrors: false,
     allowedErrorFields: ['message', 'type', 'code', 'details', 'stack'],
     corsHeaders: true,
-  }
+  },
 };
 ```
 
@@ -430,12 +430,12 @@ Control which error fields are exposed:
 const config = {
   security: {
     allowedErrorFields: [
-      'message',    // Error message
-      'type',       // Error type/name
-      'code',       // Error code
-      'field',      // Validation field (for validation errors)
-    ]
-  }
+      'message', // Error message
+      'type', // Error type/name
+      'code', // Error code
+      'field', // Validation field (for validation errors)
+    ],
+  },
 };
 ```
 
@@ -455,10 +455,10 @@ X-XSS-Protection: 1; mode=block
 
 ```typescript
 interface PerformanceConfig {
-  enableCaching?: boolean;              // Enable response caching
-  cacheHeaders?: boolean;               // Set cache control headers
-  etag?: boolean;                       // Enable ETag headers
-  compression?: boolean;                // Enable response compression
+  enableCaching?: boolean; // Enable response caching
+  cacheHeaders?: boolean; // Set cache control headers
+  etag?: boolean; // Enable ETag headers
+  compression?: boolean; // Enable response compression
 }
 ```
 
@@ -471,7 +471,7 @@ const config = {
     cacheHeaders: true,
     etag: true,
     compression: true,
-  }
+  },
 };
 ```
 
@@ -501,10 +501,10 @@ ETag: "request-id-value"
 const getConfig = () => {
   const isProduction = process.env.NODE_ENV === 'production';
   const isDevelopment = process.env.NODE_ENV === 'development';
-  
+
   return {
     mode: isProduction ? 'production' : 'development',
-    
+
     logging: {
       enabled: process.env.LOGGING_ENABLED !== 'false',
       level: process.env.LOG_LEVEL || (isProduction ? 'error' : 'debug'),
@@ -513,7 +513,7 @@ const getConfig = () => {
       logResponses: isDevelopment,
       includeStack: isDevelopment,
     },
-    
+
     responses: {
       includeTimestamp: process.env.INCLUDE_TIMESTAMP !== 'false',
       includeRequestId: process.env.INCLUDE_REQUEST_ID !== 'false',
@@ -522,16 +522,19 @@ const getConfig = () => {
         version: process.env.APP_VERSION || 'unknown',
         service: process.env.SERVICE_NAME || 'api',
         environment: process.env.NODE_ENV,
-      }
+      },
     },
-    
+
     security: {
       sanitizeErrors: isProduction,
       hideInternalErrors: isProduction,
-      allowedErrorFields: process.env.ALLOWED_ERROR_FIELDS?.split(',') || 
-        ['message', 'type', 'code'],
+      allowedErrorFields: process.env.ALLOWED_ERROR_FIELDS?.split(',') || [
+        'message',
+        'type',
+        'code',
+      ],
       corsHeaders: process.env.CORS_HEADERS === 'true',
-    }
+    },
   };
 };
 ```
@@ -555,7 +558,7 @@ const apiGatewayConfig = {
     customFields: {
       service: 'api-gateway',
       version: process.env.GATEWAY_VERSION,
-    }
+    },
   },
   security: {
     sanitizeErrors: true,
@@ -566,7 +569,7 @@ const apiGatewayConfig = {
     enableCaching: true,
     cacheHeaders: true,
     etag: true,
-  }
+  },
 };
 
 // Microservice Configuration
@@ -586,7 +589,7 @@ const microserviceConfig = {
     customFields: {
       service: process.env.SERVICE_NAME,
       instance: process.env.INSTANCE_ID,
-    }
+    },
   },
   security: {
     sanitizeErrors: true,
@@ -597,7 +600,7 @@ const microserviceConfig = {
     enableCaching: false,
     cacheHeaders: false,
     etag: false,
-  }
+  },
 };
 ```
 
@@ -608,7 +611,7 @@ class ConfigManager {
   constructor() {
     this.config = this.loadConfig();
   }
-  
+
   loadConfig() {
     return {
       mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
@@ -618,7 +621,7 @@ class ConfigManager {
       performance: this.getPerformanceConfig(),
     };
   }
-  
+
   getLoggingConfig() {
     return {
       enabled: process.env.LOGGING_ENABLED !== 'false',
@@ -629,7 +632,7 @@ class ConfigManager {
       customLogger: this.getCustomLogger(),
     };
   }
-  
+
   getLogLevel() {
     const level = process.env.LOG_LEVEL;
     if (['error', 'warn', 'info', 'debug'].includes(level)) {
@@ -637,31 +640,31 @@ class ConfigManager {
     }
     return process.env.NODE_ENV === 'production' ? 'error' : 'debug';
   }
-  
+
   shouldLogRequests() {
-    return process.env.LOG_REQUESTS === 'true' || 
-           process.env.NODE_ENV === 'development';
+    return process.env.LOG_REQUESTS === 'true' || process.env.NODE_ENV === 'development';
   }
-  
+
   shouldLogResponses() {
-    return process.env.LOG_RESPONSES === 'true' || 
-           process.env.NODE_ENV === 'development';
+    return process.env.LOG_RESPONSES === 'true' || process.env.NODE_ENV === 'development';
   }
-  
+
   getCustomLogger() {
     if (process.env.LOG_FORMAT === 'json') {
       return (level, message, meta) => {
-        console.log(JSON.stringify({
-          timestamp: new Date().toISOString(),
-          level: level.toUpperCase(),
-          message,
-          ...meta
-        }));
+        console.log(
+          JSON.stringify({
+            timestamp: new Date().toISOString(),
+            level: level.toUpperCase(),
+            message,
+            ...meta,
+          }),
+        );
       };
     }
     return undefined; // Use default logger
   }
-  
+
   updateConfig(updates) {
     this.config = { ...this.config, ...updates };
     return this.config;
@@ -684,10 +687,10 @@ const getConfigWithFeatureFlags = () => {
     performanceMetrics: process.env.FEATURE_PERFORMANCE_METRICS === 'true',
     securityHeaders: process.env.FEATURE_SECURITY_HEADERS === 'true',
   };
-  
+
   return {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-    
+
     logging: {
       enabled: true,
       level: features.detailedLogging ? 'debug' : 'info',
@@ -696,28 +699,30 @@ const getConfigWithFeatureFlags = () => {
       logResponses: features.detailedLogging,
       includeStack: features.detailedLogging,
     },
-    
+
     responses: {
       includeTimestamp: true,
       includeRequestId: features.requestTracking,
       includeExecutionTime: features.performanceMetrics,
-      customFields: features.performanceMetrics ? {
-        version: process.env.APP_VERSION,
-        features: Object.keys(features).filter(key => features[key]),
-      } : {}
+      customFields: features.performanceMetrics
+        ? {
+            version: process.env.APP_VERSION,
+            features: Object.keys(features).filter((key) => features[key]),
+          }
+        : {},
     },
-    
+
     security: {
       sanitizeErrors: true,
       hideInternalErrors: process.env.NODE_ENV === 'production',
       corsHeaders: features.securityHeaders,
     },
-    
+
     performance: {
       enableCaching: features.performanceMetrics,
       cacheHeaders: features.performanceMetrics,
       etag: features.performanceMetrics,
-    }
+    },
   };
 };
 ```

@@ -12,11 +12,13 @@ This guide explains how to deploy the Response Handler documentation site using 
 ### Setup
 
 1. Install dependencies:
+
 ```bash
 npm install
 ```
 
 2. Start the development server:
+
 ```bash
 npm run docs:dev
 ```
@@ -52,6 +54,7 @@ The repository is already configured with GitHub Actions for automatic deploymen
 If you need to deploy manually:
 
 1. Build the documentation:
+
 ```bash
 npm run docs:build
 ```
@@ -77,11 +80,13 @@ npm run docs:build
 ### GitHub Pages (Manual)
 
 1. Build the documentation:
+
 ```bash
 npm run docs:build
 ```
 
 2. Push the contents of `.vitepress/dist` to the `gh-pages` branch:
+
 ```bash
 # Build the docs
 npm run docs:build
@@ -118,7 +123,7 @@ If deploying to a subdirectory, update the base URL in `.vitepress/config.js`:
 export default {
   base: '/response-handler/', // For GitHub Pages
   // ... other config
-}
+};
 ```
 
 ### Environment Variables

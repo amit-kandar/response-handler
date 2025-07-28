@@ -13,17 +13,19 @@ Response Handler enhances the Express request object with additional properties 
 Each request gets automatic tracking properties:
 
 ```javascript
-app.use(quickSetup({
-  enablePerformanceTracking: true,
-  requestTracking: true
-}));
+app.use(
+  quickSetup({
+    enablePerformanceTracking: true,
+    requestTracking: true,
+  }),
+);
 
 app.get('/api/data', (req, res) => {
   console.log('Request ID:', req.requestId);
   console.log('Start Time:', req.startTime);
   console.log('User Agent:', req.userAgent);
   console.log('IP Address:', req.clientIP);
-  
+
   res.ok({ message: 'Request processed' });
 });
 ```
@@ -32,12 +34,12 @@ app.get('/api/data', (req, res) => {
 
 ```typescript
 interface EnhancedRequest extends Request {
-  requestId: string;        // Unique request identifier
-  startTime: number;        // Request start timestamp
-  userAgent: string;        // Parsed user agent
-  clientIP: string;         // Client IP address
-  correlationId?: string;   // Request correlation ID
-  sessionData?: any;        // Session information
+  requestId: string; // Unique request identifier
+  startTime: number; // Request start timestamp
+  userAgent: string; // Parsed user agent
+  clientIP: string; // Client IP address
+  correlationId?: string; // Request correlation ID
+  sessionData?: any; // Session information
   metadata: RequestMetadata; // Additional request metadata
 }
 ```
@@ -50,7 +52,7 @@ interface EnhancedRequest extends Request {
 app.get('/api/users', (req, res) => {
   // Access request metadata
   const metadata = req.metadata;
-  
+
   console.log('Request metadata:', {
     method: metadata.method,
     url: metadata.url,
@@ -58,9 +60,9 @@ app.get('/api/users', (req, res) => {
     query: metadata.query,
     body: metadata.body,
     timestamp: metadata.timestamp,
-    source: metadata.source
+    source: metadata.source,
   });
-  
+
   res.ok({ users: [] }, 'Users retrieved');
 });
 ```
@@ -75,9 +77,9 @@ app.use((req, res, next) => {
   req.metadata.customData = {
     apiVersion: '1.0',
     clientVersion: req.headers['x-client-version'],
-    feature: 'user-management'
+    feature: 'user-management',
   };
-  
+
   next();
 });
 ```
@@ -94,19 +96,19 @@ const validateUserData = validateRequest({
   body: {
     name: { type: 'string', required: true, minLength: 2 },
     email: { type: 'email', required: true },
-    age: { type: 'number', min: 18, max: 120 }
+    age: { type: 'number', min: 18, max: 120 },
   },
   query: {
     page: { type: 'number', default: 1 },
-    limit: { type: 'number', default: 10, max: 100 }
-  }
+    limit: { type: 'number', default: 10, max: 100 },
+  },
 });
 
 app.post('/api/users', validateUserData, (req, res) => {
   // req.body and req.query are now validated and sanitized
   const userData = req.body;
   const { page, limit } = req.query;
-  
+
   res.created(userData, 'User created successfully');
 });
 ```
@@ -139,22 +141,24 @@ app.post('/api/users', validateUserData, (req, res) => {
 Automatic input sanitization for security:
 
 ```javascript
-app.use(quickSetup({
-  enableSecurity: true,
-  sanitization: {
-    enabled: true,
-    options: {
-      removeNullBytes: true,
-      trimWhitespace: true,
-      escapeHtml: true
-    }
-  }
-}));
+app.use(
+  quickSetup({
+    enableSecurity: true,
+    sanitization: {
+      enabled: true,
+      options: {
+        removeNullBytes: true,
+        trimWhitespace: true,
+        escapeHtml: true,
+      },
+    },
+  }),
+);
 
 app.post('/api/comments', (req, res) => {
   // req.body is automatically sanitized
   const comment = req.body.comment; // HTML escaped and trimmed
-  
+
   res.created({ comment }, 'Comment created');
 });
 ```
@@ -168,9 +172,9 @@ app.post('/api/data', (req, res) => {
   const sanitizedData = sanitizeInput(req.body, {
     allowedTags: ['b', 'i', 'em', 'strong'],
     allowedAttributes: {},
-    maxLength: 1000
+    maxLength: 1000,
   });
-  
+
   res.ok(sanitizedData, 'Data processed');
 });
 ```
@@ -180,14 +184,16 @@ app.post('/api/data', (req, res) => {
 ### Per-Request Rate Limiting
 
 ```javascript
-app.use(quickSetup({
-  rateLimiting: {
-    enabled: true,
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
-    message: 'Too many requests'
-  }
-}));
+app.use(
+  quickSetup({
+    rateLimiting: {
+      enabled: true,
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 100, // limit each IP to 100 requests per windowMs
+      message: 'Too many requests',
+    },
+  }),
+);
 
 app.get('/api/data', (req, res) => {
   // Rate limiting info available in request
@@ -195,9 +201,9 @@ app.get('/api/data', (req, res) => {
     limit: req.rateLimit.limit,
     current: req.rateLimit.current,
     remaining: req.rateLimit.remaining,
-    resetTime: req.rateLimit.resetTime
+    resetTime: req.rateLimit.resetTime,
   });
-  
+
   res.ok({ data: 'example' });
 });
 ```
@@ -208,25 +214,25 @@ app.get('/api/data', (req, res) => {
 const customRateLimit = (req, res, next) => {
   const userId = req.user?.id;
   if (!userId) return next();
-  
+
   // Implement custom user-based rate limiting
   const userLimit = getUserRateLimit(userId);
   const currentUsage = getCurrentUsage(userId);
-  
+
   if (currentUsage >= userLimit) {
     return res.tooManyRequests(
       { limit: userLimit, current: currentUsage },
-      'User rate limit exceeded'
+      'User rate limit exceeded',
     );
   }
-  
+
   // Add rate limit info to request
   req.userRateLimit = {
     limit: userLimit,
     current: currentUsage,
-    remaining: userLimit - currentUsage
+    remaining: userLimit - currentUsage,
   };
-  
+
   next();
 };
 ```
@@ -243,9 +249,9 @@ app.use((req, res, next) => {
     userId: req.user?.id,
     sessionId: req.sessionID,
     traceId: req.headers['x-trace-id'],
-    startTime: Date.now()
+    startTime: Date.now(),
   };
-  
+
   next();
 });
 
@@ -253,12 +259,12 @@ app.get('/api/users', async (req, res) => {
   try {
     // Pass context to services
     const users = await userService.getUsers(req.context);
-    
+
     res.ok(users, 'Users retrieved', {
       context: {
         requestId: req.context.requestId,
-        executionTime: Date.now() - req.context.startTime
-      }
+        executionTime: Date.now() - req.context.startTime,
+      },
     });
   } catch (error) {
     res.error(error, 'Failed to retrieve users');
@@ -271,15 +277,17 @@ app.get('/api/users', async (req, res) => {
 ### Automatic Request Logging
 
 ```javascript
-app.use(quickSetup({
-  enableLogging: true,
-  requestLogging: {
-    enabled: true,
-    includeBody: true,
-    includeHeaders: ['authorization', 'content-type'],
-    excludePaths: ['/health', '/metrics']
-  }
-}));
+app.use(
+  quickSetup({
+    enableLogging: true,
+    requestLogging: {
+      enabled: true,
+      includeBody: true,
+      includeHeaders: ['authorization', 'content-type'],
+      excludePaths: ['/health', '/metrics'],
+    },
+  }),
+);
 
 // Logs will include:
 // {
@@ -301,18 +309,16 @@ app.use(quickSetup({
 ```javascript
 app.use((req, res, next) => {
   const startTime = Date.now();
-  
+
   // Log request start
   console.log(`[${req.requestId}] ${req.method} ${req.url} - Started`);
-  
+
   // Log response end
   res.on('finish', () => {
     const duration = Date.now() - startTime;
-    console.log(
-      `[${req.requestId}] ${req.method} ${req.url} - ${res.statusCode} - ${duration}ms`
-    );
+    console.log(`[${req.requestId}] ${req.method} ${req.url} - ${res.statusCode} - ${duration}ms`);
   });
-  
+
   next();
 });
 ```
@@ -327,32 +333,32 @@ const requestCache = new Map();
 app.use((req, res, next) => {
   // Create cache key
   const cacheKey = `${req.method}:${req.url}:${JSON.stringify(req.query)}`;
-  
+
   // Check cache
   if (requestCache.has(cacheKey)) {
     const cachedResponse = requestCache.get(cacheKey);
     return res.ok(cachedResponse.data, cachedResponse.message);
   }
-  
+
   // Store original json method
   const originalJson = res.json;
-  
+
   // Override json to cache response
-  res.json = function(body) {
+  res.json = function (body) {
     if (res.statusCode === 200 && body.success) {
       requestCache.set(cacheKey, {
         data: body.data,
         message: body.message,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
-      
+
       // Clean cache after 5 minutes
       setTimeout(() => requestCache.delete(cacheKey), 5 * 60 * 1000);
     }
-    
+
     return originalJson.call(this, body);
   };
-  
+
   next();
 });
 ```
@@ -374,7 +380,7 @@ const transformRequest = (transformer) => {
 // Transform camelCase to snake_case
 const camelToSnake = transformRequest((data) => {
   return Object.keys(data).reduce((acc, key) => {
-    const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+    const snakeKey = key.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
     acc[snakeKey] = data[key];
     return acc;
   }, {});
@@ -383,7 +389,7 @@ const camelToSnake = transformRequest((data) => {
 app.post('/api/users', camelToSnake, (req, res) => {
   // req.body.firstName becomes req.body.first_name
   console.log(req.body); // { first_name: "John", last_name: "Doe" }
-  
+
   res.created(req.body, 'User created');
 });
 ```
@@ -393,19 +399,21 @@ app.post('/api/users', camelToSnake, (req, res) => {
 ### Before/After Hooks
 
 ```javascript
-app.use(quickSetup({
-  hooks: {
-    beforeRequest: (req, res, next) => {
-      req.processingStartTime = Date.now();
-      console.log(`Processing request: ${req.method} ${req.url}`);
-      next();
+app.use(
+  quickSetup({
+    hooks: {
+      beforeRequest: (req, res, next) => {
+        req.processingStartTime = Date.now();
+        console.log(`Processing request: ${req.method} ${req.url}`);
+        next();
+      },
+      afterRequest: (req, res) => {
+        const processingTime = Date.now() - req.processingStartTime;
+        console.log(`Request processed in ${processingTime}ms`);
+      },
     },
-    afterRequest: (req, res) => {
-      const processingTime = Date.now() - req.processingStartTime;
-      console.log(`Request processed in ${processingTime}ms`);
-    }
-  }
-}));
+  }),
+);
 ```
 
 ## Security Enhancements
@@ -413,16 +421,18 @@ app.use(quickSetup({
 ### Security Headers
 
 ```javascript
-app.use(quickSetup({
-  enableSecurity: true,
-  securityHeaders: {
-    contentSecurityPolicy: true,
-    xssProtection: true,
-    noSniff: true,
-    frameguard: true,
-    hsts: true
-  }
-}));
+app.use(
+  quickSetup({
+    enableSecurity: true,
+    securityHeaders: {
+      contentSecurityPolicy: true,
+      xssProtection: true,
+      noSniff: true,
+      frameguard: true,
+      hsts: true,
+    },
+  }),
+);
 
 app.get('/api/data', (req, res) => {
   // Security headers automatically added
@@ -439,9 +449,9 @@ app.use((req, res, next) => {
     ip: req.clientIP,
     userAgent: req.userAgent,
     acceptLanguage: req.headers['accept-language'],
-    hash: generateFingerprint(req)
+    hash: generateFingerprint(req),
   };
-  
+
   next();
 });
 ```
@@ -451,23 +461,25 @@ app.use((req, res, next) => {
 ### Request Performance Tracking
 
 ```javascript
-app.use(quickSetup({
-  enablePerformanceTracking: true,
-  performanceMetrics: {
-    trackRequestSize: true,
-    trackResponseSize: true,
-    trackProcessingTime: true,
-    trackMemoryUsage: true
-  }
-}));
+app.use(
+  quickSetup({
+    enablePerformanceTracking: true,
+    performanceMetrics: {
+      trackRequestSize: true,
+      trackResponseSize: true,
+      trackProcessingTime: true,
+      trackMemoryUsage: true,
+    },
+  }),
+);
 
 app.get('/api/performance', (req, res) => {
   const metrics = {
     requestSize: req.metrics.requestSize,
     processingTime: req.metrics.processingTime,
-    memoryUsage: req.metrics.memoryUsage
+    memoryUsage: req.metrics.memoryUsage,
   };
-  
+
   res.ok(metrics, 'Performance metrics');
 });
 ```
