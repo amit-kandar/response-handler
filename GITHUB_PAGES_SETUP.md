@@ -23,10 +23,12 @@ Ensure your repository has the following settings:
 The repository includes a GitHub Actions workflow (`.github/workflows/docs.yml`) that:
 
 1. **Triggers on**:
+
    - Push to `main` branch
    - Manual workflow dispatch
 
 2. **Permissions**:
+
    - `contents: read` - Read repository contents
    - `pages: write` - Write to GitHub Pages
    - `id-token: write` - Generate deployment tokens
@@ -40,6 +42,7 @@ The repository includes a GitHub Actions workflow (`.github/workflows/docs.yml`)
 ### Automatic Deployment
 
 1. **Push to main branch**:
+
    ```bash
    git push origin main
    ```
@@ -60,11 +63,13 @@ The repository includes a GitHub Actions workflow (`.github/workflows/docs.yml`)
 ### Common Issues
 
 1. **403 Permission Error**:
+
    - Ensure repository has Pages enabled
    - Check that Actions have write permissions
    - Verify the workflow uses `actions/deploy-pages@v4`
 
 2. **Build Failures**:
+
    - Check Node.js version compatibility
    - Verify all dependencies are in `package.json`
    - Check for TypeScript/ESLint errors
@@ -87,20 +92,23 @@ If the original workflow fails with permission errors, the updated workflow incl
 ### Setup Custom Domain
 
 1. **Add CNAME file**:
+
    ```bash
    echo "docs.yourdomain.com" > .vitepress/dist/CNAME
    ```
 
 2. **Update VitePress config**:
+
    ```javascript
    // .vitepress/config.js
    export default {
      base: '/', // Remove base path for custom domain
      // ... other config
-   }
+   };
    ```
 
 3. **Configure DNS**:
+
    - Add CNAME record: `docs.yourdomain.com` → `username.github.io`
    - Or A records pointing to GitHub Pages IPs
 
@@ -134,6 +142,7 @@ If the original workflow fails with permission errors, the updated workflow incl
 If GitHub Actions don't work, alternatives include:
 
 ### Netlify
+
 ```bash
 # Deploy to Netlify
 npm run docs:build
@@ -141,6 +150,7 @@ npm run docs:build
 ```
 
 ### Vercel
+
 ```bash
 # Deploy to Vercel
 npm run docs:build
@@ -148,6 +158,7 @@ vercel --prod .vitepress/dist
 ```
 
 ### Manual Deployment
+
 ```bash
 # Build and push to gh-pages branch
 npm run docs:build
