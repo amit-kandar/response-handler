@@ -3,7 +3,7 @@ export default {
   description: 'Unified response and error handler for REST APIs and Socket.IO',
   ignoreDeadLinks: true,
   cleanUrls: true,
-  
+
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
