@@ -40,6 +40,14 @@ export default {
             { text: 'Troubleshooting', link: '/guide/troubleshooting' },
           ],
         },
+        {
+          text: 'Configuration',
+          items: [
+            { text: 'Basic Configuration', link: '/config/basic' },
+            { text: 'Advanced Options', link: '/config/advanced' },
+            { text: 'Environment Setup', link: '/config/environment' },
+          ],
+        },
       ],
 
       '/api/': [
