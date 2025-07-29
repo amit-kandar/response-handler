@@ -4,6 +4,148 @@
   "installCommand": "npm ci",
   "cleanUrls": true,
   "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/api/express-errors",
+      "destination": "/api/express-errors.html"
+    },
+    {
+      "source": "/api/express-request",
+      "destination": "/api/express-request.html"
+    },
+    {
+      "source": "/api/express-response",
+      "destination": "/api/express-response.html"
+    },
+    {
+      "source": "/api/express",
+      "destination": "/api/express.html"
+    },
+    {
+      "source": "/api/logger",
+      "destination": "/api/logger.html"
+    },
+    {
+      "source": "/api/response-builder",
+      "destination": "/api/response-builder.html"
+    },
+    {
+      "source": "/api/socket-events",
+      "destination": "/api/socket-events.html"
+    },
+    {
+      "source": "/api/socket-rooms",
+      "destination": "/api/socket-rooms.html"
+    },
+    {
+      "source": "/api/socket-middleware",
+      "destination": "/api/socket-middleware.html"
+    },
+    {
+      "source": "/api/socket",
+      "destination": "/api/socket.html"
+    },
+    {
+      "source": "/api/types",
+      "destination": "/api/types.html"
+    },
+    {
+      "source": "/api/config-types",
+      "destination": "/api/config-types.html"
+    },
+    {
+      "source": "/api/response-types",
+      "destination": "/api/response-types.html"
+    },
+    {
+      "source": "/guide/installation",
+      "destination": "/guide/installation.html"
+    },
+    {
+      "source": "/guide/quick-start",
+      "destination": "/guide/quick-start.html"
+    },
+    {
+      "source": "/guide/migration",
+      "destination": "/guide/migration.html"
+    },
+    {
+      "source": "/guide/basic",
+      "destination": "/guide/basic.html"
+    },
+    {
+      "source": "/guide/advanced",
+      "destination": "/guide/advanced.html"
+    },
+    {
+      "source": "/guide/environment",
+      "destination": "/guide/environment.html"
+    },
+    {
+      "source": "/guide/performance",
+      "destination": "/guide/performance.html"
+    },
+    {
+      "source": "/guide/security",
+      "destination": "/guide/security.html"
+    },
+    {
+      "source": "/guide/testing",
+      "destination": "/guide/testing.html"
+    },
+    {
+      "source": "/guide/troubleshooting",
+      "destination": "/guide/troubleshooting.html"
+    },
+    {
+      "source": "/examples/express",
+      "destination": "/examples/express.html"
+    },
+    {
+      "source": "/examples/socket",
+      "destination": "/examples/socket.html"
+    },
+    {
+      "source": "/examples/rest-api",
+      "destination": "/examples/rest-api.html"
+    },
+    {
+      "source": "/examples/chat-app",
+      "destination": "/examples/chat-app.html"
+    },
+    {
+      "source": "/examples/microservices",
+      "destination": "/examples/microservices.html"
+    },
+    {
+      "source": "/examples/auth-system",
+      "destination": "/examples/auth-system.html"
+    },
+    {
+      "source": "/examples/errors",
+      "destination": "/examples/errors.html"
+    },
+    {
+      "source": "/examples/custom-errors",
+      "destination": "/examples/custom-errors.html"
+    },
+    {
+      "source": "/examples/error-recovery",
+      "destination": "/examples/error-recovery.html"
+    },
+    {
+      "source": "/examples/config",
+      "destination": "/examples/config.html"
+    },
+    {
+      "source": "/examples/env-config",
+      "destination": "/examples/env-config.html"
+    },
+    {
+      "source": "/examples/production",
+      "destination": "/examples/production.html"
+    }
+  ],
   "headers": [
     {
       "source": "/assets/(.*)",
