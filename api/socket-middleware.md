@@ -33,7 +33,7 @@ io.use((socket, next) => {
 ```javascript
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
-  
+
   try {
     const user = jwt.verify(token, process.env.JWT_SECRET);
     socket.user = user;
@@ -55,13 +55,13 @@ io.use((socket, next) => {
   const now = Date.now();
   const windowMs = 60000; // 1 minute
   const maxRequests = 100;
-  
+
   if (!rateLimiter.has(clientIp)) {
     rateLimiter.set(clientIp, { count: 1, resetTime: now + windowMs });
     next();
   } else {
     const client = rateLimiter.get(clientIp);
-    
+
     if (now > client.resetTime) {
       client.count = 1;
       client.resetTime = now + windowMs;
@@ -126,11 +126,11 @@ io.use(validationMiddleware);
 
 function loggingMiddleware(socket, next) {
   console.log(`Socket ${socket.id} connected from ${socket.handshake.address}`);
-  
+
   socket.onAny((eventName, ...args) => {
     console.log(`Event: ${eventName}, Args:`, args);
   });
-  
+
   next();
 }
 

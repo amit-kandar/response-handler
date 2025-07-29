@@ -10,13 +10,13 @@ const baseConfig = {
   logging: {
     enabled: true,
     includeRequestId: true,
-    includeTimestamp: true
+    includeTimestamp: true,
   },
   pagination: {
     defaultPage: 1,
     defaultLimit: 20,
-    maxLimit: 100
-  }
+    maxLimit: 100,
+  },
 };
 
 const environments = {
@@ -26,32 +26,32 @@ const environments = {
       ...baseConfig.logging,
       level: 'debug',
       format: 'simple',
-      destinations: [{ type: 'console' }]
+      destinations: [{ type: 'console' }],
     },
     environment: {
       current: 'development',
       showStackTrace: true,
       exposeInternalErrors: true,
       debugMode: true,
-      verboseLogging: true
+      verboseLogging: true,
     },
     performance: {
       enableCaching: false,
       enableCompression: false,
-      enableEtag: false
+      enableEtag: false,
     },
     security: {
       enableCors: true,
       corsOptions: {
         origin: ['http://localhost:3000', 'http://localhost:3001'],
-        credentials: true
+        credentials: true,
       },
       enableHelmet: false,
       rateLimiting: {
         windowMs: 60000,
-        maxRequests: 1000 // Very permissive for development
-      }
-    }
+        maxRequests: 1000, // Very permissive for development
+      },
+    },
   },
 
   staging: {
@@ -62,38 +62,38 @@ const environments = {
       format: 'json',
       destinations: [
         { type: 'console' },
-        { 
-          type: 'file', 
-          options: { filename: 'logs/staging.log' } 
-        }
-      ]
+        {
+          type: 'file',
+          options: { filename: 'logs/staging.log' },
+        },
+      ],
     },
     environment: {
       current: 'staging',
       showStackTrace: false,
       exposeInternalErrors: false,
       debugMode: false,
-      verboseLogging: false
+      verboseLogging: false,
     },
     performance: {
       enableCaching: true,
       cacheTimeout: 300000, // 5 minutes
       enableCompression: true,
       compressionLevel: 6,
-      enableEtag: true
+      enableEtag: true,
     },
     security: {
       enableCors: true,
       corsOptions: {
         origin: ['https://staging.yourapp.com'],
-        credentials: true
+        credentials: true,
       },
       enableHelmet: true,
       rateLimiting: {
         windowMs: 900000, // 15 minutes
-        maxRequests: 500
-      }
-    }
+        maxRequests: 500,
+      },
+    },
   },
 
   production: {
@@ -104,28 +104,28 @@ const environments = {
       format: 'json',
       destinations: [
         { type: 'console' },
-        { 
-          type: 'file', 
-          options: { filename: 'logs/production.log' } 
+        {
+          type: 'file',
+          options: { filename: 'logs/production.log' },
         },
         {
           type: 'http',
           options: {
             url: process.env.LOG_ENDPOINT,
             headers: {
-              'Authorization': `Bearer ${process.env.LOG_API_KEY}`
-            }
-          }
-        }
+              Authorization: `Bearer ${process.env.LOG_API_KEY}`,
+            },
+          },
+        },
       ],
-      maskSensitiveData: true
+      maskSensitiveData: true,
     },
     environment: {
       current: 'production',
       showStackTrace: false,
       exposeInternalErrors: false,
       debugMode: false,
-      verboseLogging: false
+      verboseLogging: false,
     },
     performance: {
       enableCaching: true,
@@ -134,13 +134,13 @@ const environments = {
       compressionLevel: 9,
       enableEtag: true,
       maxResponseSize: 1048576, // 1MB
-      timeout: 30000 // 30 seconds
+      timeout: 30000, // 30 seconds
     },
     security: {
       enableCors: true,
       corsOptions: {
         origin: [process.env.FRONTEND_URL],
-        credentials: true
+        credentials: true,
       },
       enableHelmet: true,
       helmetOptions: {
@@ -148,19 +148,19 @@ const environments = {
           directives: {
             defaultSrc: ["'self'"],
             scriptSrc: ["'self'", "'unsafe-inline'"],
-            styleSrc: ["'self'", "'unsafe-inline'"]
-          }
-        }
+            styleSrc: ["'self'", "'unsafe-inline'"],
+          },
+        },
       },
       rateLimiting: {
         windowMs: 900000, // 15 minutes
         maxRequests: 100,
-        message: 'Too many requests from this IP'
+        message: 'Too many requests from this IP',
       },
       sanitizeInput: true,
-      validateSchema: true
-    }
-  }
+      validateSchema: true,
+    },
+  },
 };
 
 export default environments;
@@ -179,44 +179,44 @@ function detectEnvironment() {
 function loadConfig() {
   const env = detectEnvironment();
   const config = environments[env];
-  
+
   if (!config) {
     throw new Error(`Configuration for environment '${env}' not found`);
   }
-  
+
   // Override with environment variables if present
   return mergeWithEnvVars(config);
 }
 
 function mergeWithEnvVars(config) {
   const envOverrides = {};
-  
+
   // Logging overrides
   if (process.env.LOG_LEVEL) {
     envOverrides.logging = { ...config.logging, level: process.env.LOG_LEVEL };
   }
-  
+
   // Database URL override
   if (process.env.DATABASE_URL) {
     envOverrides.database = { url: process.env.DATABASE_URL };
   }
-  
+
   // Redis URL override
   if (process.env.REDIS_URL) {
     envOverrides.cache = { url: process.env.REDIS_URL };
   }
-  
+
   // CORS origin override
   if (process.env.CORS_ORIGIN) {
     envOverrides.security = {
       ...config.security,
       corsOptions: {
         ...config.security.corsOptions,
-        origin: process.env.CORS_ORIGIN.split(',')
-      }
+        origin: process.env.CORS_ORIGIN.split(','),
+      },
     };
   }
-  
+
   return { ...config, ...envOverrides };
 }
 
@@ -243,7 +243,7 @@ if (config.environment.current === 'development') {
     console.log(`${req.method} ${req.path} - ${new Date().toISOString()}`);
     next();
   });
-  
+
   // Mock data endpoint for development
   app.get('/api/mock/:resource', (req, res) => {
     const mockData = generateMockData(req.params.resource);
@@ -260,13 +260,13 @@ if (config.environment.current === 'production') {
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     next();
   });
-  
+
   // Health check endpoint
   app.get('/health', (req, res) => {
     res.sendSuccess({
       status: 'healthy',
       environment: config.environment.current,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   });
 }
@@ -281,7 +281,7 @@ app.get('/api/users', async (req, res) => {
       total: users.length,
       totalPages: Math.ceil(users.length / 20),
       hasNext: false,
-      hasPrev: false
+      hasPrev: false,
     });
   } catch (error) {
     if (config.environment.current === 'development') {
@@ -310,7 +310,7 @@ export function setupSocketIO(server) {
   const io = new Server(server, {
     cors: config.security.corsOptions,
     pingTimeout: config.environment.current === 'production' ? 60000 : 5000,
-    pingInterval: config.environment.current === 'production' ? 25000 : 2000
+    pingInterval: config.environment.current === 'production' ? 25000 : 2000,
   });
 
   // Apply response handler with environment config
@@ -336,26 +336,38 @@ export function setupSocketIO(server) {
 
   io.on('connection', (socket) => {
     if (config.environment.current === 'development') {
-      socket.sendSuccess('connection', {
-        environment: 'development',
-        debugging: true,
-        socketId: socket.id
-      }, 'Connected to development server');
+      socket.sendSuccess(
+        'connection',
+        {
+          environment: 'development',
+          debugging: true,
+          socketId: socket.id,
+        },
+        'Connected to development server',
+      );
     } else {
-      socket.sendSuccess('connection', {
-        environment: config.environment.current,
-        socketId: socket.id
-      }, 'Connected successfully');
+      socket.sendSuccess(
+        'connection',
+        {
+          environment: config.environment.current,
+          socketId: socket.id,
+        },
+        'Connected successfully',
+      );
     }
 
     // Event handlers with environment-specific behavior
     socket.on('test_event', (data) => {
       if (config.environment.current === 'development') {
-        socket.sendSuccess('test_response', {
-          received: data,
-          timestamp: new Date().toISOString(),
-          debug: true
-        }, 'Test event processed (development mode)');
+        socket.sendSuccess(
+          'test_response',
+          {
+            received: data,
+            timestamp: new Date().toISOString(),
+            debug: true,
+          },
+          'Test event processed (development mode)',
+        );
       } else {
         socket.sendSuccess('test_response', data, 'Event processed');
       }
@@ -429,7 +441,7 @@ services:
   app-dev:
     build: .
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://postgres:password@db:5432/myapp_dev
@@ -443,7 +455,7 @@ services:
   app-staging:
     build: .
     ports:
-      - "3001:3000"
+      - '3001:3000'
     environment:
       - NODE_ENV=staging
       - DATABASE_URL=postgresql://postgres:password@db:5432/myapp_staging
@@ -454,7 +466,7 @@ services:
   app-prod:
     build: .
     ports:
-      - "3002:3000"
+      - '3002:3000'
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://postgres:password@db:5432/myapp_prod
@@ -543,32 +555,32 @@ const configSchema = Joi.object({
   logging: Joi.object({
     enabled: Joi.boolean().default(true),
     level: Joi.string().valid('error', 'warn', 'info', 'debug').required(),
-    format: Joi.string().valid('json', 'simple').required()
+    format: Joi.string().valid('json', 'simple').required(),
   }).required(),
-  
+
   environment: Joi.object({
     current: Joi.string().valid('development', 'staging', 'production').required(),
     showStackTrace: Joi.boolean().required(),
-    exposeInternalErrors: Joi.boolean().required()
+    exposeInternalErrors: Joi.boolean().required(),
   }).required(),
-  
+
   security: Joi.object({
     enableCors: Joi.boolean().default(true),
     corsOptions: Joi.object().required(),
     rateLimiting: Joi.object({
       windowMs: Joi.number().min(1000).required(),
-      maxRequests: Joi.number().min(1).required()
-    }).required()
-  }).required()
+      maxRequests: Joi.number().min(1).required(),
+    }).required(),
+  }).required(),
 });
 
 export function validateConfig(config) {
   const { error, value } = configSchema.validate(config);
-  
+
   if (error) {
     throw new Error(`Configuration validation failed: ${error.message}`);
   }
-  
+
   return value;
 }
 ```

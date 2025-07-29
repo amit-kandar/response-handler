@@ -113,11 +113,7 @@ interface SocketErrorResponse {
 interface EnhancedRequest extends Request {
   sendSuccess<T>(data: T, message?: string, meta?: ResponseMeta): void;
   sendError(code: string, message: string, details?: any): void;
-  sendPaginated<T>(
-    data: T[],
-    pagination: PaginationMeta,
-    message?: string
-  ): void;
+  sendPaginated<T>(data: T[], pagination: PaginationMeta, message?: string): void;
   sendCreated<T>(data: T, message?: string): void;
   sendUpdated<T>(data: T, message?: string): void;
   sendDeleted(message?: string): void;
@@ -132,11 +128,7 @@ interface EnhancedRequest extends Request {
 interface EnhancedResponse extends Response {
   success<T>(data: T, message?: string, meta?: ResponseMeta): this;
   error(code: string, message: string, details?: any): this;
-  paginated<T>(
-    data: T[],
-    pagination: PaginationMeta,
-    message?: string
-  ): this;
+  paginated<T>(data: T[], pagination: PaginationMeta, message?: string): this;
   created<T>(data: T, message?: string): this;
   updated<T>(data: T, message?: string): this;
   deleted(message?: string): this;
@@ -160,36 +152,11 @@ interface ValidationError {
 
 ```typescript
 interface EnhancedSocket extends Socket {
-  sendSuccess<T>(
-    event: string,
-    data: T,
-    message?: string,
-    room?: string
-  ): void;
-  sendError(
-    code: string,
-    message: string,
-    details?: any,
-    room?: string
-  ): void;
-  sendToRoom<T>(
-    room: string,
-    event: string,
-    data: T,
-    message?: string
-  ): void;
-  broadcastSuccess<T>(
-    event: string,
-    data: T,
-    message?: string,
-    excludeRooms?: string[]
-  ): void;
-  broadcastError(
-    code: string,
-    message: string,
-    details?: any,
-    excludeRooms?: string[]
-  ): void;
+  sendSuccess<T>(event: string, data: T, message?: string, room?: string): void;
+  sendError(code: string, message: string, details?: any, room?: string): void;
+  sendToRoom<T>(room: string, event: string, data: T, message?: string): void;
+  broadcastSuccess<T>(event: string, data: T, message?: string, excludeRooms?: string[]): void;
+  broadcastError(code: string, message: string, details?: any, excludeRooms?: string[]): void;
 }
 ```
 
@@ -225,7 +192,7 @@ const userResponse: SuccessResponse<User> = {
   data: {
     id: 1,
     name: 'John Doe',
-    email: 'john@example.com'
+    email: 'john@example.com',
   },
   message: 'User retrieved successfully',
   timestamp: '2025-01-20T10:30:00Z',
@@ -234,9 +201,9 @@ const userResponse: SuccessResponse<User> = {
     performance: {
       responseTime: 45,
       queryTime: 12,
-      cacheHit: false
-    }
-  }
+      cacheHit: false,
+    },
+  },
 };
 
 // Error response
@@ -245,17 +212,19 @@ const errorResponse: ErrorResponse = {
   error: {
     code: 'USER_NOT_FOUND',
     message: 'User with ID 123 not found',
-    details: { userId: 123 }
+    details: { userId: 123 },
   },
   message: 'Failed to retrieve user',
   timestamp: '2025-01-20T10:30:00Z',
-  requestId: 'req-124'
+  requestId: 'req-124',
 };
 
 // Paginated response
 const paginatedResponse: SuccessResponse<User[]> = {
   success: true,
-  data: [/* users array */],
+  data: [
+    /* users array */
+  ],
   message: 'Users retrieved successfully',
   timestamp: '2025-01-20T10:30:00Z',
   meta: {
@@ -266,9 +235,9 @@ const paginatedResponse: SuccessResponse<User[]> = {
       totalPages: 8,
       hasNext: true,
       hasPrev: false,
-      nextPage: 2
-    }
-  }
+      nextPage: 2,
+    },
+  },
 };
 ```
 
@@ -276,13 +245,13 @@ const paginatedResponse: SuccessResponse<User[]> = {
 
 ```typescript
 function isSuccessResponse<T>(
-  response: SuccessResponse<T> | ErrorResponse
+  response: SuccessResponse<T> | ErrorResponse,
 ): response is SuccessResponse<T> {
   return response.success === true;
 }
 
 function isErrorResponse(
-  response: SuccessResponse<any> | ErrorResponse
+  response: SuccessResponse<any> | ErrorResponse,
 ): response is ErrorResponse {
   return response.success === false;
 }

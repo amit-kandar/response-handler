@@ -137,24 +137,24 @@ const config: ResponseHandlerConfig = {
     format: 'json',
     destinations: [
       { type: 'console' },
-      { 
-        type: 'file', 
-        options: { filename: 'app.log' } 
-      }
+      {
+        type: 'file',
+        options: { filename: 'app.log' },
+      },
     ],
     includeRequestId: true,
     includeTimestamp: true,
-    maskSensitiveData: true
+    maskSensitiveData: true,
   },
-  
+
   environment: {
     current: 'production',
     showStackTrace: false,
     exposeInternalErrors: false,
     debugMode: false,
-    verboseLogging: false
+    verboseLogging: false,
   },
-  
+
   performance: {
     enableCaching: true,
     cacheTimeout: 300000, // 5 minutes
@@ -162,25 +162,25 @@ const config: ResponseHandlerConfig = {
     compressionLevel: 6,
     enableEtag: true,
     maxResponseSize: 1048576, // 1MB
-    timeout: 30000 // 30 seconds
+    timeout: 30000, // 30 seconds
   },
-  
+
   security: {
     enableCors: true,
     corsOptions: {
       origin: ['https://yourapp.com'],
-      methods: ['GET', 'POST', 'PUT', 'DELETE']
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
     },
     enableHelmet: true,
     rateLimiting: {
       windowMs: 900000, // 15 minutes
       maxRequests: 100,
-      message: 'Too many requests from this IP'
+      message: 'Too many requests from this IP',
     },
     sanitizeInput: true,
-    validateSchema: true
+    validateSchema: true,
   },
-  
+
   pagination: {
     defaultPage: 1,
     defaultLimit: 20,
@@ -189,9 +189,9 @@ const config: ResponseHandlerConfig = {
     pageParam: 'page',
     limitParam: 'limit',
     sortParam: 'sort',
-    orderParam: 'order'
+    orderParam: 'order',
   },
-  
+
   socketIO: {
     enableRooms: true,
     enableNamespaces: true,
@@ -199,8 +199,8 @@ const config: ResponseHandlerConfig = {
     broadcastToAll: false,
     enableAcknowledgments: true,
     timeout: 5000,
-    enableBinarySupport: true
-  }
+    enableBinarySupport: true,
+  },
 };
 ```
 
@@ -214,13 +214,13 @@ const devConfig: ResponseHandlerConfig = {
     showStackTrace: true,
     exposeInternalErrors: true,
     debugMode: true,
-    verboseLogging: true
+    verboseLogging: true,
   },
   logging: {
     enabled: true,
     level: 'debug',
-    format: 'simple'
-  }
+    format: 'simple',
+  },
 };
 
 // Production configuration
@@ -230,21 +230,21 @@ const prodConfig: ResponseHandlerConfig = {
     showStackTrace: false,
     exposeInternalErrors: false,
     debugMode: false,
-    verboseLogging: false
+    verboseLogging: false,
   },
   logging: {
     enabled: true,
     level: 'error',
-    format: 'json'
+    format: 'json',
   },
   security: {
     enableCors: true,
     enableHelmet: true,
     rateLimiting: {
       windowMs: 900000,
-      maxRequests: 100
-    }
-  }
+      maxRequests: 100,
+    },
+  },
 };
 ```
 

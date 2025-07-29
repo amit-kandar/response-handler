@@ -13,30 +13,30 @@ export default {
     format: 'json',
     destinations: [
       { type: 'console' },
-      { 
-        type: 'file', 
-        options: { 
+      {
+        type: 'file',
+        options: {
           filename: '/var/log/app/application.log',
           maxSize: '100MB',
-          maxFiles: 10
-        } 
+          maxFiles: 10,
+        },
       },
       {
         type: 'http',
         options: {
           url: process.env.LOG_AGGREGATOR_URL,
           headers: {
-            'Authorization': `Bearer ${process.env.LOG_API_KEY}`,
-            'Content-Type': 'application/json'
+            Authorization: `Bearer ${process.env.LOG_API_KEY}`,
+            'Content-Type': 'application/json',
           },
-          timeout: 5000
-        }
-      }
+          timeout: 5000,
+        },
+      },
     ],
     includeRequestId: true,
     includeTimestamp: true,
     maskSensitiveData: true,
-    sensitiveFields: ['password', 'token', 'secret', 'key', 'authorization']
+    sensitiveFields: ['password', 'token', 'secret', 'key', 'authorization'],
   },
 
   environment: {
@@ -44,7 +44,7 @@ export default {
     showStackTrace: false,
     exposeInternalErrors: false,
     debugMode: false,
-    verboseLogging: false
+    verboseLogging: false,
   },
 
   performance: {
@@ -55,7 +55,7 @@ export default {
     enableEtag: true,
     maxResponseSize: 5242880, // 5MB
     timeout: 30000, // 30 seconds
-    enableResponseTime: true
+    enableResponseTime: true,
   },
 
   security: {
@@ -65,25 +65,25 @@ export default {
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
       credentials: true,
-      maxAge: 86400 // 24 hours
+      maxAge: 86400, // 24 hours
     },
     enableHelmet: true,
     helmetOptions: {
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
-          scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.yourapp.com"],
-          styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-          fontSrc: ["'self'", "https://fonts.gstatic.com"],
-          imgSrc: ["'self'", "data:", "https:"],
-          connectSrc: ["'self'", "https://api.yourapp.com"]
-        }
+          scriptSrc: ["'self'", "'unsafe-inline'", 'https://cdn.yourapp.com'],
+          styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+          fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+          imgSrc: ["'self'", 'data:', 'https:'],
+          connectSrc: ["'self'", 'https://api.yourapp.com'],
+        },
       },
       hsts: {
         maxAge: 31536000,
         includeSubDomains: true,
-        preload: true
-      }
+        preload: true,
+      },
     },
     rateLimiting: {
       windowMs: 900000, // 15 minutes
@@ -92,10 +92,10 @@ export default {
       skipSuccessfulRequests: false,
       skipFailedRequests: false,
       standardHeaders: true,
-      legacyHeaders: false
+      legacyHeaders: false,
     },
     sanitizeInput: true,
-    validateSchema: true
+    validateSchema: true,
   },
 
   pagination: {
@@ -106,7 +106,7 @@ export default {
     pageParam: 'page',
     limitParam: 'limit',
     sortParam: 'sort',
-    orderParam: 'order'
+    orderParam: 'order',
   },
 
   socketIO: {
@@ -119,8 +119,8 @@ export default {
     enableBinarySupport: true,
     maxHttpBufferSize: 1048576, // 1MB
     pingTimeout: 60000,
-    pingInterval: 25000
-  }
+    pingInterval: 25000,
+  },
 };
 ```
 
@@ -157,13 +157,16 @@ app.use(configureResponseHandler(productionConfig));
 
 // Health check endpoint (before other routes)
 app.get('/health', (req, res) => {
-  res.sendSuccess({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    memory: process.memoryUsage(),
-    environment: 'production'
-  }, 'Service is healthy');
+  res.sendSuccess(
+    {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      environment: 'production',
+    },
+    'Service is healthy',
+  );
 });
 
 // Readiness check endpoint
@@ -171,25 +174,27 @@ app.get('/ready', async (req, res) => {
   try {
     // Check database connection
     await checkDatabaseConnection();
-    
+
     // Check Redis connection
     await checkRedisConnection();
-    
+
     // Check external services
     await checkExternalServices();
-    
-    res.sendSuccess({
-      status: 'ready',
-      checks: {
-        database: 'connected',
-        redis: 'connected',
-        external: 'available'
-      }
-    }, 'Service is ready');
-    
+
+    res.sendSuccess(
+      {
+        status: 'ready',
+        checks: {
+          database: 'connected',
+          redis: 'connected',
+          external: 'available',
+        },
+      },
+      'Service is ready',
+    );
   } catch (error) {
     res.status(503).sendError('SERVICE_NOT_READY', 'Service dependencies not available', {
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -203,11 +208,11 @@ app.get('/metrics', (req, res) => {
     cpu: process.cpuUsage(),
     requests: {
       total: global.requestCount || 0,
-      errors: global.errorCount || 0
+      errors: global.errorCount || 0,
     },
-    environment: 'production'
+    environment: 'production',
   };
-  
+
   res.sendSuccess(metrics, 'Metrics retrieved');
 });
 
@@ -220,15 +225,15 @@ app.use((req, res, next) => {
 // Error tracking middleware
 app.use((err, req, res, next) => {
   global.errorCount = (global.errorCount || 0) + 1;
-  
+
   // Log error to external service
   logErrorToExternalService(err, req);
-  
+
   // Don't expose internal errors in production
   if (err.status === 500) {
     res.sendError('INTERNAL_ERROR', 'An internal error occurred', {
       requestId: req.id,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } else {
     next(err);
@@ -241,20 +246,20 @@ process.on('SIGINT', gracefulShutdown);
 
 function gracefulShutdown(signal) {
   console.log(`Received ${signal}, starting graceful shutdown...`);
-  
+
   server.close(() => {
     console.log('HTTP server closed');
-    
+
     // Close database connections
     closeDatabaseConnections();
-    
+
     // Close Redis connections
     closeRedisConnections();
-    
+
     console.log('Graceful shutdown completed');
     process.exit(0);
   });
-  
+
   // Force shutdown after 30 seconds
   setTimeout(() => {
     console.error('Forced shutdown after timeout');
@@ -332,7 +337,7 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://user:password@db:5432/app_prod
@@ -359,8 +364,8 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./ssl:/etc/nginx/ssl
@@ -389,7 +394,7 @@ services:
   prometheus:
     image: prom/prometheus
     ports:
-      - "9090:9090"
+      - '9090:9090'
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
@@ -398,7 +403,7 @@ services:
   grafana:
     image: grafana/grafana
     ports:
-      - "3001:3000"
+      - '3001:3000'
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
     volumes:
@@ -516,13 +521,13 @@ scrape_configs:
       - targets: ['nginx:9113']
 
 rule_files:
-  - "alert_rules.yml"
+  - 'alert_rules.yml'
 
 alerting:
   alertmanagers:
     - static_configs:
         - targets:
-          - alertmanager:9093
+            - alertmanager:9093
 ```
 
 ```yaml
@@ -536,8 +541,8 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "High error rate detected"
-          description: "Error rate is {{ $value }} errors per second"
+          summary: 'High error rate detected'
+          description: 'Error rate is {{ $value }} errors per second'
 
       - alert: HighMemoryUsage
         expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.9
@@ -545,8 +550,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "High memory usage"
-          description: "Memory usage is above 90%"
+          summary: 'High memory usage'
+          description: 'Memory usage is above 90%'
 
       - alert: ServiceDown
         expr: up == 0
@@ -554,8 +559,8 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Service is down"
-          description: "{{ $labels.instance }} has been down for more than 1 minute"
+          summary: 'Service is down'
+          description: '{{ $labels.instance }} has been down for more than 1 minute'
 ```
 
 ## Deployment Script
@@ -603,6 +608,7 @@ echo "Deployment completed successfully"
 ## Production Checklist
 
 ### Security
+
 - [ ] HTTPS enabled with valid SSL certificates
 - [ ] Security headers configured
 - [ ] Rate limiting implemented
@@ -612,6 +618,7 @@ echo "Deployment completed successfully"
 - [ ] Authentication and authorization implemented
 
 ### Performance
+
 - [ ] Response compression enabled
 - [ ] Caching strategy implemented
 - [ ] Database queries optimized
@@ -620,6 +627,7 @@ echo "Deployment completed successfully"
 - [ ] Load balancing set up
 
 ### Reliability
+
 - [ ] Health checks implemented
 - [ ] Graceful shutdown handling
 - [ ] Error handling and recovery
@@ -628,6 +636,7 @@ echo "Deployment completed successfully"
 - [ ] Log aggregation set up
 
 ### Scalability
+
 - [ ] Horizontal scaling capability
 - [ ] Database read replicas
 - [ ] CDN for static assets
@@ -635,6 +644,7 @@ echo "Deployment completed successfully"
 - [ ] Resource limits configured
 
 ### Operations
+
 - [ ] Deployment automation
 - [ ] Rollback procedures
 - [ ] Log rotation configured
