@@ -180,7 +180,7 @@ interface EnhancedResponse extends Response {
   created<T>(data: T, message?: string, options?: ResponseOptions): void;
   accepted<T>(data: T, message?: string, options?: ResponseOptions): void;
   noContent(message?: string): void;
-  
+
   // Client error responses
   badRequest(error: any, message?: string, options?: ResponseOptions): void;
   unauthorized(error: any, message?: string, options?: ResponseOptions): void;
@@ -190,7 +190,7 @@ interface EnhancedResponse extends Response {
   conflict(error: any, message?: string, options?: ResponseOptions): void;
   unprocessableEntity(error: any, message?: string, options?: ResponseOptions): void;
   tooManyRequests(error: any, message?: string, options?: ResponseOptions): void;
-  
+
   // Server error responses
   error(error: any, message?: string, options?: ResponseOptions): void;
   notImplemented(error: any, message?: string, options?: ResponseOptions): void;
@@ -217,17 +217,17 @@ interface EnhancedSocket extends Socket {
   ok<T>(data: T, message?: string, options?: SocketResponseOptions): void;
   created<T>(data: T, message?: string, options?: SocketResponseOptions): void;
   accepted<T>(data: T, message?: string, options?: SocketResponseOptions): void;
-  
+
   // Client error responses
   badRequest(error: any, message?: string, options?: SocketResponseOptions): void;
   unauthorized(error: any, message?: string, options?: SocketResponseOptions): void;
   forbidden(error: any, message?: string, options?: SocketResponseOptions): void;
   notFound(error: any, message?: string, options?: SocketResponseOptions): void;
   conflict(error: any, message?: string, options?: SocketResponseOptions): void;
-  
+
   // Server error responses
   error(error: any, message?: string, options?: SocketResponseOptions): void;
-  
+
   // Socket-specific methods
   toRoom(room: string): EnhancedSocket;
   toUser(userId: string): EnhancedSocket;
@@ -326,25 +326,20 @@ class AppError extends Error {
   details: Record<string, any>;
   timestamp: string;
   isOperational: boolean;
-  
-  constructor(
-    message: string,
-    statusCode?: number,
-    code?: string,
-    details?: Record<string, any>
-  );
-  
+
+  constructor(message: string, statusCode?: number, code?: string, details?: Record<string, any>);
+
   toJSON(): ErrorInfo;
 }
 
 class ValidationError extends AppError {
   validationErrors: ValidationError[];
-  
+
   constructor(message?: string, validationErrors?: ValidationError[]);
-  
+
   static fromJoi(joiError: any): ValidationError;
   static fromExpressValidator(errors: any[]): ValidationError;
-  
+
   addField(field: string, message: string, value?: any): ValidationError;
 }
 
@@ -360,7 +355,7 @@ class AuthorizationError extends AppError {
   requiredRole: string;
   userRole: string;
   resource?: string;
-  
+
   constructor(requiredRole: string, userRole: string, resource?: string);
 }
 ```
@@ -407,7 +402,7 @@ interface LogFilter {
 ### Helper Types
 
 ```typescript
-type ResponseMethod = 
+type ResponseMethod =
   | 'ok'
   | 'created'
   | 'accepted'
@@ -419,12 +414,25 @@ type ResponseMethod =
   | 'conflict'
   | 'error';
 
-type HttpStatusCode = 
-  | 200 | 201 | 202 | 204
-  | 400 | 401 | 403 | 404 | 405 | 409 | 422 | 429
-  | 500 | 501 | 502 | 503;
+type HttpStatusCode =
+  | 200
+  | 201
+  | 202
+  | 204
+  | 400
+  | 401
+  | 403
+  | 404
+  | 405
+  | 409
+  | 422
+  | 429
+  | 500
+  | 501
+  | 502
+  | 503;
 
-type ContentType = 
+type ContentType =
   | 'application/json'
   | 'application/xml'
   | 'text/html'
@@ -475,21 +483,17 @@ export type {
   LogLevel,
   Environment,
   CustomLoggers,
-  ApiEndpoint
+  ApiEndpoint,
 };
 
 // Utility functions
 export function createValidationMiddleware<T>(
-  schema: ValidationSchema<T>
+  schema: ValidationSchema<T>,
 ): ResponseHandlerMiddleware;
 
-export function createAuthMiddleware(
-  options: AuthMiddlewareOptions
-): AuthMiddleware;
+export function createAuthMiddleware(options: AuthMiddlewareOptions): AuthMiddleware;
 
-export function createRateLimitMiddleware(
-  config: RateLimitConfig
-): ResponseHandlerMiddleware;
+export function createRateLimitMiddleware(config: RateLimitConfig): ResponseHandlerMiddleware;
 ```
 
 ## Usage Examples
@@ -505,7 +509,7 @@ const app = express();
 const config: Config = {
   enableLogging: true,
   logLevel: 'info',
-  environment: 'development'
+  environment: 'development',
 };
 
 app.use(quickSetup(config));
@@ -529,14 +533,11 @@ app.get('/api/users', (req: EnhancedRequest, res: EnhancedResponse) => {
 
 app.post('/api/users', (req: EnhancedRequest, res: EnhancedResponse) => {
   const userData: CreateUserRequest = req.body;
-  
+
   if (!userData.email || !userData.password) {
-    return res.badRequest(
-      { missingFields: ['email', 'password'] },
-      'Missing required fields'
-    );
+    return res.badRequest({ missingFields: ['email', 'password'] }, 'Missing required fields');
   }
-  
+
   const user: User = createUser(userData);
   res.created(user, 'User created successfully');
 });
@@ -552,7 +553,7 @@ const io = new Server(server);
 
 const config: SocketConfig = {
   enableLogging: true,
-  enableRooms: true
+  enableRooms: true,
 };
 
 io.use(quickSocketSetup(config));
@@ -568,10 +569,10 @@ io.on('connection', (socket: EnhancedSocket) => {
     if (!data.content || !data.roomId) {
       return socket.badRequest(
         { missingFields: ['content', 'roomId'] },
-        'Missing required message fields'
+        'Missing required message fields',
       );
     }
-    
+
     const message = createMessage(data);
     socket.toRoom(data.roomId).ok(message, 'Message sent successfully');
   });

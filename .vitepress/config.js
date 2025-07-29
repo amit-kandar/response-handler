@@ -26,9 +26,9 @@ export default {
         {
           text: 'Configuration',
           items: [
-            { text: 'Basic Configuration', link: '/config/basic' },
-            { text: 'Advanced Options', link: '/config/advanced' },
-            { text: 'Environment Setup', link: '/config/environment' },
+            { text: 'Basic Configuration', link: '/guide/basic' },
+            { text: 'Advanced Options', link: '/guide/advanced' },
+            { text: 'Environment Setup', link: '/guide/environment' },
           ],
         },
         {
@@ -38,14 +38,6 @@ export default {
             { text: 'Security Best Practices', link: '/guide/security' },
             { text: 'Testing Strategies', link: '/guide/testing' },
             { text: 'Troubleshooting', link: '/guide/troubleshooting' },
-          ],
-        },
-        {
-          text: 'Configuration',
-          items: [
-            { text: 'Basic Configuration', link: '/config/basic' },
-            { text: 'Advanced Options', link: '/config/advanced' },
-            { text: 'Environment Setup', link: '/config/environment' },
           ],
         },
       ],
@@ -119,17 +111,6 @@ export default {
             { text: 'Configuration Examples', link: '/examples/config' },
             { text: 'Environment-specific', link: '/examples/env-config' },
             { text: 'Production Setup', link: '/examples/production' },
-          ],
-        },
-      ],
-
-      '/config/': [
-        {
-          text: 'Configuration',
-          items: [
-            { text: 'Basic Configuration', link: '/config/basic' },
-            { text: 'Advanced Options', link: '/config/advanced' },
-            { text: 'Environment Setup', link: '/config/environment' },
           ],
         },
       ],
