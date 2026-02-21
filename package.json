@@ -18,7 +18,7 @@
     "docs:preview": "vitepress preview",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx}": [

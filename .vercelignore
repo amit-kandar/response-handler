@@ -41,14 +41,9 @@ Thumbs.db
 .git/
 .gitignore
 
-# Documentation source (we only need the built output)
+# Source files not needed for docs deployment
 src/
 test/
-docs/
-examples/
-api/
-config/
-guide/
 
 # Config files not needed for deployment
 jest.config.js
@@ -56,7 +51,3 @@ tsconfig.json
 .eslintrc.js
 .prettierrc
 commitlint.config.js
-
-# Markdown files (except the ones needed for the build)
-*.md
-!index.md
