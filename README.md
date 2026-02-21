@@ -7,7 +7,7 @@ This package provides one entry point for both modern middleware-driven usage an
 ## Installation
 
 ```bash
-npm install @amitkandar/response-handler
+npm install @amit-kandar/response-handler
 ```
 
 ## Quick Start
@@ -16,7 +16,7 @@ npm install @amitkandar/response-handler
 
 ```ts
 import express from 'express';
-import { quickSetup } from '@amitkandar/response-handler';
+import { quickSetup } from '@amit-kandar/response-handler';
 
 const app = express();
 app.use(express.json());
@@ -58,7 +58,7 @@ app.listen(3000);
 ### Socket.IO
 
 ```ts
-import { createSocketHandler } from '@amitkandar/response-handler';
+import { createSocketHandler } from '@amit-kandar/response-handler';
 
 const socketHandler = createSocketHandler({ mode: 'development' });
 
@@ -188,7 +188,7 @@ Backward-compatible aliases are also exported:
 
 ## Exports Overview
 
-Main exports from `@amitkandar/response-handler`:
+Main exports from `@amit-kandar/response-handler`:
 
 - `quickSetup`, `quickSocketSetup`
 - `ResponseHandler`, `createResponseHandler`, `defaultResponseHandler`, `responseHandler`

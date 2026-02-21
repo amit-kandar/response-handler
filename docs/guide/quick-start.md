@@ -5,14 +5,14 @@ Get started with Response Handler in minutes.
 ## Installation
 
 ```bash
-npm install @amitkandar/response-handler
+npm install @amit-kandar/response-handler
 ```
 
 ## Express Setup
 
 ```typescript
 import express from 'express';
-import { quickSetup } from '@amitkandar/response-handler';
+import { quickSetup } from '@amit-kandar/response-handler';
 
 const app = express();
 
@@ -56,7 +56,7 @@ app.listen(3000, () => {
 
 ```typescript
 import { Server } from 'socket.io';
-import { quickSocketSetup } from '@amitkandar/response-handler';
+import { quickSocketSetup } from '@amit-kandar/response-handler';
 
 const io = new Server(server);
 

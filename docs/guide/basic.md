@@ -5,7 +5,7 @@ Configure Response Handler with these essential options.
 ## Quick Setup
 
 ```typescript
-import { quickSetup } from '@amitkandar/response-handler';
+import { quickSetup } from '@amit-kandar/response-handler';
 
 const { middleware, errorHandler } = quickSetup({
   mode: 'development', // or 'production'

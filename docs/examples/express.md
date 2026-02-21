@@ -6,7 +6,7 @@ Practical examples for using Response Handler with Express.
 
 ```typescript
 import express from 'express';
-import { quickSetup } from '@amitkandar/response-handler';
+import { quickSetup } from '@amit-kandar/response-handler';
 
 const app = express();
 app.use(express.json());
@@ -269,7 +269,7 @@ app.get('/api/users/:id', async (req, res, next) => {
 
 ```typescript
 import request from 'supertest';
-import { quickSetup } from '@amitkandar/response-handler';
+import { quickSetup } from '@amit-kandar/response-handler';
 
 describe('Users API', () => {
   let app;

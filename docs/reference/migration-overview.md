@@ -46,16 +46,16 @@ const {
   emitSuccess,
   emitError,
   socketWrapper,
-} = require('@amitkandar/response-handler');
+} = require('@amit-kandar/response-handler');
 ```
 
 **New:**
 
 ```javascript
-const { quickSetup, quickSocketSetup } = require('@amitkandar/response-handler');
+const { quickSetup, quickSocketSetup } = require('@amit-kandar/response-handler');
 
 // Or for advanced usage
-const { ResponseHandler, SocketResponseHandler } = require('@amitkandar/response-handler');
+const { ResponseHandler, SocketResponseHandler } = require('@amit-kandar/response-handler');
 ```
 
 ### Response Method Changes
@@ -102,7 +102,7 @@ const { middleware, errorHandler } = quickSetup({
 Add any new dependencies if needed:
 
 ```bash
-npm install @amitkandar/response-handler@latest
+npm install @amit-kandar/response-handler@latest
 # Socket.IO and Express should already be installed
 ```
 
@@ -112,11 +112,11 @@ Create a new setup file or update your existing app setup:
 
 ```javascript
 // Before migration - old setup
-const { errorHandler } = require('@amitkandar/response-handler');
+const { errorHandler } = require('@amit-kandar/response-handler');
 app.use(errorHandler);
 
 // After migration - new setup
-const { quickSetup } = require('@amitkandar/response-handler');
+const { quickSetup } = require('@amit-kandar/response-handler');
 const { middleware, errorHandler } = quickSetup({
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   logging: {
@@ -137,7 +137,7 @@ Migrate one route at a time to ensure stability:
 **Before:**
 
 ```javascript
-const { sendSuccess, sendError } = require('@amitkandar/response-handler');
+const { sendSuccess, sendError } = require('@amit-kandar/response-handler');
 
 app.get('/users/:id', async (req, res, next) => {
   try {
@@ -198,10 +198,10 @@ Once all routes are migrated:
 
 ```javascript
 // Remove these legacy imports:
-// const { sendSuccess, sendError, errorHandler } = require('@amitkandar/response-handler');
+// const { sendSuccess, sendError, errorHandler } = require('@amit-kandar/response-handler');
 
 // Keep only new imports:
-const { quickSetup } = require('@amitkandar/response-handler');
+const { quickSetup } = require('@amit-kandar/response-handler');
 ```
 
 ## API Mapping
@@ -248,7 +248,7 @@ const { quickSetup } = require('@amitkandar/response-handler');
 **Before:**
 
 ```javascript
-const { configureResponseFormat } = require('@amitkandar/response-handler');
+const { configureResponseFormat } = require('@amit-kandar/response-handler');
 
 configureResponseFormat(({ success, message, data, error }) => ({
   status: success ? 'OK' : 'ERROR',
@@ -262,7 +262,7 @@ configureResponseFormat(({ success, message, data, error }) => ({
 **After:**
 
 ```javascript
-const { quickSetup } = require('@amitkandar/response-handler');
+const { quickSetup } = require('@amit-kandar/response-handler');
 
 const { middleware, errorHandler } = quickSetup({
   responses: {
@@ -296,7 +296,7 @@ if (isDevelopment) {
 **After:**
 
 ```javascript
-const { quickSetup } = require('@amitkandar/response-handler');
+const { quickSetup } = require('@amit-kandar/response-handler');
 
 const { middleware, errorHandler } = quickSetup({
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
@@ -311,7 +311,7 @@ const { middleware, errorHandler } = quickSetup({
 **Before:**
 
 ```javascript
-const { emitSuccess, emitError } = require('@amitkandar/response-handler');
+const { emitSuccess, emitError } = require('@amit-kandar/response-handler');
 
 socket.on('get-user', async (data) => {
   try {
@@ -343,7 +343,7 @@ socket.on('get-user', async (data) => {
 **After:**
 
 ```javascript
-const { quickSocketSetup } = require('@amitkandar/response-handler');
+const { quickSocketSetup } = require('@amit-kandar/response-handler');
 const { enhance } = quickSocketSetup();
 
 socket.on('get-user', async (data) => {
@@ -367,7 +367,7 @@ socket.on('get-user', async (data) => {
 **Before:**
 
 ```javascript
-const { socketWrapper } = require('@amitkandar/response-handler');
+const { socketWrapper } = require('@amit-kandar/response-handler');
 
 const handleGetUser = socketWrapper(async (socket, data) => {
   const user = await getUser(data.userId);
@@ -384,7 +384,7 @@ socket.on('get-user', (data) => handleGetUser(socket, data));
 **After:**
 
 ```javascript
-const { quickSocketSetup } = require('@amitkandar/response-handler');
+const { quickSocketSetup } = require('@amit-kandar/response-handler');
 const { wrapper } = quickSocketSetup();
 
 socket.on(
@@ -401,7 +401,7 @@ socket.on(
 **Before:**
 
 ```javascript
-const { emitSuccess } = require('@amitkandar/response-handler');
+const { emitSuccess } = require('@amit-kandar/response-handler');
 
 socket.on('send-message', (data) => {
   // Send to room manually
@@ -423,7 +423,7 @@ socket.on('send-message', (data) => {
 **After:**
 
 ```javascript
-const { quickSocketSetup } = require('@amitkandar/response-handler');
+const { quickSocketSetup } = require('@amit-kandar/response-handler');
 const { enhance } = quickSocketSetup();
 
 socket.on('send-message', (data) => {
@@ -444,7 +444,7 @@ socket.on('send-message', (data) => {
 **Before:**
 
 ```javascript
-const { sendSuccess, sendError } = require('@amitkandar/response-handler');
+const { sendSuccess, sendError } = require('@amit-kandar/response-handler');
 
 describe('User Routes', () => {
   it('should return user data', async () => {
@@ -465,7 +465,7 @@ describe('User Routes', () => {
 
 ```javascript
 const request = require('supertest');
-const { quickSetup } = require('@amitkandar/response-handler');
+const { quickSetup } = require('@amit-kandar/response-handler');
 
 describe('User Routes', () => {
   let app;
@@ -498,7 +498,7 @@ describe('User Routes', () => {
 
 ```javascript
 // Manual setup for each test
-const { errorHandler } = require('@amitkandar/response-handler');
+const { errorHandler } = require('@amit-kandar/response-handler');
 app.use(errorHandler);
 ```
 
@@ -506,7 +506,7 @@ app.use(errorHandler);
 
 ```javascript
 // Centralized test setup
-const { quickSetup } = require('@amitkandar/response-handler');
+const { quickSetup } = require('@amit-kandar/response-handler');
 
 const createTestApp = () => {
   const app = express();
@@ -643,7 +643,7 @@ const {
   quickSetup,
   sendSuccess, // Legacy function still available
   sendError, // Legacy function still available
-} = require('@amitkandar/response-handler');
+} = require('@amit-kandar/response-handler');
 
 const { middleware, errorHandler } = quickSetup();
 

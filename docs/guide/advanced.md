@@ -5,7 +5,7 @@ Detailed configuration options for advanced use cases.
 ## Complete Configuration Object
 
 ```typescript
-import { ResponseHandlerConfig } from '@amitkandar/response-handler';
+import { ResponseHandlerConfig } from '@amit-kandar/response-handler';
 
 const config: ResponseHandlerConfig = {
   mode: 'production',
@@ -234,7 +234,7 @@ const { enhance, wrapper } = quickSocketSetup(socketConfig);
 
 ```typescript
 import express from 'express';
-import { quickSetup } from '@amitkandar/response-handler';
+import { quickSetup } from '@amit-kandar/response-handler';
 
 const app = express();
 

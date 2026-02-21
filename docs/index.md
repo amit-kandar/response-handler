@@ -35,7 +35,7 @@ features:
 
 ```ts
 import express from 'express';
-import { quickSetup } from '@amitkandar/response-handler';
+import { quickSetup } from '@amit-kandar/response-handler';
 
 const app = express();
 app.use(express.json());

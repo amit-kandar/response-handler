@@ -61,7 +61,7 @@ app.get('/error', (req, res) => {
 ### After
 
 ```typescript
-import { quickSetup } from '@amitkandar/response-handler';
+import { quickSetup } from '@amit-kandar/response-handler';
 const { middleware } = quickSetup();
 app.use(middleware);
 
@@ -109,7 +109,7 @@ app.get('/users', (req, res) => {
 ### After
 
 ```typescript
-import { quickSetup } from '@amitkandar/response-handler';
+import { quickSetup } from '@amit-kandar/response-handler';
 const { middleware } = quickSetup({
   responses: { includeTimestamp: true },
 });

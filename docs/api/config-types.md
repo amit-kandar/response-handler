@@ -251,7 +251,7 @@ const prodConfig: ResponseHandlerConfig = {
 ## Usage with Express
 
 ```typescript
-import { configureResponseHandler } from '@amitkandar/response-handler';
+import { configureResponseHandler } from '@amit-kandar/response-handler';
 
 const app = express();
 
@@ -262,7 +262,7 @@ app.use(configureResponseHandler(config));
 ## Usage with Socket.IO
 
 ```typescript
-import { createSocketHandler } from '@amitkandar/response-handler';
+import { createSocketHandler } from '@amit-kandar/response-handler';
 
 const io = new Server(server);
 

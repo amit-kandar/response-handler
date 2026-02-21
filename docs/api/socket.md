@@ -6,7 +6,7 @@ Complete API reference for Socket.IO integration.
 
 ```typescript
 import { Server } from 'socket.io';
-import { quickSocketSetup } from '@amitkandar/response-handler';
+import { quickSocketSetup } from '@amit-kandar/response-handler';
 
 const io = new Server(server);
 const { enhance, wrapper } = quickSocketSetup(config);
@@ -340,7 +340,7 @@ io.use(responseMiddleware);
 ```typescript
 import { Server } from 'socket.io';
 import Client from 'socket.io-client';
-import { quickSocketSetup } from '@amitkandar/response-handler';
+import { quickSocketSetup } from '@amit-kandar/response-handler';
 
 describe('Socket.IO Tests', () => {
   let io, clientSocket, serverSocket;

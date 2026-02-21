@@ -9,7 +9,7 @@ Socket.IO middleware allows you to intercept and process socket events before th
 ## Basic Middleware Setup
 
 ```javascript
-import { createSocketHandler } from '@amitkandar/response-handler';
+import { createSocketHandler } from '@amit-kandar/response-handler';
 
 const io = new Server(server);
 

@@ -10,19 +10,19 @@ Install Response Handler in your Node.js project.
 ## Install via NPM
 
 ```bash
-npm install @amitkandar/response-handler
+npm install @amit-kandar/response-handler
 ```
 
 ## Install via Yarn
 
 ```bash
-yarn add @amitkandar/response-handler
+yarn add @amit-kandar/response-handler
 ```
 
 ## Install via PNPM
 
 ```bash
-pnpm add @amitkandar/response-handler
+pnpm add @amit-kandar/response-handler
 ```
 
 ## Verify Installation
@@ -31,7 +31,7 @@ Create a simple test file to verify the installation:
 
 ```typescript
 // test.js
-import { quickSetup } from '@amitkandar/response-handler';
+import { quickSetup } from '@amit-kandar/response-handler';
 
 console.log('Response Handler installed successfully!');
 ```
@@ -46,7 +46,7 @@ Response Handler includes full TypeScript definitions out of the box. No additio
 
 ```typescript
 // TypeScript works automatically
-import { quickSetup, ResponseHandlerConfig } from '@amitkandar/response-handler';
+import { quickSetup, ResponseHandlerConfig } from '@amit-kandar/response-handler';
 
 const config: ResponseHandlerConfig = {
   mode: 'development',
@@ -67,7 +67,7 @@ const config: ResponseHandlerConfig = {
 If you're using CommonJS, import like this:
 
 ```javascript
-const { quickSetup } = require('@amitkandar/response-handler');
+const { quickSetup } = require('@amit-kandar/response-handler');
 ```
 
 ### ESM Issues

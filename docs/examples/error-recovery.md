@@ -6,7 +6,7 @@ This guide demonstrates various error recovery patterns and strategies using the
 
 ```javascript
 import express from 'express';
-import { configureResponseHandler } from '@amitkandar/response-handler';
+import { configureResponseHandler } from '@amit-kandar/response-handler';
 
 const app = express();
 app.use(configureResponseHandler());
@@ -293,7 +293,7 @@ app.use(
 
 ```javascript
 import { Server } from 'socket.io';
-import { createSocketHandler } from '@amitkandar/response-handler';
+import { createSocketHandler } from '@amit-kandar/response-handler';
 
 const io = new Server(server);
 io.use(createSocketHandler());

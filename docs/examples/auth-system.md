@@ -8,7 +8,7 @@ This example demonstrates how to build a complete authentication system using th
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { configureResponseHandler } from '@amitkandar/response-handler';
+import { configureResponseHandler } from '@amit-kandar/response-handler';
 
 const app = express();
 
@@ -277,7 +277,7 @@ app.listen(PORT, () => {
 ```javascript
 import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
-import { createSocketHandler } from '@amitkandar/response-handler';
+import { createSocketHandler } from '@amit-kandar/response-handler';
 
 const io = new Server(server, {
   cors: {

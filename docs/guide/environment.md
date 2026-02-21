@@ -211,7 +211,7 @@ export function createConfig(env = process.env.NODE_ENV) {
 }
 
 // Usage
-import { quickSetup } from '@amitkandar/response-handler';
+import { quickSetup } from '@amit-kandar/response-handler';
 import { createConfig } from './config/index.js';
 
 const config = createConfig();

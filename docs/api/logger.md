@@ -5,7 +5,7 @@ The Logger class provides comprehensive logging functionality with configurable 
 ## Logger Class
 
 ```typescript
-import { Logger } from '@amitkandar/response-handler';
+import { Logger } from '@amit-kandar/response-handler';
 
 const logger = new Logger(config);
 ```
@@ -324,7 +324,7 @@ const config = {
 
 ```typescript
 import express from 'express';
-import { Logger } from '@amitkandar/response-handler';
+import { Logger } from '@amit-kandar/response-handler';
 
 const app = express();
 const logger = new Logger({ level: 'info' });
@@ -350,7 +350,7 @@ app.use((req, res, next) => {
 
 ```typescript
 import { Server } from 'socket.io';
-import { Logger } from '@amitkandar/response-handler';
+import { Logger } from '@amit-kandar/response-handler';
 
 const io = new Server(server);
 const logger = new Logger({ level: 'debug' });

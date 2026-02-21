@@ -5,7 +5,7 @@ The ResponseBuilder class provides the core response building functionality.
 ## ResponseBuilder Class
 
 ```typescript
-import { ResponseBuilder } from '@amitkandar/response-handler';
+import { ResponseBuilder } from '@amit-kandar/response-handler';
 
 const builder = new ResponseBuilder(config, logger, req, res);
 ```
@@ -400,7 +400,7 @@ res.error = (error, statusCode) => builder.error(error, statusCode);
 ## Testing ResponseBuilder
 
 ```typescript
-import { ResponseBuilder } from '@amitkandar/response-handler';
+import { ResponseBuilder } from '@amit-kandar/response-handler';
 
 describe('ResponseBuilder', () => {
   let builder, mockReq, mockRes, mockLogger, config;

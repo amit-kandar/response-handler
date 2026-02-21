@@ -19,7 +19,7 @@ Comprehensive examples showing how to use the Enhanced Response Handler in real-
 
 ```javascript
 const express = require('express');
-const { quickSetup } = require('@amitkandar/response-handler');
+const { quickSetup } = require('@amit-kandar/response-handler');
 
 const app = express();
 app.use(express.json());
@@ -41,7 +41,7 @@ app.listen(3000);
 
 ```javascript
 const express = require('express');
-const { quickSetup } = require('@amitkandar/response-handler');
+const { quickSetup } = require('@amit-kandar/response-handler');
 
 const app = express();
 app.use(express.json());
@@ -178,7 +178,7 @@ app.listen(3000, () => {
 ### Development vs Production Configuration
 
 ```javascript
-const { quickSetup } = require('@amitkandar/response-handler');
+const { quickSetup } = require('@amit-kandar/response-handler');
 
 const config = {
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
@@ -280,7 +280,7 @@ app.post('/users', async (req, res) => {
 const express = require('express');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
-const { quickSocketSetup } = require('@amitkandar/response-handler');
+const { quickSocketSetup } = require('@amit-kandar/response-handler');
 
 const app = express();
 const server = createServer(app);
@@ -347,7 +347,7 @@ server.listen(3000);
 ### Advanced Socket.IO with Rooms
 
 ```javascript
-const { quickSocketSetup } = require('@amitkandar/response-handler');
+const { quickSocketSetup } = require('@amit-kandar/response-handler');
 
 const { enhance, wrapper } = quickSocketSetup();
 
@@ -434,7 +434,7 @@ io.on('connection', (socket) => {
 ### Centralized Error Handling
 
 ```javascript
-const { quickSetup } = require('@amitkandar/response-handler');
+const { quickSetup } = require('@amit-kandar/response-handler');
 
 // Custom error classes
 class AppError extends Error {
@@ -545,7 +545,7 @@ app.get(
 
 ```javascript
 const jwt = require('jsonwebtoken');
-const { quickSetup } = require('@amitkandar/response-handler');
+const { quickSetup } = require('@amit-kandar/response-handler');
 
 const { middleware, errorHandler } = quickSetup();
 app.use(middleware);
@@ -639,7 +639,7 @@ app.use(errorHandler);
 ```javascript
 const multer = require('multer');
 const path = require('path');
-const { quickSetup } = require('@amitkandar/response-handler');
+const { quickSetup } = require('@amit-kandar/response-handler');
 
 const { middleware, errorHandler } = quickSetup();
 
@@ -748,7 +748,7 @@ app.use(errorHandler);
 const express = require('express');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
-const { quickSetup, quickSocketSetup } = require('@amitkandar/response-handler');
+const { quickSetup, quickSocketSetup } = require('@amit-kandar/response-handler');
 
 const app = express();
 const server = createServer(app);
@@ -972,7 +972,7 @@ server.listen(3000, () => {
 ### Production Configuration
 
 ```javascript
-const { quickSetup } = require('@amitkandar/response-handler');
+const { quickSetup } = require('@amit-kandar/response-handler');
 const winston = require('winston');
 
 // Production logger setup

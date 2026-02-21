@@ -7,7 +7,7 @@ Practical examples for using Response Handler with Socket.IO.
 ```typescript
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { quickSocketSetup } from '@amitkandar/response-handler';
+import { quickSocketSetup } from '@amit-kandar/response-handler';
 
 const httpServer = createServer();
 const io = new Server(httpServer, {
@@ -41,7 +41,7 @@ httpServer.listen(3001, () => {
 
 ```typescript
 import { Server } from 'socket.io';
-import { quickSocketSetup } from '@amitkandar/response-handler';
+import { quickSocketSetup } from '@amit-kandar/response-handler';
 
 const io = new Server(httpServer);
 const { enhance, wrapper } = quickSocketSetup({
@@ -226,7 +226,7 @@ function findSocketByUserId(userId) {
 
 ```typescript
 import { Server } from 'socket.io';
-import { quickSocketSetup } from '@amitkandar/response-handler';
+import { quickSocketSetup } from '@amit-kandar/response-handler';
 
 const io = new Server(httpServer);
 const { enhance, wrapper } = quickSocketSetup({
@@ -403,7 +403,7 @@ function createGame(player1, player2) {
 
 ```typescript
 import { Server } from 'socket.io';
-import { quickSocketSetup } from '@amitkandar/response-handler';
+import { quickSocketSetup } from '@amit-kandar/response-handler';
 
 const io = new Server(httpServer);
 const { enhance, wrapper } = quickSocketSetup({

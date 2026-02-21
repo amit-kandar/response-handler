@@ -691,7 +691,7 @@ class ConfigManager {
 
 // Usage
 const configManager = new ConfigManager();
-const { quickSetup } = require('@amitkandar/response-handler');
+const { quickSetup } = require('@amit-kandar/response-handler');
 const { middleware, errorHandler } = quickSetup(configManager.config);
 ```
 

@@ -228,7 +228,7 @@ export default loadConfig();
 ```javascript
 // app.js
 import express from 'express';
-import { configureResponseHandler } from '@amitkandar/response-handler';
+import { configureResponseHandler } from '@amit-kandar/response-handler';
 import config from './config/index.js';
 
 const app = express();
@@ -303,7 +303,7 @@ app.listen(PORT, () => {
 ```javascript
 // socket.js
 import { Server } from 'socket.io';
-import { createSocketHandler } from '@amitkandar/response-handler';
+import { createSocketHandler } from '@amit-kandar/response-handler';
 import config from './config/index.js';
 
 export function setupSocketIO(server) {

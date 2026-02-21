@@ -23,7 +23,7 @@ npm install --legacy-peer-deps
 
 # Or use specific version
 npm install express@^5.0.0
-npm install @amitkandar/response-handler
+npm install @amit-kandar/response-handler
 ```
 
 ### TypeScript Definition Issues

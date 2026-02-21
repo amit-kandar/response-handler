@@ -8,7 +8,7 @@ Comprehensive examples for handling errors with Response Handler.
 
 ```typescript
 import express from 'express';
-import { quickSetup } from '@amitkandar/response-handler';
+import { quickSetup } from '@amit-kandar/response-handler';
 
 const app = express();
 const { middleware, errorHandler } = quickSetup({
@@ -58,7 +58,7 @@ app.use(errorHandler);
 
 ```typescript
 import { Server } from 'socket.io';
-import { quickSocketSetup } from '@amitkandar/response-handler';
+import { quickSocketSetup } from '@amit-kandar/response-handler';
 
 const io = new Server(httpServer);
 const { enhance, wrapper } = quickSocketSetup({
@@ -225,7 +225,7 @@ app.post('/users', async (req, res) => {
 ### Custom Error Handler
 
 ```typescript
-import { ResponseHandler } from '@amitkandar/response-handler';
+import { ResponseHandler } from '@amit-kandar/response-handler';
 
 class CustomResponseHandler extends ResponseHandler {
   errorHandler() {

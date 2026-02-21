@@ -17,7 +17,7 @@ Complete API documentation for the Enhanced Response Handler.
 Sets up Express middleware with response handler capabilities.
 
 ```typescript
-import { quickSetup } from '@amitkandar/response-handler';
+import { quickSetup } from '@amit-kandar/response-handler';
 
 const { middleware, errorHandler, logger } = quickSetup({
   mode: 'development',
@@ -45,7 +45,7 @@ const { middleware, errorHandler, logger } = quickSetup({
 Sets up Socket.IO response handler capabilities.
 
 ```typescript
-import { quickSocketSetup } from '@amitkandar/response-handler';
+import { quickSocketSetup } from '@amit-kandar/response-handler';
 
 const { enhance, wrapper, setupServer, logger } = quickSocketSetup({
   mode: 'development',

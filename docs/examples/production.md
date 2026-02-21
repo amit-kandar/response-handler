@@ -130,7 +130,7 @@ export default {
 // server.js
 import express from 'express';
 import { createServer } from 'http';
-import { configureResponseHandler } from '@amitkandar/response-handler';
+import { configureResponseHandler } from '@amit-kandar/response-handler';
 import productionConfig from './config/production.js';
 import helmet from 'helmet';
 import compression from 'compression';

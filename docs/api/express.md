@@ -5,7 +5,7 @@ Complete API reference for Express integration.
 ## Quick Setup
 
 ```typescript
-import { quickSetup } from '@amitkandar/response-handler';
+import { quickSetup } from '@amit-kandar/response-handler';
 
 const { middleware, errorHandler } = quickSetup(config);
 app.use(middleware);
