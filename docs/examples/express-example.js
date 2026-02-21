@@ -1,5 +1,5 @@
 const express = require('express');
-const { quickSetup } = require('../dist/newIndex');
+const { quickSetup } = require('../dist/index');
 
 const app = express();
 app.use(express.json());

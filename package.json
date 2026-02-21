@@ -1,7 +1,8 @@
 {
   "name": "@amitkandar/response-handler",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "start": "node ./dist/index.js",
     "dev": "nodemon --exec ts-node ./src/index.ts",
@@ -47,8 +48,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^5.1.0",
-    "socket.io": "^4.8.1",
-    "uuid": "^10.0.0"
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
@@ -59,7 +59,6 @@
     "@types/socket.io": "^3.0.2",
     "@types/socket.io-client": "^3.0.0",
     "@types/supertest": "^6.0.2",
-    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.33.1",
     "@typescript-eslint/parser": "^8.33.1",
     "commitizen": "^4.3.1",

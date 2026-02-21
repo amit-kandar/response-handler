@@ -14,13 +14,13 @@ let responseFormatter: ResponseFormatter = ({ success, message, data, error }: R
   error,
 });
 
-function configureResponseFormat(templateFn: ResponseFormatter): void {
+function setResponseFormatter(templateFn: ResponseFormatter): void {
   if (typeof templateFn === 'function') {
     responseFormatter = templateFn;
   }
 }
 
-function getFormattedResponse(
+function formatApiResponse(
   success: boolean,
   data: any,
   message: string,
@@ -29,4 +29,12 @@ function getFormattedResponse(
   return responseFormatter({ success, message, data, error });
 }
 
-export { configureResponseFormat, getFormattedResponse };
+const configureResponseFormat = setResponseFormatter;
+const getFormattedResponse = formatApiResponse;
+
+export {
+  setResponseFormatter,
+  formatApiResponse,
+  configureResponseFormat,
+  getFormattedResponse,
+};

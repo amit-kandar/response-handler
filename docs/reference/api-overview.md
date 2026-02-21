@@ -176,9 +176,12 @@ res.internalServerError(error, 'Something went wrong');
 #### `res.respond(statusCode, data?, message?)`
 
 Sends a response with custom status code.
+For `statusCode < 400`, data is emitted as success.
+For `statusCode >= 400`, it is emitted with error semantics (`success: false`).
 
 ```typescript
-res.respond(418, { teapot: true }, "I'm a teapot");
+res.respond(202, { queued: true }, 'Accepted');
+res.respond(418, { reason: 'teapot' }, "I'm a teapot"); // success: false
 ```
 
 #### `res.error(error, statusCode?)`
@@ -368,6 +371,7 @@ interface ResponseConfig {
   customFields?: Record<string, any>; // Custom fields in meta
   pagination?: boolean; // Enable pagination helpers
   compression?: boolean; // Enable response compression
+  compressionThreshold?: number; // Min payload bytes for gzip
 }
 ```
 
@@ -375,11 +379,20 @@ interface ResponseConfig {
 
 ```typescript
 interface SecurityConfig {
-  sanitizeErrors?: boolean; // Sanitize error messages
+  sanitizeErrors?: boolean; // Enable/disable error sanitization
   hideInternalErrors?: boolean; // Hide internal error details
   allowedErrorFields?: string[]; // Allowed error fields
-  rateLimiting?: boolean; // Enable rate limiting
+  rateLimiting?: boolean | RateLimitConfig; // Enable/configure rate limiting
   corsHeaders?: boolean; // Set CORS security headers
+}
+```
+
+```typescript
+interface RateLimitConfig {
+  windowMs?: number;
+  maxRequests?: number;
+  statusCode?: number;
+  message?: string;
 }
 ```
 
@@ -389,8 +402,11 @@ interface SecurityConfig {
 interface PerformanceConfig {
   enableCaching?: boolean; // Enable response caching
   cacheHeaders?: boolean; // Set cache control headers
+  cacheControl?: string; // Custom Cache-Control value
+  cacheTTL?: number; // Max-age when cacheControl not provided
   etag?: boolean; // Enable ETag headers
   compression?: boolean; // Enable response compression
+  compressionThreshold?: number; // Min payload bytes for gzip
 }
 ```
 

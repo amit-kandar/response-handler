@@ -97,12 +97,8 @@ describe('ResponseBuilder Unit Tests', () => {
       builder.noContent('Resource deleted');
 
       expect(mockRes.status).toHaveBeenCalledWith(204);
-      expect(mockRes.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          success: true,
-          message: 'Resource deleted',
-        }),
-      );
+      expect(mockRes.send).toHaveBeenCalled();
+      expect(mockRes.json).not.toHaveBeenCalled();
     });
 
     it('should use default messages when not provided', () => {
@@ -189,9 +185,9 @@ describe('ResponseBuilder Unit Tests', () => {
       expect(mockRes.status).toHaveBeenCalledWith(418);
       expect(mockRes.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          success: true,
-          data: { teapot: true },
+          success: false,
           message: "I'm a teapot",
+          error: expect.any(Object),
         }),
       );
     });
@@ -387,6 +383,37 @@ describe('ResponseBuilder Unit Tests', () => {
       const response = mockRes.json.mock.calls[0][0];
       expect(response.error.stack).toBeDefined();
       expect(response.message).toBe('Internal server error');
+    });
+
+    it('should preserve full error payload when sanitizeErrors is disabled', () => {
+      config.mode = 'development';
+      config.security = {
+        sanitizeErrors: false,
+        hideInternalErrors: false,
+      };
+      config.logging!.includeStack = true;
+      builder = new ResponseBuilder(config, mockLogger, mockReq, mockRes);
+
+      const error = {
+        message: 'Validation failed',
+        type: 'ValidationError',
+        code: 'VALIDATION_FAILED',
+        field: 'email',
+        extra: 'retained-for-debugging',
+        stack: 'Error: Validation failed\n    at ...',
+      };
+
+      builder.badRequest(error, 'Request invalid');
+
+      const response = mockRes.json.mock.calls[0][0];
+      expect(response.error.message).toBe('Validation failed');
+      expect(response.error.type).toBe('ValidationError');
+      expect(response.error.code).toBe('VALIDATION_FAILED');
+      expect(response.error.details).toMatchObject({
+        field: 'email',
+        extra: 'retained-for-debugging',
+      });
+      expect(response.error.stack).toContain('Validation failed');
     });
   });
 

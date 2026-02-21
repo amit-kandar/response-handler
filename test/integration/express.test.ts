@@ -2,7 +2,7 @@ import express from 'express';
 import request from 'supertest';
 import { ResponseHandler } from '../../src/middleware/responseHandler';
 import { EnhancedRequest, EnhancedResponse } from '../../src/types';
-import { testConfigs, TestError, ValidationTestError, NotFoundTestError } from '../helpers/setup';
+import { testConfigs, TestError, ValidationTestError } from '../helpers/setup';
 
 describe('Express Integration Tests', () => {
   let app: express.Application;
@@ -13,7 +13,7 @@ describe('Express Integration Tests', () => {
     app.use(express.json());
 
     handler = new ResponseHandler(config);
-    app.use(handler.middleware() as any);
+    app.use(handler.middleware());
 
     // Test routes
     app.get('/success', (req, res) => {
@@ -41,7 +41,7 @@ describe('Express Integration Tests', () => {
     });
 
     app.get('/custom/:code', (req, res) => {
-      const code = parseInt(req.params.code);
+      const code = Number.parseInt(req.params.code, 10);
       (res as EnhancedResponse).respond(code, { custom: true }, `Custom ${code} response`);
     });
 
@@ -75,7 +75,7 @@ describe('Express Integration Tests', () => {
     });
 
     // Error handler must be last
-    app.use(handler.errorHandler() as any);
+    app.use(handler.errorHandler());
   };
 
   describe('Success Responses', () => {
@@ -178,9 +178,9 @@ describe('Express Integration Tests', () => {
       const response = await request(app).get('/custom/418').expect(418);
 
       expect(response.body).toMatchObject({
-        success: true,
-        data: { custom: true },
+        success: false,
         message: 'Custom 418 response',
+        error: expect.any(Object),
       });
     });
 
@@ -370,6 +370,75 @@ describe('Express Integration Tests', () => {
 
       expect(response.body.meta.executionTime).toBeGreaterThanOrEqual(0);
       expect(response.body.meta.executionTime).toBeLessThan(1000); // Should be fast
+    });
+  });
+
+  describe('Rate Limiting', () => {
+    beforeEach(() => {
+      setupApp({
+        ...testConfigs.development,
+        security: {
+          ...testConfigs.development.security,
+          rateLimiting: {
+            windowMs: 60_000,
+            maxRequests: 2,
+            statusCode: 429,
+            message: 'Rate limit hit',
+          },
+        },
+      });
+    });
+
+    it('should block requests after configured limit', async () => {
+      const firstResponse = await request(app).get('/success').expect(200);
+      expect(firstResponse.headers['x-ratelimit-limit']).toBe('2');
+      expect(firstResponse.headers['x-ratelimit-remaining']).toBe('1');
+      expect(firstResponse.headers['x-ratelimit-reset']).toBeDefined();
+
+      await request(app).get('/success').expect(200);
+
+      const response = await request(app).get('/success').expect(429);
+      expect(response.body).toMatchObject({
+        success: false,
+        message: 'Rate limit hit',
+        error: expect.objectContaining({
+          type: 'RateLimitError',
+          code: 'RATE_LIMIT_EXCEEDED',
+        }),
+      });
+      expect(response.headers['retry-after']).toBeDefined();
+    });
+  });
+
+  describe('Compression and Caching', () => {
+    beforeEach(() => {
+      setupApp({
+        ...testConfigs.development,
+        responses: {
+          ...testConfigs.development.responses,
+          compression: true,
+          compressionThreshold: 1,
+        },
+        performance: {
+          enableCaching: true,
+          cacheTTL: 120,
+        },
+      });
+    });
+
+    it('should compress JSON responses when gzip is accepted', async () => {
+      const response = await request(app)
+        .get('/success')
+        .set('Accept-Encoding', 'gzip')
+        .buffer(true)
+        .expect(200);
+
+      expect(response.headers['content-encoding']).toBe('gzip');
+    });
+
+    it('should apply cache TTL header for successful responses', async () => {
+      const response = await request(app).get('/success').expect(200);
+      expect(response.headers['cache-control']).toBe('public, max-age=120');
     });
   });
 });

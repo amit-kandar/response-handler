@@ -57,7 +57,7 @@ const config: ResponseHandlerConfig = {
 ## Next Steps
 
 - [Quick Start Guide](/guide/quick-start) - Get up and running in minutes
-- [Configuration](/config/basic) - Learn about configuration options
+- [Configuration](/guide/basic) - Learn about configuration options
 - [Examples](/examples/express) - See practical examples
 
 ## Troubleshooting

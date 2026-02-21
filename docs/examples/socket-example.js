@@ -1,7 +1,7 @@
 const express = require('express');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
-const { quickSocketSetup } = require('../dist/newIndex');
+const { quickSocketSetup } = require('../dist/index');
 
 const app = express();
 const server = createServer(app);

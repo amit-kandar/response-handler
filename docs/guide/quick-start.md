@@ -134,7 +134,7 @@ All response methods are available on both Express responses and Socket.IO respo
 
 ## What's Next?
 
-- [Configuration Guide](/config/basic) - Learn about available configuration options
+- [Configuration Guide](/guide/basic) - Learn about available configuration options
 - [API Reference](/api/express) - Complete API documentation
 - [Examples](/examples/express) - More detailed examples
 - [Migration Guide](/guide/migration) - Migrating from other libraries

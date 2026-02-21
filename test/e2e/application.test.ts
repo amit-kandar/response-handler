@@ -1,7 +1,7 @@
 import express, { Request, Response, RequestHandler } from 'express';
 import request from 'supertest';
-import { quickSetup } from '../../src/newIndex';
-import { EnhancedRequest, EnhancedResponse } from '../../src/types';
+import { quickSetup } from '../../src/index';
+import { EnhancedResponse } from '../../src/types';
 
 describe('E2E Application Tests', () => {
   let app: express.Application;
@@ -71,7 +71,7 @@ describe('E2E Application Tests', () => {
     }) as RequestHandler);
 
     app.get('/api/users/:id', ((req, res) => {
-      const id = parseInt(req.params.id);
+      const id = Number.parseInt(req.params.id, 10);
 
       if (isNaN(id)) {
         return (res as EnhancedResponse).badRequest(
@@ -95,7 +95,6 @@ describe('E2E Application Tests', () => {
     }) as RequestHandler);
 
     app.delete('/api/users/:id', (req, res) => {
-      const id = parseInt(req.params.id);
       (res as EnhancedResponse).noContent('User deleted successfully');
     });
 
@@ -194,7 +193,8 @@ describe('E2E Application Tests', () => {
       });
 
       // 4. Delete user
-      await request(app).delete(`/api/users/${userId}`).expect(204);
+      const deleteResponse = await request(app).delete(`/api/users/${userId}`).expect(204);
+      expect(deleteResponse.text).toBe('');
     });
 
     it('should handle validation errors', async () => {
@@ -322,6 +322,15 @@ describe('E2E Application Tests', () => {
 
       expect(response.body.meta.executionTime).toBeGreaterThanOrEqual(0);
       expect(response.body.meta.executionTime).toBeLessThan(actualTime + 50); // Allow some margin
+    });
+  });
+
+  describe('Contract Behavior', () => {
+    it('should include security-friendly generic error shape for unhandled errors', async () => {
+      const response = await request(app).get('/api/error/500').expect(500);
+      expect(response.body.success).toBe(false);
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toHaveProperty('type');
     });
   });
 });

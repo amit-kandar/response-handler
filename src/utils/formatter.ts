@@ -1,4 +1,4 @@
-import { getFormattedResponse } from '../responseTemplate';
+import { formatApiResponse } from '../responseTemplate';
 
 function formatResponse(
   success: boolean,
@@ -6,7 +6,7 @@ function formatResponse(
   message: string = '',
   error: any = null,
 ) {
-  return getFormattedResponse(success, data, message, error);
+  return formatApiResponse(success, data, message, error);
 }
 
 export default formatResponse;

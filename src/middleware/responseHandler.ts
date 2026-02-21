@@ -1,105 +1,204 @@
-import { Request, Response, NextFunction } from 'express';
-import { ResponseHandlerConfig, EnhancedRequest, EnhancedResponse } from '../types';
+import { randomUUID } from 'crypto';
+import { Request, Response, NextFunction, RequestHandler, ErrorRequestHandler } from 'express';
+import {
+  ResponseHandlerConfig,
+  EnhancedRequest,
+  EnhancedResponse,
+  RateLimitConfig,
+} from '../types';
 import Logger from '../core/logger';
 import ResponseBuilder from '../core/responseBuilder';
 
-// Simple UUID v4 implementation to avoid external dependencies
-function generateUUID(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
+interface RateLimitState {
+  count: number;
+  resetAt: number;
+}
+
+const DEFAULT_RATE_LIMIT: Required<RateLimitConfig> = {
+  windowMs: 60_000,
+  maxRequests: 100,
+  statusCode: 429,
+  message: 'Too many requests',
+};
+
+function getDefaultConfig(): ResponseHandlerConfig {
+  const isProduction = process.env.NODE_ENV === 'production';
+  return {
+    mode: isProduction ? 'production' : 'development',
+    logging: {
+      enabled: true,
+      level: 'info',
+      logErrors: true,
+      logRequests: false,
+      logResponses: false,
+      includeStack: !isProduction,
+      includeRequest: false,
+    },
+    responses: {
+      includeTimestamp: true,
+      includeRequestId: true,
+      includeExecutionTime: true,
+      pagination: true,
+      compression: false,
+      compressionThreshold: 1024,
+    },
+    security: {
+      sanitizeErrors: true,
+      hideInternalErrors: isProduction,
+      allowedErrorFields: ['message', 'type', 'code'],
+      corsHeaders: false,
+      rateLimiting: false,
+    },
+    performance: {
+      enableCaching: false,
+      cacheHeaders: false,
+      cacheControl: '',
+      cacheTTL: 0,
+      etag: true,
+      compression: false,
+      compressionThreshold: 1024,
+    },
+  };
 }
 
 export class ResponseHandler {
   private config: ResponseHandlerConfig;
   private logger: Logger;
+  private rateLimitStore: Map<string, RateLimitState>;
+  private lastRateLimitCleanup: number;
 
   constructor(config: ResponseHandlerConfig = {}) {
-    // Merge user config with defaults and initialize logger
-    this.config = this.mergeConfig(config);
+    this.config = this.deepMerge(getDefaultConfig(), config);
     this.logger = new Logger(this.config.logging);
+    this.rateLimitStore = new Map();
+    this.lastRateLimitCleanup = 0;
   }
 
-  private mergeConfig(userConfig: ResponseHandlerConfig): ResponseHandlerConfig {
-    // Default configuration with environment-aware settings
-    const defaultConfig: ResponseHandlerConfig = {
-      mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-      logging: {
-        enabled: true,
-        level: 'info',
-        logErrors: true,
-        logRequests: false,
-        logResponses: false,
-        includeStack: process.env.NODE_ENV !== 'production', // Only in dev
-        includeRequest: false,
-      },
-      responses: {
-        includeTimestamp: true,
-        includeRequestId: true,
-        includeExecutionTime: true,
-        pagination: true,
-        compression: false,
-      },
-      security: {
-        sanitizeErrors: true,
-        hideInternalErrors: process.env.NODE_ENV === 'production', // Hide in prod
-        allowedErrorFields: ['message', 'type', 'code'],
-        corsHeaders: false,
-      },
-      performance: {
-        enableCaching: false,
-        cacheHeaders: true,
-        etag: true,
-        compression: false,
-      },
-    };
-
-    return this.deepMerge(defaultConfig, userConfig);
-  }
-
-  // Deep merge utility for configuration objects
   private deepMerge(target: any, source: any): any {
     const result = { ...target };
 
-    for (const key in source) {
+    if (!source || typeof source !== 'object') {
+      return result;
+    }
+
+    Object.keys(source).forEach((key) => {
       if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
         result[key] = this.deepMerge(target[key] || {}, source[key]);
       } else {
         result[key] = source[key];
       }
-    }
+    });
 
     return result;
   }
 
-  // Enhance request object with tracking and context
+  private getRateLimitConfig(): Required<RateLimitConfig> | null {
+    const rateLimiting = this.config.security?.rateLimiting;
+    if (!rateLimiting) {
+      return null;
+    }
+
+    if (rateLimiting === true) {
+      return DEFAULT_RATE_LIMIT;
+    }
+
+    return {
+      ...DEFAULT_RATE_LIMIT,
+      ...rateLimiting,
+      windowMs: rateLimiting.windowMs ?? DEFAULT_RATE_LIMIT.windowMs,
+      maxRequests: rateLimiting.maxRequests ?? DEFAULT_RATE_LIMIT.maxRequests,
+      statusCode: rateLimiting.statusCode ?? DEFAULT_RATE_LIMIT.statusCode,
+      message: rateLimiting.message ?? DEFAULT_RATE_LIMIT.message,
+    };
+  }
+
+  private handleRateLimit(req: EnhancedRequest, res: EnhancedResponse): boolean {
+    const rateLimitConfig = this.getRateLimitConfig();
+    if (!rateLimitConfig) {
+      return true;
+    }
+
+    const ip = req.ip || req.socket?.remoteAddress || 'unknown';
+    const now = Date.now();
+    this.cleanupExpiredRateLimits(now);
+    const current = this.rateLimitStore.get(ip);
+
+    if (!current || current.resetAt <= now) {
+      const state = { count: 1, resetAt: now + rateLimitConfig.windowMs };
+      this.rateLimitStore.set(ip, state);
+      this.setRateLimitHeaders(res, rateLimitConfig, state, now);
+      return true;
+    }
+
+    current.count += 1;
+    this.rateLimitStore.set(ip, current);
+
+    this.setRateLimitHeaders(res, rateLimitConfig, current, now);
+
+    if (current.count <= rateLimitConfig.maxRequests) {
+      return true;
+    }
+
+    const retryAfterSeconds = Math.ceil((current.resetAt - now) / 1000);
+    res.setHeader('Retry-After', String(Math.max(0, retryAfterSeconds)));
+    res.status(rateLimitConfig.statusCode).json({
+      success: false,
+      message: rateLimitConfig.message,
+      error: {
+        message: rateLimitConfig.message,
+        type: 'RateLimitError',
+        code: 'RATE_LIMIT_EXCEEDED',
+      },
+    });
+    return false;
+  }
+
+  private setRateLimitHeaders(
+    res: EnhancedResponse,
+    config: Required<RateLimitConfig>,
+    state: RateLimitState,
+    now: number,
+  ): void {
+    const remaining = Math.max(0, config.maxRequests - state.count);
+    res.setHeader('X-RateLimit-Limit', String(config.maxRequests));
+    res.setHeader('X-RateLimit-Remaining', String(remaining));
+    res.setHeader('X-RateLimit-Reset', String(Math.ceil(state.resetAt / 1000)));
+
+    if (remaining <= 0) {
+      const retryAfterSeconds = Math.ceil((state.resetAt - now) / 1000);
+      res.setHeader('Retry-After', String(Math.max(0, retryAfterSeconds)));
+    }
+  }
+
+  private cleanupExpiredRateLimits(now: number): void {
+    if (now - this.lastRateLimitCleanup < 30_000) {
+      return;
+    }
+
+    this.lastRateLimitCleanup = now;
+    this.rateLimitStore.forEach((state, key) => {
+      if (state.resetAt <= now) {
+        this.rateLimitStore.delete(key);
+      }
+    });
+  }
+
   private enhanceRequest(req: EnhancedRequest): void {
-    // Add request ID (use existing header or generate new)
-    req.requestId = req.get('X-Request-ID') || generateUUID();
-
-    // Add start time for execution tracking
+    req.requestId = req.get('X-Request-ID') || randomUUID();
     req.startTime = Date.now();
-
-    // Add context object for request-specific data
     req.context = {};
 
-    // Log incoming request if enabled
     this.logger.logRequest(req);
   }
 
-  // Enhance response object with modern API methods
   private enhanceResponse(req: EnhancedRequest, res: EnhancedResponse): void {
     const builder = new ResponseBuilder(this.config, this.logger, req, res);
 
-    // Add HTTP success response methods
     res.ok = (data?: any, message?: string) => builder.ok(data, message);
     res.created = (data?: any, message?: string) => builder.created(data, message);
     res.accepted = (data?: any, message?: string) => builder.accepted(data, message);
     res.noContent = (message?: string) => builder.noContent(message);
 
-    // Add HTTP error response methods
     res.badRequest = (error?: any, message?: string) => builder.badRequest(error, message);
     res.unauthorized = (error?: any, message?: string) => builder.unauthorized(error, message);
     res.forbidden = (error?: any, message?: string) => builder.forbidden(error, message);
@@ -112,14 +211,12 @@ export class ResponseHandler {
     res.internalServerError = (error?: any, message?: string) =>
       builder.internalServerError(error, message);
 
-    // Add generic response methods
     res.respond = (statusCode: number, data?: any, message?: string) =>
       builder.respond(statusCode, data, message);
     res.error = (error: any, statusCode?: number) => builder.error(error, statusCode);
     res.paginate = (data: any[], pagination: any, message?: string) =>
       builder.paginate(data, pagination, message);
 
-    // Enhanced file response methods with logging
     const originalDownload = res.download.bind(res);
     res.downloadFile = (filePath: string, filename?: string) => {
       this.logger.info(`File download initiated: ${filePath}`, {
@@ -134,7 +231,6 @@ export class ResponseHandler {
       return res;
     };
 
-    // Enhanced stream response method
     res.streamResponse = (stream: NodeJS.ReadableStream, contentType?: string) => {
       if (contentType) {
         res.setHeader('Content-Type', contentType);
@@ -144,53 +240,56 @@ export class ResponseHandler {
     };
   }
 
-  // Main middleware function for Express integration
-  public middleware() {
-    return (req: EnhancedRequest, res: EnhancedResponse, next: NextFunction) => {
-      // Enhance request and response objects with new capabilities
-      this.enhanceRequest(req);
-      this.enhanceResponse(req, res);
+  public middleware(): RequestHandler {
+    return (req: Request, res: Response, next: NextFunction) => {
+      const enhancedReq = req as EnhancedRequest;
+      const enhancedRes = res as EnhancedResponse;
 
-      // Set performance-related headers if enabled
+      this.enhanceRequest(enhancedReq);
+      this.enhanceResponse(enhancedReq, enhancedRes);
+
+      if (!this.handleRateLimit(enhancedReq, enhancedRes)) {
+        return;
+      }
+
       if (this.config.performance?.cacheHeaders) {
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
+        enhancedRes.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        enhancedRes.setHeader('Pragma', 'no-cache');
+        enhancedRes.setHeader('Expires', '0');
       }
 
       if (this.config.performance?.etag) {
-        res.setHeader('ETag', `"${req.requestId}"`);
+        enhancedRes.setHeader('ETag', `"${enhancedReq.requestId}"`);
       }
 
-      // Set security headers if enabled
       if (this.config.security?.corsHeaders) {
-        res.setHeader('X-Content-Type-Options', 'nosniff');
-        res.setHeader('X-Frame-Options', 'DENY');
-        res.setHeader('X-XSS-Protection', '1; mode=block');
+        enhancedRes.setHeader('X-Content-Type-Options', 'nosniff');
+        enhancedRes.setHeader('X-Frame-Options', 'DENY');
+        enhancedRes.setHeader('X-XSS-Protection', '1; mode=block');
       }
 
       next();
     };
   }
 
-  // Error handler middleware for catching unhandled errors
-  public errorHandler() {
-    return (err: any, req: EnhancedRequest, res: EnhancedResponse, next: NextFunction) => {
-      // Log the error with context information
+  public errorHandler(): ErrorRequestHandler {
+    return (err: any, req: Request, res: Response, next: NextFunction) => {
+      const enhancedReq = req as EnhancedRequest;
+      const enhancedRes = res as EnhancedResponse;
+
       this.logger.error('Unhandled error caught by error handler', err, {
-        method: req.method,
-        url: req.url,
-        requestId: req.requestId,
-        userAgent: req.get('User-Agent'),
+        method: enhancedReq.method,
+        url: enhancedReq.url,
+        requestId: enhancedReq.requestId,
+        userAgent: enhancedReq.get('User-Agent'),
       });
 
-      // If response was already sent, delegate to default Express error handler
-      if (res.headersSent) {
-        return next(err);
+      if (enhancedRes.headersSent) {
+        next(err);
+        return;
       }
 
-      // Use the enhanced error method for consistent error responses
-      return res.error(err);
+      enhancedRes.error(err);
     };
   }
 
@@ -208,12 +307,11 @@ export class ResponseHandler {
   }
 }
 
-// Factory function for easy usage
 export function createResponseHandler(config?: ResponseHandlerConfig): ResponseHandler {
   return new ResponseHandler(config);
 }
 
-// Default instance for simple usage
-export const responseHandler = createResponseHandler();
+export const defaultResponseHandler = createResponseHandler();
+export const responseHandler = defaultResponseHandler;
 
 export default ResponseHandler;

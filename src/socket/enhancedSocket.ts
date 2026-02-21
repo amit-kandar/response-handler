@@ -177,14 +177,19 @@ export class EnhancedSocketHandler {
       });
     }
 
-    const errorObj =
-      error && typeof error === 'object'
-        ? { ...(error as Record<string, unknown>), code: code || (error as any).code }
-        : { message: String(error), code };
     const errorMessage =
       error && typeof error === 'object' && 'message' in error
-        ? (error as any).message
-        : 'An error occurred';
+        ? String((error as any).message)
+        : String(error || 'An error occurred');
+
+    const errorObj =
+      error && typeof error === 'object'
+        ? {
+            ...(error as Record<string, unknown>),
+            message: errorMessage,
+            code: code || (error as any).code,
+          }
+        : { message: errorMessage, code };
     const response = this.buildResponse(false, undefined, errorMessage, errorObj);
     this.emit(response, 400);
   }

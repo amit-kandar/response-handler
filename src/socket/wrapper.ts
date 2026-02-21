@@ -6,9 +6,12 @@ interface SocketData {
   [key: string]: any;
 }
 
-type SocketHandler = (socket: Socket, data: SocketData) => Promise<void>;
+type CompatibleSocketHandler = (
+  socket: Socket,
+  data: SocketData,
+) => Promise<void> | void;
 
-function socketWrapper(handler: SocketHandler) {
+function socketWrapper(handler: CompatibleSocketHandler) {
   return async (socket: Socket, data: SocketData): Promise<void> => {
     try {
       await handler(socket, data);

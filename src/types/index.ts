@@ -1,5 +1,4 @@
-import { Request, Response } from 'express';
-import { Socket } from 'socket.io';
+import { Request, Response, NextFunction } from 'express';
 
 // Configuration Types
 export interface ResponseHandlerConfig {
@@ -28,21 +27,32 @@ export interface ResponseConfig {
   customFields?: Record<string, any>;
   pagination?: boolean;
   compression?: boolean;
+  compressionThreshold?: number;
 }
 
 export interface SecurityConfig {
   sanitizeErrors?: boolean;
   hideInternalErrors?: boolean;
   allowedErrorFields?: string[];
-  rateLimiting?: boolean;
+  rateLimiting?: boolean | RateLimitConfig;
   corsHeaders?: boolean;
 }
 
 export interface PerformanceConfig {
   enableCaching?: boolean;
   cacheHeaders?: boolean;
+  cacheControl?: string;
+  cacheTTL?: number;
   etag?: boolean;
   compression?: boolean;
+  compressionThreshold?: number;
+}
+
+export interface RateLimitConfig {
+  windowMs?: number;
+  maxRequests?: number;
+  statusCode?: number;
+  message?: string;
 }
 
 // Response Types
@@ -155,13 +165,13 @@ export interface ResponseEvent {
 export type ResponseHandlerMiddleware = (
   req: EnhancedRequest,
   res: EnhancedResponse,
-  next: any,
+  next: NextFunction,
 ) => void;
 export type ErrorHandlerMiddleware = (
   err: any,
   req: EnhancedRequest,
   res: EnhancedResponse,
-  next: any,
+  next: NextFunction,
 ) => void;
 
 // Utility Types

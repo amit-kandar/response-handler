@@ -1,4 +1,5 @@
 export default {
+  srcDir: './docs',
   title: 'Response Handler',
   description: 'Unified response and error handler for REST APIs and Socket.IO',
   ignoreDeadLinks: true,
@@ -10,6 +11,7 @@ export default {
       { text: 'Guide', link: '/guide/' },
       { text: 'API', link: '/api/' },
       { text: 'Examples', link: '/examples/' },
+      { text: 'Deployment', link: '/deployment/' },
     ],
 
     sidebar: {
@@ -115,6 +117,19 @@ export default {
         },
       ],
 
+      '/deployment/': [
+        {
+          text: 'Deployment Docs',
+          items: [
+            { text: 'Overview', link: '/deployment/' },
+            { text: 'Vercel Deployment', link: '/deployment/vercel' },
+            { text: 'Vercel Troubleshooting', link: '/deployment/vercel-troubleshooting' },
+            { text: 'Docs Build & Hosting', link: '/deployment/docs-deployment' },
+            { text: 'GitHub Pages Setup', link: '/deployment/github-pages' },
+          ],
+        },
+      ],
+
       '/': [
         {
           text: 'Getting Started',
@@ -144,11 +159,11 @@ export default {
           ],
         },
         {
-          text: 'Configuration',
+          text: 'Deployment',
           items: [
-            { text: 'Basic Setup', link: '/config/basic' },
-            { text: 'Advanced Options', link: '/config/advanced' },
-            { text: 'Environment Config', link: '/config/environment' },
+            { text: 'Deployment Overview', link: '/deployment/' },
+            { text: 'Vercel', link: '/deployment/vercel' },
+            { text: 'GitHub Pages', link: '/deployment/github-pages' },
           ],
         },
       ],
@@ -158,7 +173,7 @@ export default {
 
     footer: {
       message: 'Released under the ISC License.',
-      copyright: 'Copyright © 2025 Amit Kandar',
+      copyright: 'Copyright © 2026 Amit Kandar',
     },
 
     search: {

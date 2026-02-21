@@ -50,6 +50,7 @@ const defaultConfig = {
     includeExecutionTime: true,
     pagination: true,
     compression: false,
+    compressionThreshold: 1024,
   },
 
   security: {
@@ -57,13 +58,17 @@ const defaultConfig = {
     hideInternalErrors: process.env.NODE_ENV === 'production',
     allowedErrorFields: ['message', 'type', 'code'],
     corsHeaders: false,
+    rateLimiting: false,
   },
 
   performance: {
     enableCaching: false,
-    cacheHeaders: true,
+    cacheHeaders: false,
+    cacheControl: '',
+    cacheTTL: 0,
     etag: true,
     compression: false,
+    compressionThreshold: 1024,
   },
 };
 ```
@@ -326,6 +331,7 @@ interface ResponseConfig {
   customFields?: Record<string, any>; // Custom fields in meta
   pagination?: boolean; // Enable pagination helpers
   compression?: boolean; // Enable response compression
+  compressionThreshold?: number; // Min payload bytes for gzip
 }
 ```
 
@@ -388,11 +394,20 @@ const config = {
 
 ```typescript
 interface SecurityConfig {
-  sanitizeErrors?: boolean; // Sanitize error messages
+  sanitizeErrors?: boolean; // Enable/disable error sanitization
   hideInternalErrors?: boolean; // Hide internal error details
   allowedErrorFields?: string[]; // Allowed error fields in responses
-  rateLimiting?: boolean; // Enable rate limiting
+  rateLimiting?: boolean | RateLimitConfig; // Enable/configure rate limiting
   corsHeaders?: boolean; // Set CORS security headers
+}
+```
+
+```typescript
+interface RateLimitConfig {
+  windowMs?: number;
+  maxRequests?: number;
+  statusCode?: number;
+  message?: string;
 }
 ```
 
@@ -457,8 +472,11 @@ X-XSS-Protection: 1; mode=block
 interface PerformanceConfig {
   enableCaching?: boolean; // Enable response caching
   cacheHeaders?: boolean; // Set cache control headers
+  cacheControl?: string; // Custom Cache-Control value
+  cacheTTL?: number; // Max-age when cacheControl not provided
   etag?: boolean; // Enable ETag headers
   compression?: boolean; // Enable response compression
+  compressionThreshold?: number; // Min payload bytes for gzip
 }
 ```
 

@@ -1,342 +1,233 @@
-# 🚀 Enhanced Response Handler
+# Response Handler
 
-Modern, developer-friendly response handler for Express.js and Socket.IO with middleware-based configuration, comprehensive logging, and environment-aware features.
+Unified response and error handling for Express and Socket.IO.
 
-## ✨ Key Features
+This package provides one entry point for both modern middleware-driven usage and legacy adapter compatibility.
 
-- **🎯 One-line responses**: Just use `res.ok(data)` or `res.error(error)`
-- **🔧 Middleware-based setup**: Configure once, use everywhere
-- **🌍 Environment-aware**: Different behaviors for development vs production
-- **📊 Built-in logging**: Comprehensive request/response/error logging
-- **🔒 Security-first**: Automatic error sanitization in production
-- **⚡ Performance optimized**: Built-in caching, compression, ETag support
-- **🎭 Dual response modes**: Developer-friendly vs client-friendly responses
-- **📡 Enhanced Socket.IO**: Modern API for real-time applications
-- **📈 Request tracking**: Automatic request IDs and execution timing
-- **🛡️ TypeScript support**: Full type safety with comprehensive interfaces
-
-## 🚀 Quick Start
-
-### Installation
+## Installation
 
 ```bash
 npm install @amitkandar/response-handler
 ```
 
-### Express Setup (30 seconds)
+## Quick Start
 
-```javascript
-const express = require('express');
-const { quickSetup } = require('@amitkandar/response-handler');
+### Express (recommended)
+
+```ts
+import express from 'express';
+import { quickSetup } from '@amitkandar/response-handler';
 
 const app = express();
 app.use(express.json());
 
-// 🎉 One-line setup with powerful configuration
 const { middleware, errorHandler } = quickSetup({
-  mode: 'development', // 'production' for live apps
+  mode: 'development',
   logging: { enabled: true, logErrors: true },
-  security: { sanitizeErrors: true },
+  security: {
+    sanitizeErrors: true,
+    rateLimiting: { windowMs: 60_000, maxRequests: 100 },
+  },
+  responses: {
+    includeRequestId: true,
+    includeTimestamp: true,
+    includeExecutionTime: true,
+  },
+  performance: {
+    enableCaching: true,
+    cacheTTL: 120,
+  },
 });
 
 app.use(middleware);
 
-// ✨ Modern, clean API - errors are auto-caught!
-app.get('/users', async (req, res) => {
-  const users = await getUsersFromDB();
-  return res.ok(users, 'Users retrieved successfully');
+app.get('/users', async (_req, res) => {
+  const users = await Promise.resolve([{ id: 1, name: 'Amit' }]);
+  return res.ok(users, 'Users retrieved');
 });
 
-app.post('/users', async (req, res) => {
-  if (!req.body.email) {
-    return res.badRequest({ field: 'email' }, 'Email is required');
-  }
-  const user = await createUser(req.body);
-  return res.created(user);
+app.get('/users/:id', async (req, res) => {
+  if (!req.params.id) return res.badRequest({ field: 'id' }, 'Missing user id');
+  return res.notFound({ id: req.params.id }, 'User not found');
 });
 
-app.use(errorHandler); // Must be last!
+app.use(errorHandler);
 app.listen(3000);
 ```
 
-### Socket.IO Setup
+### Socket.IO
 
-```javascript
-const { quickSocketSetup } = require('@amitkandar/response-handler');
-const { enhance, wrapper } = quickSocketSetup();
+```ts
+import { createSocketHandler } from '@amitkandar/response-handler';
+
+const socketHandler = createSocketHandler({ mode: 'development' });
 
 io.on('connection', (socket) => {
-  // Simple approach
-  socket.on('get-user', (data) => {
-    const response = enhance(socket, 'user-data');
-    if (!data.userId) return response.badRequest('User ID required');
+  socket.on('user:get', async (payload) => {
+    const response = socketHandler.enhance(socket, 'user:result');
 
-    const user = getUserById(data.userId);
-    response.ok(user);
+    if (!payload?.id) return response.badRequest({ field: 'id' }, 'Missing id');
+
+    response.ok({ id: payload.id, name: 'Amit' }, 'User loaded');
   });
-
-  // Auto error handling
-  socket.on(
-    'create-post',
-    wrapper(async (socket, response, data) => {
-      const post = await createPost(data);
-      response.created(post);
-      // All errors automatically caught and emitted!
-    }),
-  );
 });
 ```
 
-## 📚 API Reference
+## Express API
 
-### Express Response Methods
+### Success methods
 
-```javascript
-// Success responses
-res.ok(data, message); // 200 OK
-res.created(data, message); // 201 Created
-res.accepted(data, message); // 202 Accepted
-res.noContent(message); // 204 No Content
+- `res.ok(data?, message?)` -> `200`
+- `res.created(data?, message?)` -> `201`
+- `res.accepted(data?, message?)` -> `202`
+- `res.noContent(message?)` -> `204` (empty body)
 
-// Error responses
-res.badRequest(error, message); // 400 Bad Request
-res.unauthorized(error, message); // 401 Unauthorized
-res.forbidden(error, message); // 403 Forbidden
-res.notFound(error, message); // 404 Not Found
-res.conflict(error, message); // 409 Conflict
-res.unprocessableEntity(error, message); // 422 Unprocessable Entity
-res.tooManyRequests(error, message); // 429 Too Many Requests
-res.internalServerError(error, message); // 500 Internal Server Error
+### Error methods
 
-// Generic & Special responses
-res.respond(statusCode, data, message); // Custom status code
-res.error(error, statusCode); // Auto-determine from error
-res.paginate(data, pagination, message); // Paginated responses
-```
+- `res.badRequest(error?, message?)` -> `400`
+- `res.unauthorized(error?, message?)` -> `401`
+- `res.forbidden(error?, message?)` -> `403`
+- `res.notFound(error?, message?)` -> `404`
+- `res.conflict(error?, message?)` -> `409`
+- `res.unprocessableEntity(error?, message?)` -> `422`
+- `res.tooManyRequests(error?, message?)` -> `429`
+- `res.internalServerError(error?, message?)` -> `500`
+- `res.error(error, statusCode?)` -> auto status from error or fallback `500`
 
-### Socket.IO Response Methods
+### Generic methods
 
-```javascript
-const response = enhance(socket, 'event-name');
+- `res.respond(statusCode, data?, message?)`
+- `res.paginate(data, pagination, message?)`
+- `res.downloadFile(path, filename?)`
+- `res.streamResponse(stream, contentType?)`
 
-response.ok(data, message); // Success responses
-response.created(data, message);
-response.error(error, code); // Error responses
-response.badRequest(error, message);
-response.unauthorized(error, message);
-response.forbidden(error, message);
-response.notFound(error, message);
+## Socket API
 
-// Targeting
-response.toRoom('room-name').ok(data); // Broadcast to room
-response.toSocket('socket-id').error(err); // Send to specific socket
-```
+Create a response object with:
 
-## ⚙️ Configuration
+- `createSocketHandler(config).enhance(socket, event)`
 
-### Full Configuration Example
+Methods:
 
-```javascript
+- `ok`, `created`
+- `error`, `badRequest`, `unauthorized`, `forbidden`, `notFound`
+- `emit(event, data?, statusCode?)`
+- `toRoom(room)`
+- `toSocket(socketId)`
+
+## Configuration
+
+```ts
 const config = {
-  mode: 'development', // or 'production'
+  mode: 'production', // or development
 
   logging: {
     enabled: true,
-    level: 'info', // 'error', 'warn', 'info', 'debug'
+    level: 'info', // error | warn | info | debug
     logErrors: true,
-    logRequests: true,
-    logResponses: true,
-    includeStack: true,
-    customLogger: (level, message, meta) => {
-      // Use your preferred logger
-    },
+    logRequests: false,
+    logResponses: false,
+    includeStack: false,
+    includeRequest: false,
   },
 
   responses: {
     includeTimestamp: true,
     includeRequestId: true,
     includeExecutionTime: true,
-    customFields: { version: '1.0.0' },
+    customFields: { service: 'api' },
+    compression: false,
+    compressionThreshold: 1024,
   },
 
   security: {
     sanitizeErrors: true,
-    hideInternalErrors: true, // true in production
+    hideInternalErrors: true,
     allowedErrorFields: ['message', 'type', 'code'],
-    corsHeaders: true,
+    corsHeaders: false,
+    rateLimiting: {
+      windowMs: 60_000,
+      maxRequests: 100,
+      statusCode: 429,
+      message: 'Too many requests',
+    },
   },
 
   performance: {
-    enableCaching: true,
-    cacheHeaders: true,
+    enableCaching: false,
+    cacheHeaders: false,
+    cacheControl: '',
+    cacheTTL: 0,
     etag: true,
-    compression: true,
+    compression: false,
+    compressionThreshold: 1024,
   },
 };
 ```
 
-## 🌟 Advanced Features
+## Legacy Adapter Compatibility
 
-### Environment-Aware Responses
+Legacy helpers are still exported from the same package entry:
 
-**Development Mode** (Detailed errors):
+- REST: `sendSuccess`, `sendError`, `errorHandler`
+- Socket: `emitSuccess`, `emitError`, `socketWrapper`
 
-```json
-{
-  "success": false,
-  "message": "Database connection failed",
-  "error": {
-    "type": "DatabaseError",
-    "code": "CONN_FAILED",
-    "details": { "host": "localhost", "port": 5432 },
-    "stack": "Error: Database connection failed..."
-  },
-  "meta": {
-    "requestId": "req-123",
-    "timestamp": "2024-01-01T10:00:00Z",
-    "executionTime": 1250,
-    "environment": "development"
-  }
-}
-```
+They are maintained as thin compatibility adapters over the unified response contract.
 
-**Production Mode** (Sanitized):
+## Formatter Customization
 
-```json
-{
-  "success": false,
-  "message": "An internal error occurred",
-  "error": {
-    "type": "InternalError",
-    "code": "ERR_INTERNAL"
-  },
-  "meta": {
-    "requestId": "req-123",
-    "timestamp": "2024-01-01T10:00:00Z"
-  }
-}
-```
+You can override the response payload template with:
 
-### Pagination Helper
+- `setResponseFormatter(fn)`
 
-```javascript
-app.get('/posts', async (req, res) => {
-  const { page = 1, limit = 10 } = req.query;
-  const posts = await getPostsPaginated(page, limit);
+Backward-compatible aliases are also exported:
 
-  return res.paginate(posts, {
-    page: parseInt(page),
-    limit: parseInt(limit),
-    total: await getTotalPosts(),
-    totalPages: Math.ceil((await getTotalPosts()) / limit),
-    hasNext: page < totalPages,
-    hasPrev: page > 1,
-  });
-});
-```
+- `configureResponseFormat`
+- `formatApiResponse`
+- `getFormattedResponse`
 
-### Socket.IO Room Broadcasting
+## Exports Overview
 
-```javascript
-// Broadcast to room
-response.toRoom('room-123').ok(
-  {
-    message: 'Hello everyone!',
-    from: socket.id,
-  },
-  'New message in room',
-);
+Main exports from `@amitkandar/response-handler`:
 
-// Send to specific socket
-response.toSocket('socket-456').error(error);
-```
+- `quickSetup`, `quickSocketSetup`
+- `ResponseHandler`, `createResponseHandler`, `defaultResponseHandler`, `responseHandler`
+- `SocketResponseHandler`, `createSocketHandler`
+- `ResponseBuilder`, `Logger`
+- Error classes: `AppError`, `ValidationError`, `NotFoundError`, `UnauthorizedError`
+- Legacy adapters and formatter helpers
 
-## 📁 Project Structure
+## Behavior Notes
 
-```
-src/
-├── types/index.ts              # TypeScript type definitions
-├── core/
-│   ├── logger.ts              # Comprehensive logging system
-│   └── responseBuilder.ts     # Response building logic
-├── middleware/
-│   └── responseHandler.ts     # Main middleware implementation
-├── socket/
-│   └── enhancedSocket.ts      # Enhanced Socket.IO handlers
-├── newIndex.ts                # Modern API exports
-└── [legacy files...]          # Backward compatibility
-```
+- Request IDs are generated with `crypto.randomUUID()` when missing.
+- `security.sanitizeErrors` controls whether errors are filtered to allowed fields or preserved in full.
+- Production mode can hide internal error details.
+- `204 No Content` responses send an empty body.
+- `respond(statusCode, ...)` treats `>= 400` as error response semantics.
+- Compression uses async gzip when enabled and client accepts `gzip`.
+- Rate limiting returns `X-RateLimit-*` headers on allowed/blocked requests and `Retry-After` on `429`.
 
-## 🔄 Migration Guide
-
-### From Legacy API
-
-**Old:**
-
-```javascript
-const { sendSuccess, sendError } = require('@amitkandar/response-handler');
-
-app.get('/users', (req, res) => {
-  try {
-    const users = getUsers();
-    sendSuccess(res, users, 'Users retrieved');
-  } catch (error) {
-    sendError(res, error);
-  }
-});
-```
-
-**New:**
-
-```javascript
-const { quickSetup } = require('@amitkandar/response-handler');
-const { middleware, errorHandler } = quickSetup();
-
-app.use(middleware);
-app.get('/users', async (req, res) => {
-  const users = await getUsers(); // Errors auto-caught!
-  return res.ok(users, 'Users retrieved');
-});
-app.use(errorHandler);
-```
-
-## 🧪 Testing
+## Development
 
 ```bash
-# Run all tests
+npm run lint
+npm run build
 npm test
-
-# Run specific test types
 npm run test:unit
 npm run test:integration
 npm run test:e2e
-
-# Watch mode
-npm run test:watch
-
-# Coverage report
-npm run test:coverage
 ```
 
-## 📖 Documentation
+## Documentation
 
-- [Complete API Reference](./docs/API.md)
-- [Configuration Guide](./docs/CONFIGURATION.md)
-- [Examples](./docs/EXAMPLES.md)
-- [Migration Guide](./docs/MIGRATION.md)
+- Docs source: `docs/`
+- VitePress config: `.vitepress/config.js`
+- Main sections:
+  - `docs/guide/`
+  - `docs/api/`
+  - `docs/examples/`
+  - `docs/deployment/`
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Write tests for your changes
-4. Ensure all tests pass
-5. Submit a pull request
-
-## 📜 License
+## License
 
 ISC © Amit Kandar
-
----
-
-**🚀 Ready to build better APIs? Get started in 30 seconds!**

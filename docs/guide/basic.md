@@ -50,4 +50,4 @@ NODE_ENV=production  # Sets mode automatically
 LOG_LEVEL=error     # Override log level
 ```
 
-For more advanced options, see [Advanced Configuration](/config/advanced).
+For more advanced options, see [Advanced Configuration](/guide/advanced).
