@@ -3,7 +3,7 @@ export default {
   title: 'Response Handler',
   description: 'Unified response and error handler for REST APIs and Socket.IO',
   ignoreDeadLinks: true,
-  cleanUrls: true,
+  cleanUrls: false,
 
   themeConfig: {
     nav: [
