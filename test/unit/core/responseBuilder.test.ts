@@ -278,7 +278,7 @@ describe('ResponseBuilder Unit Tests', () => {
     });
 
     it('should include custom fields when configured', () => {
-      config.responses!.customFields = { version: '1.0.0', service: 'api' };
+      config.responses!.customFields = { apiVersion: 'test-version', service: 'api' };
       builder = new ResponseBuilder(config, mockLogger, mockReq, mockRes);
 
       builder.ok(testData.user);
@@ -286,7 +286,7 @@ describe('ResponseBuilder Unit Tests', () => {
       expect(mockRes.json).toHaveBeenCalledWith(
         expect.objectContaining({
           meta: expect.objectContaining({
-            version: '1.0.0',
+            apiVersion: 'test-version',
             service: 'api',
           }),
         }),

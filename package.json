@@ -48,7 +48,7 @@
     "socket.io"
   ],
   "author": "Amit Kandar",
-  "homepage": "https://your-docs-url.vercel.app",
+  "homepage": "https://response-handler.vercel.app/",
   "repository": {
     "type": "git",
     "url": "https://github.com/amit-kandar/response-handler.git"
