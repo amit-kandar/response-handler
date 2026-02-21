@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "!dist/__tests__",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "start": "node ./dist/index.js",
     "dev": "nodemon --exec ts-node ./src/index.ts",
@@ -18,7 +24,8 @@
     "docs:preview": "vitepress preview",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
-    "prepare": "husky || true"
+    "prepare": "husky || true",
+    "prepublishOnly": "npm run build && npm test -- --runInBand"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx}": [
@@ -44,6 +51,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/amit-kandar/response-handler.git"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "license": "ISC",
   "dependencies": {
