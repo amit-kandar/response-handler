@@ -3,6 +3,12 @@
   "buildCommand": "npm run docs:build",
   "outputDirectory": ".vitepress/dist",
   "installCommand": "npm ci",
+  "rewrites": [
+    {
+      "source": "/((?!assets/|.*\\..*).*)",
+      "destination": "/index.html"
+    }
+  ],
   "headers": [
     {
       "source": "/assets/(.*)",
