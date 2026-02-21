@@ -24,7 +24,7 @@
     "docs:preview": "vitepress preview",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
-    "prepare": "husky || true",
+    "prepare": "husky && git config core.hooksPath .husky || true",
     "prepublishOnly": "npm run build && npm test -- --runInBand"
   },
   "lint-staged": {
